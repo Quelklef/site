@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css.css">
+  </head>
+  <body>
+
+    <div id="controls">
+      <h1>Complex Function Visualizer</h1>
+
+      <div class="control">
+        <span>
+          <label><code>f(z)</code>: </label>
+          <input id="expression" type="text" value="z^2" />
+        </span>
+        <p class="desc">Function to render</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label><code>z<sub>0</sub></code>: </label>
+          <input id="z0" type="text" value="0 + 0i" />
+        </span>
+        <p class="desc">The point</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>Precision: </label>
+          <input id="precision" type="number" value="50" min="2" />
+        </span>
+        <p class="desc">Render precision</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>Render dist.: </label>
+          <input id="render-distance" type="number" value="30" min="1" step="5" />
+        </span>
+        <p class="desc">Max dist. of lines in dom.</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>Step: </label>
+          <input id="step-distance" type="number" value="1" min="0.001" step="0.5" />
+        </span>
+        <p class="desc">Arrow keys dist.</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>&epsilon;: </label>
+          <input id="epsilon" type="number" value="1.5" step="0.1" />
+        </span>
+        <p class="desc">Circle radius</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>Skip: </label>
+          <input id="skip" type="number" value="1" step="1" min="0.0001" />
+        </span>
+        <p class="desc">Dist. between gridlines</p>
+      </div>
+
+      |
+
+      <div class="control">
+        <span>
+          <label>Dom. scale: </label>
+          <!-- Make readonly to prevent setting to 0 -->
+          <input id="domain-scale" type="number" value="30" readonly/>
+        </span>
+        <p class="desc">pixels / unit</p>
+      </div>
+
+      <div class="control">
+        <span>
+          <label>Cod. scale: </label>
+          <input id="codomain-scale" type="number" value="10" readonly/>
+        </span>
+        <p class="desc">pixels / unit</p>
+      </div>
+    </div>
+
+    <div id="canvases">
+      <div>
+        <h3 class="canvas-title">Domain (click/drag, arrow keys, scroll)</h3>
+        <canvas id="domain"></canvas>
+      </div>
+      <div>
+        <h3 class="canvas-title">Codomain (scroll)</h3>
+        <canvas id="codomain"></canvas>
+      </div>
+    </div>
+
+
+    <script src="https://unpkg.com/mathjs@5.10.0/dist/math.min.js"></script>
+    <script src="js.js"></script>
+
+  </body>
+</html>
+

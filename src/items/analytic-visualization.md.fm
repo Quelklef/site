@@ -2,7 +2,6 @@
 title: Analytic Function Visualization
 tags: [interactive, math]
 date: 2019-05-11
-target: ???
+layout: proxy
+target: /proxy/analytic-visualization/index.html
 ---
-
-Todo
