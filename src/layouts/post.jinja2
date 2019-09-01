@@ -1,0 +1,27 @@
+{% extends 'templates/base.jinja2' %}
+
+{% block title %} {$ item.title $} {% endblock %}
+
+{% block head %}
+  {% if 'mathjax' in item.requires %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(', '\\)']] } });
+    </script>
+  {% endif %}
+
+  {% if 'notes' in item.requires %}
+    <script src="https://unpkg.com/hybrids@2.0.2/dist/hybrids.js"></script>
+    <script src="/assets/notes/notes.js"></script>
+    <script src="/assets/notes/linewrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="/assets/notes/notes.css">
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h2>{$ item.title $}</h2>
+
+{$ item.content $}
+
+{% endblock %}

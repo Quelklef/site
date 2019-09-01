@@ -1,0 +1,170 @@
+import sys
+import os
+import frontmatter
+import glob
+import markdown
+import jinja2
+import datetime
+from sortedcollections import SortedList
+
+import calc_item_tree
+
+# == CLI == #
+
+if len(sys.argv) == 2 and sys.argv[1] == 'watch':
+  os.system("""
+  python3 build.py
+  ( cd site/ && python3 -m http.server ) & pid=$!
+  trap "kill $pid" EXIT INT
+
+  while inotifywait -qqre close_write *
+  do
+    echo "Building site..."
+    python3 build.py
+    echo "...finished."
+  done
+  """)
+  quit()
+
+elif len(sys.argv) > 1:
+  print("Unrecognized command-line arguments.")
+  quit()
+
+# == Renderers == #
+
+def render_markdown(text):
+  return markdown.markdown(text)
+
+def render_jinja2(text, context={}):
+  template = jinja_env.from_string(text)
+  return template.render(**context)
+
+# == Preprocessing and Frontmatter Handling == #
+
+# Bash it up
+os.system("""
+# Clone src/ to site/
+
+# Clear out site/**
+# Don't delete site/ itself b.c if this script was called with
+# the 'watch' command, the http server is running in site/
+if [ -d site/ ]; then
+  rm -rf site/*
+else
+  mkdir site
+fi
+
+cp -r src/* site &&
+cd site &&
+
+# Compile sass
+sass --quiet --update .:.
+""")
+
+os.chdir('site/')
+jinja_env = jinja2.Environment(
+  loader=jinja2.FileSystemLoader('./'),
+  variable_start_string='{$',
+  variable_end_string='$}',
+)
+
+def get_full_extension(file_loc):
+  """ Get the full extension, e.g. `.zip.bz2` rather than just `.bz2` """
+  exts = []
+
+  while True:
+    init, last = os.path.splitext(file_loc)
+    file_loc = init
+    exts.append(last)
+    if not last:
+      break
+
+  return ''.join(reversed(exts))
+
+# Create a dict of all items, { source_loc => item }
+# An 'item', effectively, is a link with metadata
+# Each item will be repesented by a dictionary of metadata
+# If the metadata does not have an 'href' attribute, it will be
+# assigned one
+
+# As we create this dict, we actually strip the frontmatter off of
+# the files.
+
+# Sort by reverse chronological
+items = SortedList([], key=lambda item: datetime.date.today() - item['date'])
+
+# Default values for item frontmatter
+item_defaults = {
+  'tags': [],
+}
+
+for item_loc in glob.iglob('items/**', recursive=True):
+  if os.path.isfile(item_loc):
+    o = frontmatter.load(item_loc)
+    item = o.metadata
+    defaults = {
+      'tags': [],
+      'href': item_loc[:-len(get_full_extension(item_loc))] + '.html' ,
+    }
+    item = {**defaults, **item}
+    items.add(item)
+
+# == Main Execution == #
+
+# Create item tree for Jinja2 rendering
+item_tree = calc_item_tree.calc_item_tree(items)
+jinja2_context = {
+  'items': items,
+  'top_level_items': item_tree[0]['items'],
+  'item_tree': item_tree[0]['children'],
+}
+
+def render_file(file_loc):
+  """ Render a file to HTML """
+  ext = get_full_extension(file_loc)
+
+  if (not ext.startswith('.md')
+      and not ext.startswith('.jinja2')
+      and not ext.startswith('.html')):
+    return
+
+  print(f"Rendering {file_loc} ...")
+
+  dest = file_loc[:-len(ext)] + '.html'
+
+  if file_loc.endswith('.fm'):
+    o = frontmatter.load(file_loc)
+    content = o.content
+    metadata = o.metadata
+  else:
+    with open(file_loc, 'r') as f:
+      content = f.read()
+    metadata = None
+
+  if ext.startswith('.md'):
+    rendered = render_markdown(content)
+  elif ext.startswith('.jinja2'):
+    rendered = render_jinja2(content, jinja2_context)
+  elif ext.startswith('.html'):
+    rendered = content
+
+  # Wrap in a layout if had metadata with 'layout' attr
+  if metadata and 'layout' in metadata:
+    layout_loc = os.path.join('layouts/', metadata['layout'] + '.jinja2')
+    with open(layout_loc, 'r') as l:
+      rendered = render_jinja2(
+        l.read(),
+        {
+          **jinja2_context,
+          'item': {**metadata, 'content': rendered}
+        },
+      )
+
+  with open(dest, 'w') as f:
+    f.write(rendered)
+
+for file_loc in glob.iglob('./**', recursive=True):
+  if (os.path.isfile(file_loc)
+      and './templates' not in file_loc
+      and './layouts' not in file_loc):
+    render_file(file_loc)

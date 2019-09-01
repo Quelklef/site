@@ -1,0 +1,8 @@
+---
+title: Minesweeper
+tags: [interactive]
+date: 2019-09-28
+desc: "Keyboard-only minesweeper"
+layout: proxy
+target: /proxy/minesweeper/index.html
+---

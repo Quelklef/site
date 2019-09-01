@@ -1,0 +1,154 @@
+---
+title: Intuitively Deriving the Y Combinator
+tags: [math]
+date: 2019-01-07
+desc: "Derivation of the Y combinator from the goal of writing recursive functions"
+layout: post
+requires: [mathjax, notes]
+---
+
+$$
+\newcommand{\one}[1]{ \color{red}{ #1 } }
+\newcommand{\two}[1]{ \color{blue}{ #1 } }
+\newcommand{\three}[1]{ \color{green}{ #1 } }
+\newcommand{\four}[1]{ \color{magenta}{ #1 } }
+$$
+
+<p><a href="https://www.inf.fu-berlin.de/lehre/WS03/alpi/lambda.pdf">The $\lambda$ calculus</a> is designed to be a model of computation, so it may be surprising that it has <note-ref to="no-recursion">no innate recursion</note-ref> or iteration. We (spoilers!) can indeed do recursion, but it takes a little bit of work. Let's try to implement <note-ref to="why-quadrupling">a quadrupling function</note-ref> $Q$ in $\lambda$ calculus. $Q$ can be defined recursively (not yet in $\lambda$ calculus) like so:
+$$ Q(x) := \begin{cases} 0 & x = 0 \\ 4+Q(x-1) & \text{otherwise} \end{cases} $$</p>
+
+<note-def id="why-quadrupling">
+  <p>Quadrupling ($Q$) was chosen over doubling ($D$) and tripling ($T$) because the names $D$ and $T$ are used for other functions later in the post.</p>
+</note-def>
+
+<h2>Conditionals and Booleans in $\lambda$ calculus</h2>
+
+<p>Like <note-ref to="recursive-algorithms">all recursive algorithms</note-ref>, $Q$ contains a base case, when $x = 0$, and a recursive case, when $x \neq 0$. If we want to implement this in $\lambda$ calculus, we'll need a way to distinguish betwen the base and recursive cases. Math does this, as shown above, with case notation; many programming languages do this with if-statements or" <a href="https://stackoverflow.com/questions/6259982/how-do-you-use-the-conditional-operator-in-javascript/6260001">the ternary operator</a>; $\lambda$ calculus does it with all it's got: functions</p>
+
+<note-def id="recursive-algorithms">
+  <p>One could argue that an algorithm such as:
+  Algorithm" <code>A(x)</code>:
+  1. Return <code>A(x)</code>
+  , which contains no base case, is still a <q>recursive algorithm</q>. On the contrary, Donald Knuth states in <i>The Art of Computer Programming</i> (Third Edition) that <q>[an] algorithm must always terminate after a finite number of steps</q>.</p>
+</note-def>
+
+<p>Any conditional computation <q>if $C$ then $A$ else $B$</q> is choosing between two results, $A$ and $B$, based on the value of $C$. If $C$ is <code>true</code>, then $A$ is returned, and if $C$ is <code>false</code>, $B$ is returned. In $\lambda$ calculus, <code>true</code> and <code>false</code> are simply defined to return the first and second argument, respectively:
+$$ \underbrace{ \lambda xy.x }_\text{true} \hspace{20pt} \text{ and } \hspace{20pt} \underbrace{ \lambda xy.y }_\text{false} $$</p>
+
+<p>Usage of $\lambda$ booleans differ slightly from usage of booleans in most systems. Instead of needing to be wrapped in an if-statement or some other construct, they are themselves functions which do the choosing operation. In order to express:
+$$\text{if $x \geq 0$ then $1$ else $-1$}$$
+(<note-ref to="sign-function">the $sign$ of $x$</note-ref>) we <note-ref to="geq-neg">just write</note-ref>:</p>
+$$(\geq 0x)(1)(-1).$$
+
+<note-def id="geq-neg">
+  <p>Note that $-1$ is <em>not</em> the function $-$ applied to the value $1$ but rather the single unit <q>negative one</q></p>
+  <p>Also: $\geq$, $0$, $1$, $-1$ and all other symbols which are not parameters are not <q>real</q> $\lambda$ calculus constructs, but merely shorthand. Assignment does not exist in $\lambda$ calculus. These values only stand for some unspecified functions, with the promise that these functions work together as expected. For instance, that $\geq00 = \text{true}$, $+24=6$, etc. This is elaborated on in another note.</p>
+  <p>Because assignment doesn't really exist and shorthand is not <q>real</q> $\lambda$ calculus, I tried to avoid using it in this post, generally opting for $\underbrace{\text{underbace}}$ and $\overbrace{\text{overbrace}}$ labeling notation instead. However, how $\geq$, $1$, $-1$ and the rest of the numbers are defined is out of the scope of this post, so I had little choice but to use shorthand for these items.</p>
+</note-def>
+
+<note-def id="sign-function">
+  <p>The behavior of $sign$ is not universally agreed upon. <a href="https://en.wikipedia.org/wiki/Sign_function#Definition">Wikipedia defines $sign(0)=0$</a> (and also calls the function $sgn$), and $sign(0)$ is sometimes left undefined. I personally have found it useful (particularly in programming) to have $sign(0)=1$. I use that definition here because it's a simpler implementation, requiring only one conditional branch rather than two.</p>
+</note-def>
+
+<p>Thus $sign(2)=1$ and $sign(-3)=-1$:
+$$
+\begin{array}{ccc}
+(\overbrace{\lambda x. (\geq 0 x)(1)(-1)}^{sign})2 & \hspace{20pt} & (\overbrace{\lambda x.(\geq 0 x)(1)(-1)}^{sign})(-3) \\
+(\geq 0 2)(1)(-1) && (\geq 0 (-3))(1)(-1) \\
+(\underbrace{\lambda ab.a}_\text{true})(1)(-1) && (\underbrace{\lambda ab.b}_\text{false})(1)(-1) \\
+1 && -1
+\end{array}
+$$</p>
+
+<h2>Back to Recursion</h2>
+
+<p>If we try to write $Q$ in $\lambda$ calculus, we will quickly realize that it isn't so simple. It certainly looks <em>something</em> <note-ref to="Z">like</note-ref>:
+$$ \lambda x. Zx0(+4(\text{RECUR}(-x1))) $$
+but what should be put in the place of <code>RECUR</code>?</p>
+
+<note-def id="Z">
+  <p>The $Z$ function is just $isZero$, defined as:
+  $$ Z(x) := \begin{cases} \text{true} & x = 0 \\ \text{false} & x \neq 0 \end{cases} $$</p>
+</note-def>
+
+<note-def id="superscripts">
+  <p>Note that $Q^R$ is not some operation $\cdot^R$ applied to $Q$ but rather just another variable name.</p>
+</note-def>
+
+<p>Recursion is self-reference, so our implementation of $Q$ needs to have access to itself in its body. However, lambdas <note-ref to="no-recursion">don't innately have this</note-ref>. A lambda only has access to its arguments. Perhaps, then, we could... pass the function <em>to</em> itself as an arguemnet? Something like:
+$$ \underbrace{\lambda \color{red}{R}x.Zx0(+4(\color{red}{R}(-x1)))}_{Q^R} $$
+where $R$ is just <note-ref to="superscripts">$Q^R$</note-ref>, but passed as an argument. Then ${Q^R}{Q^R}$ should be a quadrupling function. Let's try it:
+$$ \begin{align*}
+& \overbrace{\one{(\lambda Rx.Zx0(+4(R(-x1))))}}^{Q^R} \ \two{Q^R} \ \three 2 \\
+&= \one{Z\three{2}0(+4(\two{{Q^R}}(-\three{2}1)))} \\
+&= \one{(\overbrace{\lambda ab.b}^\text{false})0(+4(\two{{Q^R}}(-\three{2}1)))} \\
+&= \one{+4(\two{{Q^R}}(-\three{2}1))} \\
+&= \one{+4(\two{{Q^R}}\three{1})} \tag{F} \\
+&= \one{+4(\two{(\lambda Rx.Zx0(+4(R(-x1))))}\three{1})} \\
+&= \one{+4\two{(\lambda x.Zx0(+4(\three{1}(-x1)))})} \\
+\end{align*} $$
+and our result is $4$ plus ... a function of $x$. The issue is illuminated on line $(F)$, $F$ as in <q>$F$uck, there's an issue</q>. $Q^R$ expects its first argument to be the recursive function $R$, but we're only passing it the $x$ value. We can fix this by passing $R$ itself within the body of $Q$:
+$$ \underbrace{\lambda Rx.Zx0(+4(\color{red}{RR}(-x1)))}_{Q^{RR}} $$
+and indeed this works:
+$$ \begin{align*}
+& \overbrace{\one{(\lambda Rx.Zx0(+4(RR(-x1))))}}^{Q^{RR}} \ \two{Q^{RR}} \ \three 2 \\
+&= \one{Z\three{2}0(+4(\two{Q^{RR}Q^{RR}}(-\three{2}1)))} \\
+&= \one{+4(\two{Q^{RR}Q^{RR}}(-\three{2}1))} \\
+&= \one{+4(\two{Q^{RR}Q^{RR}}\three{1})} \\
+&= \one{+4(\two{(\lambda Rx.Zx0(+4(RR(-x1)))){Q^{RR}}}\three{1})} \\
+&= \one{+4(\two{Z\three{1}0(+4({Q^{RR}}(-\three{1}1))))})} \\
+&= \one{+4(\two{+4({Q^{RR}}(-\three{1}1)))})} \\
+&= \one{+4(\two{+4(\four{{Q^{RR}}}{Q^{RR}}\three{0}))})} \\
+&= \one{+4(\two{+4(\four{(\lambda Rx.Zx0(+4RR(-x1))))}{Q^{RR}}\three{0}))})} \\
+&= \one{+4(\two{+4\four{(Z\three{0}0(+4\two{{Q^{RR}}}(-\three{0}1))))})})} \\
+&= \one{+4(\two{+4\four{((\overbrace{\lambda ab.a}^\text{true})0(+4\two{{Q^{RR}}}(-\three{0}1))))})})} \\
+&= \one{+4(\two{+4\four{0})})} \\
+&= \one{8}
+\end{align*} $$</p>
+
+<p>In general, a function in <q>double-$R$</q> form should, when passed to itself, produce the desired recursive function. We can wrap up this <q>passing-to-self</q> or <q>self-invokation</q> into <note-ref to="function-I">a function $I$</note-ref> to do the work for us:</p>
+<note-def id="function-I">
+  <p>$I$ is a fun function because $II =_\beta II$:
+  $$ \begin{align*}
+  & II \\
+  &= (\lambda f.ff) (\lambda g.gg) \\
+  &= ff[f / (\lambda g.gg)] \\
+  &= (\lambda g.gg) (\lambda g.gg) \\
+  &= II
+  \end{align*} $$
+  </p>
+</note-def>
+
+<p>$$ \overbrace{\lambda f.ff}^I $$
+so that we can just write $IQ^{RR}$ or, for any double-$R$ $f$, $If$. If $f$ is a function in double-$R$ form, $If$ is the desired recursive function.</p>
+
+<p>Now I don't know about you, but writing functions in double-$R$ form seems like a bit of a pain to me. I don't want to have to remember to write $RR$ instead of $R$ each time I write a recursive function. I want $R$ to be the <q>real</q> recursion function. Let's make something to do this $R$-doubling for us. Call it $D$ for <q>double</q>:
+$$ \overbrace{ \lambda fR.f(RR) }^D $$</p>
+
+<p>Now we can use the simpler formulation $Q^R$ instead of $Q^{RR}$ and have $D$ do the work for us:
+$$ \begin{align*}
+& (\overbrace{\one{\lambda fR.f(RR)}}^D) \ (\overbrace{\two{\lambda Rx.Zx0(+4(RR(-x1)))}}^{Q^R}) \\
+&= \one{\lambda R.(\two{\lambda Rx.Zx0(+4(RR(-x1)))})(RR)} \\
+&= \one{\lambda R.(\two{\lambda x.Zx0(+4(\one{RR}(-x1)))})} \\
+&= \underbrace{\lambda Rx.Zx0(+4(RR(-x1))))}_{Q^{RR}} \\
+\end{align*} $$</p>
+
+<p>In general, $D$ should take a recursive function from single-$R$ form to double-$R$ form. And we know that a function in double-$R$ form may be transformed into the desired recursive function via $I$. Thus, if we have a function $f$ in single-$R$ form, $I(Df)$ is the desired recursive function. And $I \circ D$ takes a function from single-$R$ form to recursive form. But what is $I \circ D$? It's the same as $\lambda f. I(Df)$, which is</p>
+$$ \begin{align*}
+& \one{\lambda f.\two{I}(\three{D}f)} \\
+&= \one{\lambda f.\two{(\lambda f.ff)}(\three{(\lambda fR.f(RR))}f)} \\
+&= \one{\lambda f.\two{(\lambda f.ff)}\three{(\lambda R.\one{f}(RR))}} \\
+&= \one{\lambda f.\three{(\lambda R.\one{f}(RR))}\three{(\lambda R.\one{f}(RR))}} \\
+&= \lambda f. (\lambda x.{f}(xx))(\lambda x.{f}(xx)) \\
+\end{align*} $$
+which <a href="https://en.wikipedia.org/wiki/Fixed-point_combinator#Fixed_point_combinators_in_lambda_calculus">is the $Y$ combinator!</a></p>
+
+<note-def id="no-recursion">
+  <p>Though we can write e.g.
+$$ S := \lambda abc.b(abc) $$
+this kind of definition of $S$ is only shorthand, and must be expanded to (i.e., replaced with) its definition before evaluation. $\lambda$ calculus does not have any rules on its own to evaluate these kinds of expressions.</p>
+  <p>If we write recursive shorthand such as:
+  $$ F := \lambda x. Fx $$
+  attempting to expand this for evaluation will cause infinite recursion, so it can never be evaluated as real $\lambda$ calculus. We could, of course, create a <em>new</em> system which allows for these things, but this new system would not be $\lambda$ calculus.</p>
+</note-def>
+

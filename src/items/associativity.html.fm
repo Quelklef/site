@@ -1,0 +1,66 @@
+---
+title: Associativity is About Composition
+tags: [math]
+date: 2019-03-23
+desc: "Treating numbers as actions (under an operation), associativity speaks about composition"
+layout: post
+requires: [mathjax, notes]
+---
+
+<p><a href="https://www.youtube.com/embed/mvmuCPvRoWQ?start=726&end=835&autoplay=1">Complex multiplication can be visualized as rotating and scaling the complex plane</a>. So, besides thinking of a complex number $z$ as a point, we can think of it as encoding a transformation composed of a rotation and scaling.</p>
+
+<p>Recall associativity:</p>
+
+$$ z \cdot (q \cdot c) = (z \cdot q) \cdot c $$
+
+<p>If we think of $z$ and $q$ as transformations, and $c$ as a point being transformed, then this reads:</p>
+
+$$ z(q(c)) = (z \cdot q)(c) $$
+
+<p>That is, starting at a point $c$ and applying the transformation $q$ and then the transformation $z$ is the <em>same thing</em> as applying the transformation "$z \cdot q$" to $c$. Thus $z \cdot q$ is the transformation "do $q$ and then do $z$", which is to say, the composition of $z$ and $q$.</p>
+
+<p>So what associativity tells us is really that $z\cdot q = z \circ q$</p>
+
+</note-def>
+
+<h2>Adding Rigor</h2>
+
+<p>Technically speaking, we've been a little loose here. A complex number $z$ does not <em>quite</em> encode a transformation; <note-ref to="z-dot">the operator $z\cdot$</note-ref> does. If we make this distinction, we are being correct and are able to better formalize the connection between associativity and composition, but we lose nice the nice conceptual interpretation that "$z\cdot q = z\circ q$".</p>
+
+<note-def id="z-dot">
+  $z\cdot$ is the "multiply by $z$ function". In order words:
+  <ol>
+    <li>$z\cdot = x \mapsto z\cdot x$</li>
+    <li>$(z\cdot)(x) = z\cdot x$</li>
+    <li>$z\cdot$ is a function $f$ defined by $f(x) = z\cdot x$.
+  </ol>
+</note-def>
+
+<p>Under this interpretation, associativity looks like the following:</p>
+
+$$ \begin{align*}
+z \cdot (q \cdot c) &= (z \cdot q) \cdot c \\
+{z\cdot}({q\cdot}(c)) &= ((z \cdot q)\cdot)(c) \\
+({z\cdot} \circ {q\cdot})(c) &= ((z \cdot q)\cdot)(c) \\
+\phantom{\hspace{30pt} \text{since $c$ is arbitrary}} {z\cdot} \circ {q\cdot} &= { (z\cdot q)\cdot } \hspace{30pt} \text{since $c$ is arbitrary}
+\end{align*} $$
+
+<p>Which reads similarly, but not quite the same, as our previous (not-quite correct) conclusion that multiplication is composition. Instead, this says that multiplication gives a result whose associated transformation is the composition of the associated transformations of the factors.</p>
+
+<p>While this interpretation is more correct, it is ugly. And if you really stare at it long enough, it <em>basically</em> <note-ref to="cat">says the same thing</note-ref> as our first interpretation&mdash;just with more rigor.</p>
+
+<note-def id="cat">
+<p>Point being, this is the correct version, but don't remember it. Remember the other one.</p>
+</note-def>
+
+<p>And now we can generalize! If we tried to generalize with the not-quite-correct interpretation, we would say that $\star$ is associative iff $a\star b = a\circ b$. But what is $a\circ b$? It's something loose and <note-ref to="poorly-defined">poorly-defined</note-ref> that depends on context. Now we can state a nice unamibuous second interpretation of assocativity, that:</p>
+$$ (a\star) \circ (b\star) = (a\star b)\star $$
+
+<note-def id="poorly-defined">
+<p>In fact, if we <em>tried</em> to get a formal deinition, we would just end up with $z \circ q = {z\cdot} \circ {q\cdot}$. This is because if we would want $z \circ q$ to represent "apply $q$ then $z$". Thus, we would define</p>
+$$ \begin{align*}
+  z \circ q &:= x \mapsto z(q(x)) \\
+    &\phantom{:}= x \mapsto z\cdot (q\cdot x) \\
+    &\phantom{:}= {z\cdot} \circ {q\cdot}
+\end{align*} $$
+</note-def>

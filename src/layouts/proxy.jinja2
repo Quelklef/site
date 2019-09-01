@@ -1,0 +1,16 @@
+{# For posts that proxy to other posts via an iframe #}
+
+{% extends "templates/base.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/assets/css/proxy.css">
+{% endblock %}
+
+{% block content %}
+<iframe src="{$ item.target $}"></iframe>
+{% endblock %}
+
+{# TODO:
+- Make the content of the post show as a description of what's being proxied
+- Permalink/share & fullscreen buttons
+#}

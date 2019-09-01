@@ -1,0 +1,26 @@
+
+note-ref
+  background-color: rgba(0, 0, 0, 0.1)
+  &:hover
+    background-color: rgba(0, 0, 0, 0.2)
+    cursor: pointer
+
+note-def
+  background: rgba(0, 0, 0, 0.8)
+  color: white
+  display: block
+  position: relative // Required for the absolutely-positioned contained triangle
+  padding: 1em 2em
+  margin: 1em 0
+  box-sizing: border-box
+  width: 100%
+  &:not(.visible)
+    display: none
+
+.triangle
+  $size: 0.7em
+  position: absolute
+  top: -2 * $size
+  border: $size solid transparent
+  border-bottom-color: rgba(0, 0, 0, 0.8)
+

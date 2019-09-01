@@ -1,0 +1,153 @@
+@import "_params.sass"
+
+@import url('https://fonts.googleapis.com/css?family=Lato|Merriweather')
+
+*
+  box-sizing: border-box
+
+$content-width: 600px
+
+body
+  line-height: 1.6em
+  font-size: 14px
+  font-family: Merriweather
+
+  display: flex
+  flex-direction: column
+  justify-content: start
+  align-content: center
+  align-items: center
+
+  color: $dark
+
+a
+  text-decoration: none
+  color: inherit
+
+#content
+  box-sizing: border-box
+  min-width: $content-width
+  max-width: $content-width
+
+  padding-bottom: 200px
+  a
+    border-bottom: 1px dotted $offdark
+    cursor: pointer
+    &:hover
+      border-bottom-style: solid
+
+h1, h2, h3, h4, h5, h6
+  font-family: Lato, sans-serif
+  margin-top: 1.75em
+  margin-bottom: 1em
+
+h1
+  font-size: 2.2em
+
+header
+  margin-bottom: 30px
+  h1, h2, h3, h4, h5, h6
+    margin-bottom: 10px
+  p
+    font-family: Lato
+    font-weight: normal
+    font-style: italic
+    font-size: 15px
+
+.vert-center
+  display: flex
+  align-content: center
+  align-items: center
+
+#header
+  height: 26px
+  width: 100%
+  padding: 0 calc( (100% - #{$content-width}) / 2 )
+  font-size: 0.8em
+
+  display: flex
+  justify-content: start
+
+  margin-top: 10px
+  border-bottom: 1px solid $grey
+  color: $offdark
+  *:hover
+    color: $dark
+
+  > a  // uglee
+    padding: 0 5px
+
+.tag
+  &:before
+    content: '['
+  &:after
+    content: ']'
+
+// Dropdowns //
+.dropdown, .nested-dropdown
+  display: block
+  position: relative
+  > .contents
+    position: absolute
+    display: flex
+    flex-direction: column
+    z-index: 1
+  &:not(:hover):not(:active) > .contents
+    display: none
+
+  cursor: pointer
+  border: 1px solid transparent
+  margin: 0
+  > .contents
+    line-height: 1.25em
+    border: 1px solid $grey
+    background: white
+    min-width: 250px
+    > *
+      padding: 6px 8px
+      &:hover:not(.nested-dropdown)
+        font-weight: bold
+
+.dropdown
+  padding: 2px 8px
+
+  &:hover
+    border-left-color: $grey
+    border-right-color: $grey
+    border-top-color: $grey
+  > .contents
+    left: -1px // Not 100% sure why this is needed. I think it's because the borders.
+    top: calc(100% - 1px)  // Same here
+
+.nested-dropdown
+  > .contents
+    top: -1px
+    left: calc(100% + 1px)
+
+  &:hover
+    border-top-color: $grey
+    border-bottom-color: $grey
+  &:first-child
+    border-top: none
+  &:last-child
+    border-bottom: none
+
+
+
+
+
+// index styling
+
+.metadata-container
+  position: relative
+
+.metadata
+  position: absolute
+  right: 100%
+  width: 100%
+  text-align: right
+
+  margin: 0 10px
+  color: $offdark
+  font-size: 0.8em
+

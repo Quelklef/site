@@ -1,0 +1,12 @@
+[submodule "src/assets/papers"]
+	path = src/assets/papers
+	url = https://github.com/quelklef/papers
+[submodule "src/proxy/minesweeper"]
+	path = src/proxy/minesweeper
+	url = https://github.com/quelklef/minesweeper
+[submodule "src/proxy/fitch"]
+	path = src/proxy/fitch
+	url = https://github.com/quelklef/fitch
+[submodule "src/proxy/cultural-collisions"]
+	path = src/proxy/cultural-collisions
+	url = https://github.com/quelklef/cultural-collisions
