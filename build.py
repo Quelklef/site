@@ -182,3 +182,33 @@ for file_loc in glob.iglob('./**', recursive=True):
       and './templates' not in file_loc
       and './layouts' not in file_loc):
     render_file(file_loc)
+
+# == Cleanup == #
+
+# Only a partial cleanup, but it's better than nothing
+
+delete_exts = [
+  ".sass",
+  ".sassc",
+  ".css.map",
+  ".log",
+  ".tex",
+  ".aux",
+  ".out",
+  ".toc",
+  ".jinja2",
+  ".jinja2.fm",
+  ".md",
+  ".md.fm",
+  ".txt.fm",
+  ".html.fm",
+  ".bib",
+  ".gitignore",
+  ".git",
+  ".py",
+]
+
+for file_loc in glob.iglob('**', recursive=True):
+  if os.path.isfile(file_loc) and any(file_loc.endswith(suffix) for suffix in delete_exts):
+    print(f"Removing {file_loc} ...")
+    os.system(f"rm {file_loc}")
