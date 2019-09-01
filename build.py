@@ -54,14 +54,28 @@ else
   mkdir site
 fi
 
-cp -r src/* site &&
-cd site &&
-
-# Compile sass
-sass --quiet --update .:.
+cp -r src/* site
+cd site
 """)
 
 os.chdir('site/')
+
+# Compile sass
+print("Compiling css ...")
+os.system("sass --quiet --update .:.")
+
+# Compile LaTeX
+for file_loc in glob.iglob('**', recursive=True):
+  if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
+    print(f"Compiling {file_loc} ...")
+    dir = os.path.dirname(file_loc)
+    rel_file_loc = os.path.basename(file_loc)
+    # https://tex.stackexchange.com/a/459470
+    os.system(f"""
+    cd {dir}
+    : | pdflatex {rel_file_loc} -halt-on-error | grep '^!.*' -A200 --color=always
+    """)
+
 jinja_env = jinja2.Environment(
   loader=jinja2.FileSystemLoader('./'),
   variable_start_string='{$',
