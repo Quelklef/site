@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% block title %}Multiply and Surrender{% endblock %}</title>
+    <title>{%- block title -%}Multiply and Surrender{%- endblock -%}</title>
     <link rel="stylesheet" type="text/css" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/global.css">
     <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
-    {% block head %} {% endblock %}
+    {%- block head -%} {%- endblock -%}
   </head>
   <body>
     <div id="header" class="vert-center">
@@ -16,23 +16,23 @@
         &nbsp;
       </a>
       {# TODO: The following render code is moist #}
-      {% for item in top_level_items %}
+      {%- for item in top_level_items -%}
         <a href="{$ item.href $}">{$ item.title $}</a>
-      {% endfor %}
-      {% for node in item_tree recursive %}
+      {%- endfor -%}
+      {%- for node in item_tree recursive -%}
         <div class="{$ 'nested-dropdown' if loop.depth0 != 0 else 'dropdown' $}">
           <span class="tag label">{$ node.tag $}</span>
           <div class="contents">
-            {% for item in node['items'] %} {# `node.items` causes a crash for some reason #}
-              <a href="{$ item.href $}">{$ item.title $}</a>
-            {% endfor %}
+            {%- for item in node['items'] -%} {# `node.items` causes a crash for some reason #}
+              <a href="/{$ item.href $}">{$ item.title $}</a>
+            {%- endfor -%}
             {$ loop(node.children) $}
           </div>
         </div>
-      {% endfor %}
+      {%- endfor -%}
     </div>
     <div id="content">
-      {% block content %}{% endblock %}
+      {%- block content -%} {%- endblock -%}
     </div>
   </body>
 </html>

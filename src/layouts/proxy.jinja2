@@ -4,13 +4,20 @@
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="/assets/css/proxy.css">
+{% with item=item %}{% include 'includes/requires.jinja2' %}{% endwith %}
 {% endblock %}
 
 {% block content %}
-<iframe src="{$ item.target $}"></iframe>
-{% endblock %}
 
-{# TODO:
-- Make the content of the post show as a description of what's being proxied
-- Permalink/share & fullscreen buttons
-#}
+<div class="fullwidth" id="iframe-wrap">
+  <div id="iframe-controls">
+    <span id="iframe-title">{$ item.title $}</span>
+    <span><a href="{$ item.target $}">View as full page</a></span>
+  </div>
+  <iframe id="iframe" src="{$ item.target $}"></iframe>
+</div>
+
+<h2>{$ item.title $}</h2>
+{$ item.content $}
+
+{% endblock %}

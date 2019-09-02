@@ -1,20 +1,35 @@
 // This sass file is designed to overwrite global.sass for proxy files
+@import "_params.sass"
 
 body
   min-height: 100vh
-  
-#content
-  padding-bottom: 0px
-  min-width: 100vw
-  max-width: 100vw
-  position: relative
-  height: 100%
-  flex: 1
 
-iframe
+#iframe-wrap
+  box-sizing: border-box
+  border: 1px solid $grey
+  margin: 15px 80px
+  width: calc(100% - 160px)
+
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+
+#iframe
   border: none
-  position: absolute
-  left: 0
-  top: 0
   width: 100%
-  height: 100%
+  height: 80vh
+
+#iframe-title
+  font-weight: bold
+
+#iframe-controls
+  display: flex
+  justify-content: center
+  border-bottom: 1px solid $grey
+
+  > *
+    padding: 5px 20px
+    display: inline-block
+    &:not(:last-child)
+      border-right: 1px solid $grey
+
+  a:hover
+    border-bottom: 1px solid $dark

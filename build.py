@@ -5,30 +5,54 @@ import glob
 import markdown
 import jinja2
 import datetime
+import time
 from sortedcollections import SortedList
+from contextlib import contextmanager
 
 import calc_item_tree
 
 # == CLI == #
 
-if len(sys.argv) == 2 and sys.argv[1] == 'watch':
-  os.system("""
-  python3 build.py
+__doc__ = """
+build.py [--no-latex]
+build.py watch <args...>
+
+  --no-latex: don't compile latex
+"""
+
+if len(sys.argv) > 1 and sys.argv[1] == 'watch':
+  args = ' '.join("'" + s.replace("'", "\\'") + "'" for s in sys.argv[2:])
+  os.system(f"""
   ( cd site/ && python3 -m http.server ) & pid=$!
+  python3 build.py {args}
   trap "kill $pid" EXIT INT
 
   while inotifywait -qqre close_write *
   do
-    echo "Building site..."
-    python3 build.py
-    echo "...finished."
+    python3 build.py {args}
   done
   """)
   quit()
 
-elif len(sys.argv) > 1:
-  print("Unrecognized command-line arguments.")
-  quit()
+print("\n= = = = = = = = = = = = = = = = = = = = = = = =\nBuilding website ...")
+print(f"Command: {' '.join(sys.argv)}")  # Naive
+build_start_time = time.time()
+
+@contextmanager
+def log_section(text):
+  x = 0
+  col_size = 20
+
+  print(text + " ... ", end='')
+  start = time.time()
+
+  def log_msg(*args, **kwargs):
+    print(*args, "... ", **kwargs, end='')
+
+  yield log_msg
+
+  elapsed = time.time() - start
+  print(f"done! [{elapsed:.2f}s]")
 
 # == Renderers == #
 
@@ -42,39 +66,33 @@ def render_jinja2(text, context={}):
 # == Preprocessing and Frontmatter Handling == #
 
 # Bash it up
-os.system("""
-# Clone src/ to site/
-
-# Clear out site/**
-# Don't delete site/ itself b.c if this script was called with
-# the 'watch' command, the http server is running in site/
-if [ -d site/ ]; then
+with log_section("Clearing/creating site/") as log:
+  os.system("""
+  # Clone src/ to site/
+  [ ! -d site/ ] && mkdir site
   rm -rf site/*
-else
-  mkdir site
-fi
-
-cp -r src/* site
-cd site
-""")
-
-os.chdir('site/')
+  cp -r src/* site
+  """)
+  os.chdir('site/')
 
 # Compile sass
-print("Compiling css ...")
-os.system("sass --quiet --update .:.")
+with log_section("Compiling css") as log:
+  os.system("sass --quiet --update .:.")
 
 # Compile LaTeX
-for file_loc in glob.iglob('**', recursive=True):
-  if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
-    print(f"Compiling {file_loc} ...")
-    dir = os.path.dirname(file_loc)
-    rel_file_loc = os.path.basename(file_loc)
-    # https://tex.stackexchange.com/a/459470
-    os.system(f"""
-    cd {dir}
-    : | pdflatex {rel_file_loc} -halt-on-error | grep '^!.*' -A200 --color=always
-    """)
+if '--no-latex' in sys.argv:
+  print("Skipping LaTeX due to '--no-latex'")
+else:
+  for file_loc in glob.iglob('**', recursive=True):
+    if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
+      with log_sction(f"Compiling {file_loc} ..."):
+        dir = os.path.dirname(file_loc)
+        rel_file_loc = os.path.basename(file_loc)
+        # https://tex.stackexchange.com/a/459470
+        os.system(f"""
+        cd {dir}
+        : | pdflatex {rel_file_loc} -halt-on-error | grep '^!.*' -A200 --color=always
+        """)
 
 jinja_env = jinja2.Environment(
   loader=jinja2.FileSystemLoader('./'),
@@ -113,7 +131,7 @@ item_defaults = {
 }
 
 for item_loc in glob.iglob('items/**', recursive=True):
-  if os.path.isfile(item_loc):
+  if os.path.isfile(item_loc) and item_loc.endswith('.fm'):
     o = frontmatter.load(item_loc)
     item = o.metadata
     defaults = {
@@ -140,9 +158,7 @@ def render_file(file_loc):
   if (not ext.startswith('.md')
       and not ext.startswith('.jinja2')
       and not ext.startswith('.html')):
-    return
-
-  print(f"Rendering {file_loc} ...")
+    raise ValueError("Unrenderable file")
 
   dest = file_loc[:-len(ext)] + '.html'
 
@@ -177,11 +193,23 @@ def render_file(file_loc):
   with open(dest, 'w') as f:
     f.write(rendered)
 
-for file_loc in glob.iglob('./**', recursive=True):
-  if (os.path.isfile(file_loc)
-      and './templates' not in file_loc
-      and './layouts' not in file_loc):
-    render_file(file_loc)
+with log_section("Rendering") as log:
+  rendered_count = 0
+
+  for file_loc in glob.iglob('./**', recursive=True):
+    if (os.path.isfile(file_loc)
+        and './templates' not in file_loc
+        and './layouts' not in file_loc
+        and './includes' not in file_loc):
+
+      try:
+        render_file(file_loc)
+      except ValueError:
+        pass
+      else:
+        rendered_count += 1
+
+  log(f"rendered {rendered_count} files")
 
 # == Cleanup == #
 
@@ -208,7 +236,15 @@ delete_exts = [
   ".py",
 ]
 
-for file_loc in glob.iglob('**', recursive=True):
-  if os.path.isfile(file_loc) and any(file_loc.endswith(suffix) for suffix in delete_exts):
-    print(f"Removing {file_loc} ...")
-    os.system(f"rm {file_loc}")
+with log_section("Cleaning") as log:
+  removed_count = 0
+  for file_loc in glob.iglob('**', recursive=True):
+    if os.path.isfile(file_loc) and any(file_loc.endswith(suffix) for suffix in delete_exts):
+      removed_count += 1
+      os.system(f"rm {file_loc}")
+
+  log(f"removed {removed_count} files")
+
+build_time_elapsed = time.time() - build_start_time
+print(f"... build complete in {build_time_elapsed:.2f}s!")
+

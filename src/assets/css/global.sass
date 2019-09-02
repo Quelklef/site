@@ -5,36 +5,33 @@
 *
   box-sizing: border-box
 
-$content-width: 600px
-
 body
   line-height: 1.6em
   font-size: 14px
   font-family: Merriweather
-
-  display: flex
-  flex-direction: column
-  justify-content: start
-  align-content: center
-  align-items: center
-
   color: $dark
 
-a
-  text-decoration: none
-  color: inherit
-
 #content
-  box-sizing: border-box
-  min-width: $content-width
-  max-width: $content-width
-
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-content: center
+  align-items: center
   padding-bottom: 200px
+
+  > *:not(.fullwidth)
+    min-width: $column-width
+    max-width: $column-width
+
   a
     border-bottom: 1px dotted $offdark
     cursor: pointer
     &:hover
       border-bottom-style: solid
+
+a
+  text-decoration: none
+  color: inherit
 
 h1, h2, h3, h4, h5, h6
   font-family: Lato, sans-serif
@@ -62,7 +59,7 @@ header
 #header
   height: 26px
   width: 100%
-  padding: 0 calc( (100% - #{$content-width}) / 2 )
+  padding: 0 calc( (100% - #{$column-width}) / 2 )
   font-size: 0.8em
 
   display: flex

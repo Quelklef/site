@@ -6,7 +6,7 @@ function findPos(obj) { // From https://www.quirksmode.org/js/findpos.html
       curtop += obj.offsetTop;
     } while (obj = obj.offsetParent);
   }
-	return [curleft,curtop];
+	return [curleft, curtop];
 }
 
 const Note = { };
