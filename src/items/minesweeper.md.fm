@@ -6,3 +6,5 @@ desc: "Keyboard-only minesweeper"
 layout: proxy
 target: /proxy/minesweeper/index.html
 ---
+
+I scoured the web looking for a keyboard-only minesweeper, but, much to my dismay, could find none. So I did what any self-respecting computer nerd would, and made it myself. Controls are listed on the bottom; options, such as board size, are stored in cookies.

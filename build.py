@@ -85,7 +85,7 @@ if '--no-latex' in sys.argv:
 else:
   for file_loc in glob.iglob('**', recursive=True):
     if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
-      with log_sction(f"Compiling {file_loc} ..."):
+      with log_section(f"Compiling {file_loc} ..."):
         dir = os.path.dirname(file_loc)
         rel_file_loc = os.path.basename(file_loc)
         # https://tex.stackexchange.com/a/459470
@@ -122,8 +122,8 @@ def get_full_extension(file_loc):
 # As we create this dict, we actually strip the frontmatter off of
 # the files.
 
-# Sort by reverse chronological
-items = SortedList([], key=lambda item: datetime.date.today() - item['date'])
+# Sort by reverse chronological, breaking ties alphabetically
+items = SortedList([], key=lambda item: (datetime.date.today() - item['date'], item['title']))
 
 # Default values for item frontmatter
 item_defaults = {
@@ -134,6 +134,8 @@ for item_loc in glob.iglob('items/**', recursive=True):
   if os.path.isfile(item_loc) and item_loc.endswith('.fm'):
     o = frontmatter.load(item_loc)
     item = o.metadata
+    if not item.get('indexed', True):
+      continue
     defaults = {
       'tags': [],
       'href': item_loc[:-len(get_full_extension(item_loc))] + '.html' ,

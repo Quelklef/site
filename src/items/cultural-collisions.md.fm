@@ -5,4 +5,13 @@ date: 2018-12-19
 desc: "Naive but fun visualization of countries' opinions on keywords"
 layout: proxy
 target: /proxy/cultural-collisions/index.html
+requires: [mathjax]
+
+indexed: no
 ---
+
+This is a naive little visualization tool I made for my English class in my 12th year of high school. The idea is to visualize how positively or negatively a country views a particular word. This is done by searching Bing (because Google rate-limits) for both `${term} ${country} good` and `${term} country bad`. A "positivity score" is then assigned from $-1$ to $1$ by the formula
+$$ \text{score} = 2 \cdot \sigma \left( \frac{\text{positive hits}}{\text{negative hits}} - 1 \right) - 1 $$
+where $\sigma$ denotes [the sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). This score is then converted to a color, $-1$ mapping to red, $1$ mapping to green, and intermediate values mapping to intermediate colors.
+
+This isn't anything super (or even a little) scientific or serious. The methodology is terrible; in fact, querying with the same term twice in a row can give widly different maps. However, I think it's kind of fun to play around with.
