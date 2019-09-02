@@ -24,7 +24,7 @@
           <span class="tag label">{$ node.tag $}</span>
           <div class="contents">
             {%- for item in node['items'] -%} {# `node.items` causes a crash for some reason #}
-              <a href="/{$ item.href $}">{$ item.title $}</a>
+              <a href="{$ item.href $}">{$ item.title $}</a>
             {%- endfor -%}
             {$ loop(node.children) $}
           </div>

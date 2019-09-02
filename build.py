@@ -134,8 +134,10 @@ for item_loc in glob.iglob('items/**', recursive=True):
   if os.path.isfile(item_loc) and item_loc.endswith('.fm'):
     o = frontmatter.load(item_loc)
     item = o.metadata
+
     if not item.get('indexed', True):
       continue
+
     defaults = {
       'tags': [],
       'href': item_loc[:-len(get_full_extension(item_loc))] + '.html' ,
