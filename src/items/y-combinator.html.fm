@@ -141,7 +141,7 @@ $$ \begin{align*}
 &= \one{\lambda f.\three{(\lambda R.\one{f}(RR))}\three{(\lambda R.\one{f}(RR))}} \\
 &= \lambda f. (\lambda x.{f}(xx))(\lambda x.{f}(xx)) \\
 \end{align*} $$
-which <a href="https://en.wikipedia.org/wiki/Fixed-point_combinator#Fixed_point_combinators_in_lambda_calculus">is the $Y$ combinator!</a></p>
+<p>which <a href="https://en.wikipedia.org/wiki/Fixed-point_combinator#Fixed_point_combinators_in_lambda_calculus">is the $Y$ combinator!</a></p>
 
 <note-def id="no-recursion">
   <p>Though we can write e.g.

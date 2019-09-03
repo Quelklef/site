@@ -85,7 +85,7 @@ if '--no-latex' in sys.argv:
 else:
   for file_loc in glob.iglob('**', recursive=True):
     if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
-      with log_section(f"Compiling {file_loc} ..."):
+      with log_section(f"Compiling {file_loc}"):
         dir = os.path.dirname(file_loc)
         rel_file_loc = os.path.basename(file_loc)
         # https://tex.stackexchange.com/a/459470
