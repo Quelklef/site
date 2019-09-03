@@ -1,7 +1,7 @@
 ---
 title: Fitch-Stlye Proof Helper
 tags: [interactive, math]
-date: 2019-09-28
+date: 2018-09-28
 desc: "Interactive propositional and first-order logic proof helper"
 layout: proxy
 target: /proxy/fitch/index.html
