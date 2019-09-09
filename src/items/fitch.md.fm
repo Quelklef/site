@@ -1,8 +1,18 @@
 ---
-title: Fitch-Stlye Proof Helper
+title: Fitch-Style Proof Helper
 tags: [interactive, math]
 date: 2018-09-28
 desc: "Interactive propositional and first-order logic proof helper"
 layout: proxy
 target: /proxy/fitch/index.html
 ---
+
+In my Highschool Logic class, we learned about Fitch-style proofs. Being the rigor-obsessed student I was at the time, this excited me greatly. There was just one problem: doing them could be such a _pain_ sometimes! We wrote our proofs with pencil and paper, which involved manually drawing the organizational lines, as well as writing out the line number and justification for each line of the proof. And god forbid you wanted to add a new line in-between two existing lines: that involved squeezing it in somehow, and then re-numbering every following line of the proof.
+
+Enough, I said! With a computer, I figured, I could cut almost all that work out. Have the user write the propositions, and have the computer supply the graphics, line numbering, _and_ justification. You could, in theory, go one step further, and have the computer do the entire proof itself on your behalf (see, for instance, [this](https://github.com/dmcfalls/Fitch) and [this](http://teachinglogic.liglab.fr/DN/index.php)); however, I simply wanted to do my homework more fluidly. So, I created this webapp!
+
+On each line, you write a proposition, be it an assumption or a claim. The webapp will either supply the justification for this proposition, or yell at you if it's an invalid inference. Use `tab` to indent and `shift + tab` to dedent; other help is listed on the right of the app. Both propositional and first-order logic are supported. Check out the examples!
+
+The last cool feature I want to showcase about is the following: as you write your proof, it is serialized and placed into the `proof` argument in the URL. This means that reloading won't clear your work (use `alt + backspace` instead), but, more importantly, it means that you can share your proof with somebody else just by sending them the URL.
+
+I sincerely hope this app finds the way to the hands of a teacher or confused student and helps bring about clarification or understanding. If you are the teacher or confused student, I hope this works for you; if anything about it is unclear, or confusing, or you have any feedback, please don't hesitate to let me know (check the nav bar at the top).
