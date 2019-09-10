@@ -4,7 +4,7 @@ tags: [interactive, math]
 date: 2018-09-28
 desc: "Interactive propositional and first-order logic proof helper"
 layout: proxy
-target: /proxy/fitch/index.html
+target: /items/fitch/full/
 ---
 
 In my Highschool Logic class, we learned about Fitch-style proofs. Being the rigor-obsessed student I was at the time, this excited me greatly. There was just one problem: doing them could be such a _pain_ sometimes! We wrote our proofs with pencil and paper, which involved manually drawing the organizational lines, as well as writing out the line number and justification for each line of the proof. And god forbid you wanted to add a new line in-between two existing lines: that involved squeezing it in somehow, and then re-numbering every following line of the proof.

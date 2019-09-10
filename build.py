@@ -129,11 +129,17 @@ with log_section("Building website", multiline=True):
       if not item.get('indexed', True):
         continue
 
+      # Apply defaults
       defaults = {
         'tags': [],
         'href': item_loc[:-len(get_full_extension(item_loc))] + '.html' ,
       }
       item = {**defaults, **item}
+
+      # Strip `/index.html` because it's prettier without it
+      if item['href'].endswith('/index.html'):
+        item['href'] = item['href'][:-len('/index.html')]
+
       items.add(item)
 
   # == Main Execution == #

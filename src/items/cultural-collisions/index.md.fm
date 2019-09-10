@@ -4,7 +4,7 @@ tags: [interactive]
 date: 2018-12-19
 desc: "Naive but fun visualization of countries' opinions on keywords"
 layout: proxy
-target: /proxy/cultural-collisions/index.html
+target: /items/cultural-collisions/full/
 requires: [mathjax]
 
 indexed: no
