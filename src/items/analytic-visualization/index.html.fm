@@ -17,15 +17,15 @@ requires: [mathjax, notes]
 It is important to note that the center of the rotation and dilation is <em>not</em> zero but rather the center of a neighborhood.
 </p></note-def>
 
-<p>Woah, slow down. Hold up. Fromt the beginning.</p>
+<p>Woah, slow down. Hold up. From the beginning.</p>
 
 <p>We have a function $f : \mathbb C \to \mathbb C$. Let's take a look at a single point in $\mathbb C$, call it $z_0$. Consider some small movement or "arrow" $\Delta z$ within the domain that will take $z_0$ to $z_0 + \Delta z$. If we consider the image of $z_0$ and $z_0 + \Delta z$, which are $f(z_0)$ and $f(z_0 + \Delta z)$, respectively, we may draw another arrow, analogous to the $\Delta z$ arrow, between them which represents the movement it would take to bring $f(z_0)$ to $f(z_0 + \Delta z)$. The size of this second arrow is $f(z_0 + \Delta z) - f(z_0)$.</p>
 
 <div class="fullwidth"><img src="fig.png"></div>
 
-<p>But what's this got to do with analyticity? <note-ref id="analyic-differentiable">A function is analytic iff it is differentiable</note-ref>. And it is differentiable if its derivative exists, i.e.,</p>
+<p>But what's this got to do with analyticity? <note-ref to="analytic-differentiable">A function is analytic iff it is differentiable</note-ref>. And it is differentiable if its derivative exists, i.e.,</p>
 
-<note-def name="analytic-differentiable"><p>
+<note-def id="analytic-differentiable"><p>
 It's actually slightly subtler than this, since a function may be differentiable at a point but may only be analytic on an open set.
 </p></note-def>
 
