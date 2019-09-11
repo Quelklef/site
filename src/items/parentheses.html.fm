@@ -1,0 +1,39 @@
+---
+title: Abuse of Parentheses
+tags: [math]
+date: 2019-09-11
+layout: post
+requires: [mathjax]
+---
+
+<p>Parentheses are used in... many different ways. I thought I'd collect them.</p>
+
+<style>
+tr td:nth-child(2) { text-align: center; }
+</style>
+
+<div class="fullwidth">
+<table>
+  <tr> <th>Name</th> <th>Usage</th> <th>Locations (non-exhaustive)</th> </tr>
+  <tr> <td>Function application</td> <td>$f(x)$</td> <td>Mathematics, programming</td> </tr>
+  <tr> <td>Precedence</td> <td>$2+(3\cdot5)$</td> <td>Mathematics, programming</td> </tr>
+  <tr> <td>Parentheticals</td> <td>The man (who wore flannel) began ...</td> <td>Writing</td> </tr>
+  <tr> <td>Ideal</td> <td>$(N) := \{kN \mid k \in \mathbb Z\}$</td> <td>Ring Theory</td> </tr>
+  <tr> <td>Tuples</td> <td>$(0.5, 1.7)$</td> <td>Mathematics, programming</td> </tr>
+  <tr> <td>Indexing</td> <td><code>li(i)</code></td> <td>MATLAB</td> </tr>
+  <tr> <td>$n$-dimensional sequences</td> <td>Consider the sequence $(a_{ij})$ ...</td> <td>Mathematics</td> </tr>
+  <tr> <td>Mulitplication</td> <td>$(5)(17)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>S-Expression</td> <td><code>(f x y z)</code></td> <td>Lisps</td> </tr>
+  <tr> <td>Interval notation</td> <td>$(-\infty, +\infty)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>$n$ choose $k$</td> <td>${n \choose k}$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Matricies</td> <td>$\left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Greatest common divisor</td> <td>$(a, b) := \mathit{gcd}(a, b)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Generator expression</td> <td><code>(f(x) for x in li)</code></td> <td>Python</td> </tr>
+  <tr> <td>Function shorthand</td> <td><code>(+)</code>, <code>(+2)</code>, <code>(3*)</code></td> <td>Haskell</td> </tr>
+  <tr> <td>Congruence</td> <td>$5 \equiv 15 (\text{mod } 10)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Labels</td> <td>See example (B) or refer back to (II) to...</td> <td>Writing</td> </tr>
+  <tr> <td>Unit</td> <td><code>()</code></td> <td>Haskell</td> </tr>
+  <tr> <td>Enumeration</td> <td>Two things: 1) ...; and 2) ...</td> <td>Writing</td> </tr>
+  <tr> <td>Emojis</td> <td>:) &nbsp;&nbsp; :( &nbsp;&nbsp; ;) &nbsp;&nbsp; :'(</td> <td>Texting</td> </tr>
+</table>
+</div>
