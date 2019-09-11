@@ -138,7 +138,7 @@ with log_section("Building website", multiline=True):
 
       # Strip `/index.html` because it's prettier without it
       if item['href'].endswith('/index.html'):
-        item['href'] = item['href'][:-len('/index.html')]
+        item['href'] = item['href'][:-len('index.html')]
 
       items.add(item)
 
