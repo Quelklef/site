@@ -3,7 +3,7 @@
 {% block content %}
   {$ super() $}
 
-  <div id="column">
+  <div>
     <header>
       <h1>Multiply and Surrender</h1>
       <p>Maynard's math and stuff</p>
@@ -11,15 +11,16 @@
 
     <div>
       {% for item in items %}
-        <p class="metadata-container">
-          <span class="metadata">
-            {% for tag in item.tags -%}
-              <span class="tag">{$ tag $}</span>
-            {%- endfor %}
-            <span>@{$ item.date $}</span>
+        <div style="display: flex; justify-content: space-between; margin: 8px 0">
+          <span style="text-align: right; display: inline-block; width: 47%"><a href="{$ item.href $}">{$ item.title $}</a></span>
+          <span style="display: inline-block" class="metadata"><tt>::</tt></span>
+          <span style="display: inline-block; width: 47%" class="metadata">
+              <span>@{$ item.date $}</span>
+              {% for tag in item.tags -%}
+                <span class="tag">{$ tag $}</span>
+              {%- endfor %}
           </span>
-          <a href="{$ item.href $}">{$ item.title $}</a>
-        </p>
+        </div>
       {% endfor %}
     </div>
   </div>

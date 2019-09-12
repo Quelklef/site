@@ -20,8 +20,13 @@ body
   padding-bottom: 200px
 
   > *:not(.fullwidth)
-    min-width: $column-width
+    padding: 0 $column-padding
     max-width: $column-width
+    box-sizing: border-box
+    width: 100%
+
+  > .fullwidth
+    max-width: 100%
 
   a
     border-bottom: 1px dotted $offdark
@@ -59,7 +64,7 @@ header
 #header
   height: 26px
   width: 100%
-  padding: 0 calc( (100% - #{$column-width}) / 2 )
+  padding: 0 calc(50% - #{$column-width / 2} + #{$column-padding})
   font-size: 0.8em
 
   display: flex
@@ -135,16 +140,7 @@ header
 
 // index styling
 
-.metadata-container
-  position: relative
-
 .metadata
-  position: absolute
-  right: 100%
-  width: 100%
-  text-align: right
-
-  margin: 0 10px
   color: $offdark
   font-size: 0.8em
 

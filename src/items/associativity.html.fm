@@ -42,7 +42,7 @@ $$ \begin{align*}
 z \cdot (q \cdot c) &= (z \cdot q) \cdot c \\
 {z\cdot}({q\cdot}(c)) &= ((z \cdot q)\cdot)(c) \\
 ({z\cdot} \circ {q\cdot})(c) &= ((z \cdot q)\cdot)(c) \\
-\phantom{\hspace{30pt} \text{since $c$ is arbitrary}} {z\cdot} \circ {q\cdot} &= { (z\cdot q)\cdot } \hspace{30pt} \text{since $c$ is arbitrary}
+{z\cdot} \circ {q\cdot} &= { (z\cdot q)\cdot } \hspace{10pt} \text{since $c$ is arbitrary}
 \end{align*} $$
 
 <p>Which reads similarly, but not quite the same, as our previous (not-quite correct) conclusion that multiplication is composition. Instead, this says that multiplication gives a result whose associated transformation is the composition of the associated transformations of the factors.</p>
