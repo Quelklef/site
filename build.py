@@ -78,9 +78,10 @@ with log_section("Building website", multiline=True):
           dir = os.path.dirname(file_loc)
           rel_file_loc = os.path.basename(file_loc)
           # https://tex.stackexchange.com/a/459470
+          # We compile it twice because some features e.g. table of contents require this.
           os.system(f"""
           cd {dir}
-          : | pdflatex {rel_file_loc} -halt-on-error | grep '^!.*' -A200 --color=always
+          : | (pdflatex {rel_file_loc} && pdflatex {rel_file_loc}) -halt-on-error | grep '^!.*' -A200 --color=always
           """)
 
       printer.print(f"compiled {compiled_count} files")
