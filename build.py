@@ -72,17 +72,23 @@ with log_section("Building website", multiline=True):
 
       for file_loc in glob.iglob('**', recursive=True):
         if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
-          printer.flash(f"compiling {file_loc}")
+          printer.flash(f"Compiling {file_loc}")
           compiled_count += 1
 
           dir = os.path.dirname(file_loc)
           rel_file_loc = os.path.basename(file_loc)
+          assert '.' in rel_file_loc
+          file_name = rel_file_loc[:rel_file_loc.index('.')]
+
           # https://tex.stackexchange.com/a/459470
-          # We compile it twice because some features e.g. table of contents require this.
-          os.system(f"""
-          cd {dir}
-          : | (pdflatex {rel_file_loc} && pdflatex {rel_file_loc}) -halt-on-error | grep '^!.*' -A200 --color=always
-          """)
+          # FIXME: don't make -shell-escape baked-in
+          pdflatex = lambda: os.system(f"cd \"{dir}\" && : | pdflatex -shell-escape -halt-on-error {rel_file_loc} | grep '^!.*' -A200 --color=always")
+          bibtex = lambda: os.system(f"cd \"{dir}\" && bibtex -terse {file_name}")
+
+          pdflatex()
+          bibtex()
+          for _ in range(3):  # Do compilation a bunch of times for e.g. table-of-contents to work
+            pdflatex()
 
       printer.print(f"compiled {compiled_count} files")
 
