@@ -135,7 +135,8 @@ with log_section("Building website", multiline=True):
       # Apply defaults
       defaults = {
         'tags': [],
-        'href': item_loc[:-len(get_full_extension(item_loc))] + '.html' ,
+        #       make link absolute
+        'href': os.path.join('/' + item_loc[:-len(get_full_extension(item_loc))] + '.html'),
       }
       item = {**defaults, **item}
 
