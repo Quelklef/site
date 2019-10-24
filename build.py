@@ -59,10 +59,6 @@ with log_section("Building website", multiline=True):
     """)
     os.chdir('site/')
 
-  # Compile sass
-  with log_section("Compiling css"):
-    os.system("sass --quiet --update .:.")
-
   # Compile LaTeX
   if '--no-latex' in sys.argv:
     print("Skipping LaTeX due to '--no-latex'")
@@ -220,6 +216,10 @@ with log_section("Building website", multiline=True):
           rendered_count += 1
 
     printer.print(f"rendered {rendered_count} files")
+
+  # Compile sass
+  with log_section("Compiling css"):
+    os.system("sass --quiet --update .:.")
 
   # == Cleanup == #
 
