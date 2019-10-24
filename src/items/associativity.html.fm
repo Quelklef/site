@@ -7,60 +7,41 @@ layout: post
 requires: [mathjax, notes]
 ---
 
-<p><a href="https://www.youtube.com/embed/mvmuCPvRoWQ?start=726&end=835&autoplay=1">Complex multiplication can be visualized as rotating and scaling the complex plane</a>. So, besides thinking of a complex number $z$ as a point, we can think of it as encoding a transformation composed of a rotation and scaling.</p>
+<h2>Objects as Actions</h2>
 
-<p>Recall associativity:</p>
+<p>It's natural to think of mathematical objects as 'things'. $1$ is <i>a natural</i>. $\varnothing$ is <i>a set</i>. $(6, 7)$ is <i>a tuple</i>. And we can then do things <em>to</em> these objects. We can, for instance, <i>add</i> numbers, or perhaps, <i>find the union of</i> sets. These are the actions we pair with our objects. However, it can be useful to instead think of our objects as, themselves, actions.</p>
 
-$$ z \cdot (q \cdot c) = (z \cdot q) \cdot c $$
+<p>How does this work? Consider the real number line. It has a bunch of numbers on it. It's got $0$. It's got $1$. It's got $1.5$. It's got $\frac{1 + \sqrt{5}}{2}$. You name it. As discussed, these numbers don't just sit there and do <em>nothing</em>; we get to have fun with them! We can add them! We can subtract them! We can multiply them! We can divide them! And we can do many other things as well.</p>
 
-<p>If we think of $z$ and $q$ as transformations, and $c$ as a point being transformed, then this reads:</p>
+<p>When we apply one of these operations to two numbers, we get another number back out. For instance, $2 + 3 = 5$. And $5$ is a number (I'm sure of it). In this manner, numbers somehow kind of have actions associated with them: adding $2$ is an action which moves a given number two to the right on the number line. Subtracting $1$ moves a given number one to the left. (Multiplication and division represent dilations by some factor.)</p>
 
-$$ z(q(c)) = (z \cdot q)(c) $$
+<p>Okay, but so what? Well, now we have a new way to think about numbers and a new way to read operations. Now we can read $2 + 3$ not as just plain "two plus three, the result of an algebraic operation", but rather as "the result of applying the action 'move $2$ to the right' to the number $3$". Either way, we get $5$, but the differing thought process is interesting.</p>
 
-<p>That is, starting at a point $c$ and applying the transformation $q$ and then the transformation $z$ is the <em>same thing</em> as applying the transformation "$z \cdot q$" to $c$. Thus $z \cdot q$ is the transformation "do $q$ and then do $z$", which is to say, the composition of $z$ and $q$.</p>
+<p>And this thought process gets espeically interesting when you apply it to associativity...</p>
 
-<p>So what associativity tells us is really that $z\cdot q = z \circ q$</p>
+<h2>Associativity</h2>
 
-</note-def>
+<p>Addition is an assocative operation. This is a fact. We write this fact as follows:</p>
 
-<h2>Adding Rigor</h2>
+$$ x + (y + z) = (x + y) + z $$
 
-<p>Technically speaking, we've been a little loose here. A complex number $z$ does not <em>quite</em> encode a transformation; <note-ref to="z-dot">the operator $z\cdot$</note-ref> does. If we make this distinction, we are being correct and are able to better formalize the connection between associativity and composition, but we lose nice the nice conceptual interpretation that "$z\cdot q = z\circ q$".</p>
+<p>Let's experiment and try to think of this statement in terms of actions, like we just discussed. In order to facilitate this, I will make a variable replacement, as follows:</p>
 
-<note-def id="z-dot">
-  $z\cdot$ is the "multiply by $z$ function". In order words:
-  <ol>
-    <li>$z\cdot = x \mapsto z\cdot x$</li>
-    <li>$(z\cdot)(x) = z\cdot x$</li>
-    <li>$z\cdot$ is a function $f$ defined by $f(x) = z\cdot x$.
-  </ol>
-</note-def>
+$$ f + (g + x) = (f + g) + x $$
 
-<p>Under this interpretation, associativity looks like the following:</p>
+<p>Now let's read it. The left side says to start with $x$, and then apply the action of $g$, within the context of addition, and then, to the result, apply the action of $f$. Take $x$, and apply two actions to it, as specified by $f$ and $g$. The right side says something slightly different. Start with $x$, it says, and apply the action $f + g$ to it.</p>
+
+<p>Now, hold up. What is $f + g$? If we're thinking of both $f$ and $g$ as actions, it doesn't really make sense to add them&mdash;to apply one action to another action. However, since $f$ and $g$ are just numbers, we <em>can</em> add them; we just don't yet know what doing so <em>means</em>.</p>
+
+<p>Luckily, we can find out! Note the equal sign in the middle of the equation. It tells us that the two sides are just two ways of doing the <em>same thing</em>.</p>
+
+<p>This solves our mystery. Since the two sides are equal, then applying $f + g$ to $x$, which is given by the right side, must be the same as applying $g$ and then applying $f$, which is given by the left side. That is, $f + g$ somehow combines the two actions $f$ and $g$ into only one action, so that applying $f+g$ to a number applies $f$ and then $g$. Canonically, $f + g$ is called the <em>composition</em> of the actions $f$ and $g$.</p>
+
+<p>Thus, I claim, the deep meaning of associativity is about <em>composition</em>: if an operator $\star$ is associative, that means that for two actions $f$ and $g$, there is a third action which is the composition of those two; this third action is called $f \star g$.</p>
+
+<p>To close, I'd like to juxtapose the definition of associativity with that of composition, and note that they are, indeed, quite similar. And under the "objects as actions" understanding, they essentially read the same:</p>
 
 $$ \begin{align*}
-z \cdot (q \cdot c) &= (z \cdot q) \cdot c \\
-{z\cdot}({q\cdot}(c)) &= ((z \cdot q)\cdot)(c) \\
-({z\cdot} \circ {q\cdot})(c) &= ((z \cdot q)\cdot)(c) \\
-{z\cdot} \circ {q\cdot} &= { (z\cdot q)\cdot } \hspace{10pt} \text{since $c$ is arbitrary}
+  \text{Composition: } & (f \circ g)(x) \hspace{2pt} = f(g(x)) \\
+  \text{Associativity: } & (f \star g) \star x = f \star (g \star x)
 \end{align*} $$
-
-<p>Which reads similarly, but not quite the same, as our previous (not-quite correct) conclusion that multiplication is composition. Instead, this says that multiplication gives a result whose associated transformation is the composition of the associated transformations of the factors.</p>
-
-<p>While this interpretation is more correct, it is ugly. And if you really stare at it long enough, it <em>basically</em> <note-ref to="cat">says the same thing</note-ref> as our first interpretation&mdash;just with more rigor.</p>
-
-<note-def id="cat">
-<p>Point being, this is the correct version, but don't remember it. Remember the other one.</p>
-</note-def>
-
-<p>And now we can generalize! If we tried to generalize with the not-quite-correct interpretation, we would say that $\star$ is associative iff $a\star b = a\circ b$. But what is $a\circ b$? It's something loose and <note-ref to="poorly-defined">poorly-defined</note-ref> that depends on context. Now we can state a nice unamibuous second interpretation of assocativity, that:</p>
-$$ (a\star) \circ (b\star) = (a\star b)\star $$
-
-<note-def id="poorly-defined">
-<p>In fact, if we <em>tried</em> to get a formal deinition, we would just end up with $z \circ q = {z\cdot} \circ {q\cdot}$. This is because if we would want $z \circ q$ to represent "apply $q$ then $z$". Thus, we would define</p>
-$$ \begin{align*}
-  z \circ q &:= x \mapsto z(q(x)) \\
-    &\phantom{:}= x \mapsto z\cdot (q\cdot x) \\
-    &\phantom{:}= {z\cdot} \circ {q\cdot}
-\end{align*} $$
-</note-def>
