@@ -1,0 +1,21 @@
+---
+title: Infinite Rigor
+tags: [math]
+date: 2019-10-24
+desc: "Finding (almost) infinte rigor in programming"
+layout: post
+requires: [mathjax, notes]
+
+indexed: false
+---
+
+<p>Mathematics has a theme of trying to get more and more rigorous. It started out with the Greeks and, long story short, kept going. Though we have made a language that is certainly more rigorous than natural language, we have slowly come to realize that infinite rigor is not quite possible. Take, for instance, the natural numbers. We may talk about the natural numbers informally&em;0, 1, 2, and the rest. If we want to make it rigorous, we may do so by defining them within some system. For instance, we may use the Peano axioms, a first-order definition of the natural numbers which asserts the existence of a number $0 \in \mathbb N$ as well as the successor function $S : \mathbb N \to \mathbb N$. And this is a perfectly rigorous definition of the natural numbers within first-order logic. But is first-order logic rigorous? It has to be, too. And, indeed, it is, expressed in a kind of meta-language. This meta-language, however, is <em>not</em> perfectly rigorous. Herein lies our issue.</p>
+
+<p>With anything we want to talk about, we have to build up a kind of a toolchain of definition. We define our thing $t$ in language $L$, which is defined within meta-language $L'$, which itself is defined in $L''$, etc. This chain has to either loop, go on forever, or terminate. Intuitively, the first two choices aren't valid: the former results in circular arguments, and the latter isn't possible (maybe?). This leaves us with <em>having</em> to have a bottom-level language which is only given informally.</p>
+
+<p>Bummer. Perfect rigor isn't possible.</p>
+
+<p>I claim that, actually, it is... kind of. Essentially, we take the laws of physics to be our bottom-level language. The next level up is transistors, then circuits, all the way up to computers. Programming languages allow us to expresss ourselves in a way that is understandable by <em>the laws of physics</em>. When I write a program, this is a description of what I want, and it is <em>so</em> rigorous that a <em>physical system</em>, the quintessence of concreteness, can understand it.</p>
+
+<p>Thus we have achieved infinite rigor! Almost. There is one big, gnawing issue. Physical systems err and decay. Weird things happen in real life which cause computers to do funn things. It doesn't always work as expected. Which means that we have infinite rigor&em;most of the time. And that's the best we can get.</p>
+
