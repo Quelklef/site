@@ -35,7 +35,7 @@ $$ f + (g + x) = (f + g) + x $$
 
 <p>Luckily, we can find out! Note the equal sign in the middle of the equation. It tells us that the two sides are just two ways of doing the <em>same thing</em>.</p>
 
-<p>This solves our mystery. Since the two sides are equal, then applying $f + g$ to $x$, which is given by the right side, must be the same as applying $g$ and then applying $f$, which is given by the left side. That is, $f + g$ somehow combines the two actions $f$ and $g$ into only one action, so that applying $f+g$ to a number applies $f$ and then $g$. Canonically, $f + g$ is called the <em>composition</em> of the actions $f$ and $g$.</p>
+<p>This solves our mystery. Since the two sides are equal, then applying $f + g$ to $x$, which is given by the right side, must be the same as applying $g$ and then applying $f$, which is given by the left side. That is, $f + g$ somehow combines the two actions $f$ and $g$ into only one action, so that applying $f+g$ to a number applies $f$ and then $g$. Canonically, $f + g$ is a kind of <em>composition</em> of the actions $f$ and $g$.</p>
 
 <p>Thus, I claim, the deep meaning of associativity is about <em>composition</em>: if an operator $\star$ is associative, that means that for two actions $f$ and $g$, there is a third action which is the composition of those two; this third action is called $f \star g$.</p>
 
