@@ -17,7 +17,7 @@ requires: [mathjax, notes]
 
 <p>Okay, but so what? Well, now we have a new way to think about numbers and a new way to read operations. Now we can read $2 + 3$ not as just plain "two plus three, the result of an algebraic operation", but rather as "the result of applying the action 'move $2$ to the right' to the number $3$". Either way, we get $5$, but the differing thought process is interesting.</p>
 
-<p>And this thought process gets espeically interesting when you apply it to associativity...</p>
+<p>And this thought process gets especially interesting when you apply it to associativity...</p>
 
 <h2>Associativity</h2>
 
