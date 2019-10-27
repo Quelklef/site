@@ -81,15 +81,13 @@ $$ \begin{align*}
   <p>Besides encoding single points, we can actually encode entire polygons in matrices. We simply use a matrix with more than one column. Then each column represents a point, and the matrix as a whole represents a polygon. For instance, a square, going from $(0, 0)$ to $(1, 0)$ to $(1, 1)$ to $(0, 1)$ and then back to $(0, 0)$ has 4 points and <note-ref to="square">would be represented as</note-ref>:</p>
 
   <note-def id="square">
-    <p>This isn't universally true; matrix representation of polygons is somtimes more complicated. In order to express translation as a matrix, for instance, you need to do something more complex. However, using this naive representation will work for our purposes here.</p>
+    <p>This isn't universally true; matrix representation of polygons is sometimes more complicated. In order to express translation as a matrix, for instance, you need to do something more complex. However, using this naive representation will work for our purposes here.</p>
   </note-def>
 
   $$ s = \left[ \begin{matrix}
     0 & 1 & 1 & 0 \\
     0 & 0 & 1 & 1 \\
   \end{matrix} \right] $$
-
-  <p>Though I love squares, it will be useful to use something more complicated for this discussion:<p>
 
   <p>Matrix multiplication generalizes to polygons. That is, if we want to apply $T$ to the square $s$, we don't have to do anything special; we can just do multiplication like we did with $p$. That is, $Ts$ represents rotating the square by 90 degrees.</p>
 
