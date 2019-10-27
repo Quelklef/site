@@ -19,7 +19,7 @@ requires: [mathjax, notes]
 
 <p>And this thought process gets especially interesting when you apply it to associativity...</p>
 
-<h2>Associativity</h2>
+<h2>Associativity as Composition</h2>
 
 <p>Addition is an assocative operation. This is a fact. We write this fact as follows:</p>
 
@@ -45,3 +45,157 @@ $$ \begin{align*}
   \text{Composition: } & (f \circ g)(x) \hspace{2pt} = f(g(x)) \\
   \text{Associativity: } & (f \star g) \star x = f \star (g \star x)
 \end{align*} $$
+
+<h2>Matrices: a Good Example</h2>
+
+<p>Matrices are a great example of how this idea can be put to use. If you're unfamiliar with matrices, <note-ref to="matrix-intro">expand this note</note-ref>.</p>
+
+<note-def id="matrix-intro">
+
+  <p>Matrices are just big boxes of numbers. Here's a matrix, for instance:</p>
+  $$ T = \left[ \begin{matrix}
+   0 & -1 \\
+   1 & 0
+  \end{matrix} \right] $$
+  <p>&mdash;it's just a bunch of numbers organized into a grid. Without getting into too much detail, matrices can be used to represent n&#8209;dimensional points, as well as n&#8209;dimensional transformations, such as rotations, dilations, and shears. $T$, for instance, represents 2d rotation by 90 degrees.</p>
+
+  <p>We may also encode points as matrices. The top number encodes the $x$ value, and the bottom number encodes the $y$ value. To represent $(1, 0)$ for instance, we write:</p>
+  $$ p = \left[ \begin{matrix} 1 \\ 0 \end{matrix} \right] $$
+  <p>Let's apply our $T$ rotation to $p$! There's an operation for this. In order to apply the transformation represented by one matrix to the point represented by another matrix, we multiply them. (We will leave out the discussion of how matrix multiplication is defined.) For instance, to apply $T$ to $p$, we find $Tp$:</p>
+  $$ Tp = \left[ \begin{matrix}
+    0 & - 1 \\
+    1 & 0
+  \end{matrix} \right]
+  \left[ \begin{matrix}
+    1 \\
+    0
+  \end{matrix} \right]
+  =
+  \left[ \begin{matrix}
+    0 \\
+    1
+  \end{matrix} \right] $$
+
+  <p>The result, $\left[ \begin{matrix} 0 \\ 1 \end{matrix} \right]$, is the matrix that encodes the point $(0, 1)$, which is, indeed, the rotation by 90 degrees of $(1, 0)$.
+
+  <p>Besides encoding single points, we can actually encode entire polygons in matrices. We simply use a matrix with more than one column. Then each column represents a point, and the matrix as a whole represents a polygon. For instance, a square, going from $(0, 0)$ to $(1, 0)$ to $(1, 1)$ to $(0, 1)$ and then back to $(0, 0)$ has 4 points and <note-ref to="square">would be represented as</note-ref>:</p>
+
+  <note-def id="square">
+    <p>This isn't universally true; matrix representation of polygons is somtimes more complicated. In order to express translation as a matrix, for instance, you need to do something more complex. However, using this naive representation will work for our purposes here.</p>
+  </note-def>
+
+  $$ s = \left[ \begin{matrix}
+    0 & 1 & 1 & 0 \\
+    0 & 0 & 1 & 1 \\
+  \end{matrix} \right] $$
+
+  <p>Though I love squares, it will be useful to use something more complicated for this discussion:<p>
+
+  <p>Matrix multiplication generalizes to polygons. That is, if we want to apply $T$ to the square $s$, we don't have to do anything special; we can just do multiplication like we did with $p$. That is, $Ts$ represents rotating the square by 90 degrees.</p>
+
+</note-def>
+
+<p>Let's put ourselves in the shoes of a game designer for a second. We're making a game about an adventerous hedgehog. We represent the hedgehog as a really big polygon with a bunch of points, and call it $h$:</p>
+ 
+$$ h = \left[ \begin{matrix}
+ 0  & 3  & 5  & 8  & -2 & 16 & \cdots \\
+ -1 & 12 & 22 & 56 & 19 & 82 & \cdots
+\end{matrix} \right] $$
+
+<p>The actual values in $h$ aren't important, just the fact that it's really big (and represents a hedgehog).</p>
+
+<p>In our game, our little hedgehog buddy has fallen off into the void and is headed towards a black hole. We'll animate the fall with a shrink an rotation, and we'll add a shear, as well, to show the the black hole is stretching him. All three of these transformations can be represented as matrices! (<note-ref to="mat-trans">how?</note-ref>)</p>
+
+
+<note-def id="mat-trans">
+  <p>Rotation by, say, a degree, is:</p>
+
+  $$ Rot(1^\circ) = \left[ \begin{matrix}
+    \cos(1^\circ) & -\sin(1^\circ) \\
+    \sin(1^\circ) & \cos(1^\circ)
+  \end{matrix} \right] $$
+
+  <p>Shrinking will be represented as a dilation by a factor of $0.9$:</p>
+
+  $$ Di(0.9) = \left[ \begin{matrix}
+    0.9 & 0 \\
+    0 & 0.9
+  \end{matrix} \right] $$
+
+  <p>And we can shear by, say, a factor of 1.1, as follows:</p>
+
+  $$ Sh(1.1) = \left[ \begin{matrix}
+    1 & 1.1 \\
+    0 & 1
+  \end{matrix} \right] $$
+</note-def>
+
+<p>Now in order to apply all these transformations to our hedgehog, we simply need to do successive multiplication. If we want to rotation, then dilate, then shear, this would look like:</p>
+
+$$ h' = Sh(1.1) \cdot [ Di(0.9) \cdot [ Rot(1^\circ) \cdot h ]] $$
+
+<p>And this would work! However, there's one issue...</p>
+
+<p>Recall that we're in the shoes of a game developer here. We want things to be <i>fast</i>. However, this is not very fast. Matrix multiplication is relatively cheap, certainly, but it gets slower as the number of points in your matrices increases. And $h$, as noted previously, is a very large matrix&mdash;so multiplication with $h$ is slow, relatively speaking.</p>
+
+<p>The first calculation we do here is $Rot(1^\circ) \cdot h$, which will be slow since it invoves $h$. The result, just a rotation of $h$, will have the same number of points as $h$, and thus be just as large. Then we multiply <em>this</em> matrix by $Di(0.9)$. Again, this will be slow, since one of the matricies is so big. And, again this will produce a large matrix. Finally, we multiply by $Sh(1.1)$, which has all the same problems: it's slow, and produces a large matrix.</p>
+
+<p>In this manner, we do a lot of work every time we apply a transformation to the hedgehog.</p>
+
+<p>"But", I hear you say, "what else can we do?" Well, great question! I've neglected to mention it until now, but matrix multiplication is actually associative. As such, we can rewrite our computation for $h'$ as follows:</p>
+
+$$ h' = [[Sh(1.1) \cdot Di(0.9)] \cdot Rot(1^\circ)] \cdot h$$
+
+<p>where we first multiply all the transformation matrices and <em>then</em> apply the result to our hedgehog. This way, we only have to multiply by a large matrix once, at the very end. All other multiplications are just between transformation matrices, which are each small&mdash;just 2-by-2. In this manner, we reduce the number of slow computations from 3 down to just 1, thus speeding up the calculation.</p>
+
+<p>See what's happening here, though? We first build up a composite matrix, called $Sh(1.1) \cdot Di(0.9) \cdot Rot(1^\circ)$, and then applied this composite to the hedgehog. Associativity guarantees that this will produce that same result as just applying all three of these matrices to the hedgehog in order. Without associativity, who knows what we would have gotten?</p>
+
+<h2>Non-Associativity (and, by Circumstance, Non-Commutativity)</h2>
+
+<p>Okay, so what does non-associativity look like?</p>
+
+<p>First things first, and I want to emphasis this, it does <em>not</em> mean that you cannot compose operations. Non-associativity of an operator simply means that, unlike with an associative operator, composition of actions is not the same operation as application of actions.</p>
+
+<p>Subtraction makes a great example of this. It's not associative; however, it can still be composed.</p>
+
+<p>First, we need to address an ambiguity. <note-ref to="ambiguity">There are actually <em>two</em> ways we can think about assocativity with subtraction. Consider a difference $a - b$. One way to think of this is as the action of subtracting something from $a$, applied to $b$. Alternatively, we think of this as the action of subtracting $b$ from something, applied to $a$.</note-ref>  Neither choice is correct or incorrect; both are valid. Further, both cases are interesting. However, only one is composable.</p>
+
+<note-def id="ambiguity">
+  <p>This ambiguity didn't arise with addition because addition is commutative. Since $a+b=b+a$, the two cases are actually the same.</p>
+  <p>This ambiguity actually also exists for matrices, but I craftily avoided it.</p>
+</note-def>
+
+<p>The version that is composable is to think of $a - b$ as "the action of subtracting $b$, applied to $a$". This means we should read $a - b$ as "start at $a$, and move $b$ to the left".</p>
+
+<p>Now, associativity reads like so:</p>
+
+$$ (x - f) - g = x - (f - g) $$
+
+<p>and is plain false. For instance,</p>
+
+$$ \begin{align*}
+  (0 - 1) - 1 &\stackrel{?}{=} 0 - (1 - 1) \\
+  -2 &\neq 0
+\end{align*} $$
+
+<p>However, subtraction <em>still is</em> composable. To compose $f$ and $g$, we want to find the $h$ such that:</p>
+
+$$ (x - g) - f = x - h $$
+
+<p>This is given by $h = f + g$. As such, we can still compose subtraction operations, however, we do so by <em>adding</em> the actions, not subtracting them&mdash;this is why subtraction isn't associative.</p>
+
+<h3>And What About the Other Choice?</h3>
+
+<p>Earlier, I teased you a little bit. I said that in $a-b$, we would think of $b$ as the action, but that thinking of $a$ as the action is also interesting. Let's do that now.</p>
+
+<p>In $a-b$, our understanding is now to read this as "the action of subtracting from $a$, as applied to $b$". Subtraction is non-associative; we already know that; the question now is, how do we compose these two actions?</p>
+
+<p>Given an $f$ and $g$, we want to find $h$ such that:</p>
+
+$$ f - (g - x) = h - x $$
+
+<p>This is given by $h = f - g + 2x$. What's interesting about this is that $h$, the supposed composition of $f$ and $g$, <em>depends on $x$</em>. As such, <note-ref to="not-composable">this isn't truly a composition</note-ref>. I conclude that this interpretation of subtraction as actions is non-composable.</p>
+
+<note-def id="not-composable">
+  <p>Technically, I have no deductive basis for this claim. I never defined that composition may not depend on the input that the composition is applied to. However, this is the more canonical definition of composition.</p>
+</note-def>
