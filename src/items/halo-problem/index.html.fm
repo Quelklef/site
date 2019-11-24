@@ -198,38 +198,39 @@ indexed: false
 
 <p>Unfortunately, this also doesn't work. However, it fails much more subtly... It appears to work at first&mdash;in fact, this is the comparator function I used to generate the original "correct" halo images. However, weird stuff starts to happen.</p>
 
-<p>For instance, sometimes the apparent overlapping of two objects will depend on which object is selected:</p>
+<p>For instance, sometimes polygons would render out-of-order or not rendered at all:</p>
 
 <div class="figure">
-  <img src="pics/cropped/15-3d-incorrect_intersection-overlapping-1.png" />
-  <img src="pics/cropped/16-3d-incorrect_intersection-overlapping-2.png" />
-  <img src="pics/cropped/17-3d-incorrect_intersection-overlapping-3.png" />
-  <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
+  <img src="pics/cropped/15-3d-weird_rendering-1.png" />
+  <img src="pics/cropped/16-3d-weird_rendering-2.png" />
+  <img src="pics/cropped/17-3d-weird_rendering-3.png" />
+  <img src="pics/cropped/18-3d-weird_rendering-4.png" />
+  <p class="caption">Due to halos, some polygons are rendered out of order or not at all</p>
 </div>
 
 <p>Even weirder, I found a setup with a torus and a sphere in which the torus would render differently based on how the sphere was rotated:</p>
 
 <div class="figure">
-  <img src="pics/cropped/18-3d-incorrect_intersection-weird-1.png" />
-  <img src="pics/cropped/19-3d-incorrect_intersection-weird-2.png" />
-  <img src="pics/cropped/20-3d-incorrect_intersection-weird-3.png" />
+  <img src="pics/cropped/22-3d-incorrect_intersection-weird-1.png" />
+  <img src="pics/cropped/23-3d-incorrect_intersection-weird-2.png" />
+  <img src="pics/cropped/24-3d-incorrect_intersection-weird-3.png" />
   <p class="caption">As the sphere is rotated, polygons on the top of the torus begin to render incorrectly</p>
 </div>
 
-<p>And this isn't all the strange things that my code started doing with this new algorithm. Weird rendering could be observed with a single polygon, if it was selected [TODO: SHOW US!].</p>
-
 <p>So what the hell is going on?</p>
 
-<p>After a bit of thinking, I think I figured it out.</p>
+<p>When I first encountered this, I pondered for a bit, confuddled. But I think I figured it out.</p>
 
-<p>Consider again the following behavior [TODO: HAVE THREE PICTURES; ONE WITH SPHERE SEL., ONE WITH TORUS SEL., ONE WITH NEITHER SEL]:</p>
+<p>Consider more weird behavior in which the apparent overlapping of two objects will depend on which object is selected:</p>
 
 <div class="figure">
-  <img src="pics/cropped/15-3d-incorrect_intersection-overlapping-1.png" />
-  <img src="pics/cropped/16-3d-incorrect_intersection-overlapping-2.png" />
+  <img src="pics/cropped/19-3d-incorrect_intersection-overlapping-1.png" />
+  <img src="pics/cropped/20-3d-incorrect_intersection-overlapping-2.png" />
+  <img src="pics/cropped/21-3d-incorrect_intersection-overlapping-3.png" />
+  <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
 </div>
 
-<p>In actuallity, the sphere is clipping into the torus, and the left image is closer to the truth than the right image. However, I claim that, using <code>comparator</code>, I can prove&mdash;as long as the torus is selected&mdash;that the leftmost polygon on the torus is closer to the observer than the closest polygon on the sphere, and thus should be painted on top.</p>
+<p>In actuality, the sphere is clipping into the torus (as can be seen by the left image, where nothing is selected), and the left image is closer to the truth than the right image. However, I claim that, using <code>comparator</code>, I can prove&mdash;as long as the torus is selected&mdash;that the leftmost polygon on the torus is closer to the observer than the closest polygon on the sphere, and thus should be painted on top.</p>
 
 <p>The proof is as follows:</p>
 <ol>
