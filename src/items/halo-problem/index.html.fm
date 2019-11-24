@@ -5,16 +5,14 @@ date: 2019-11-23
 desc: "A strange problem I had when coding"
 layout: post
 requires: [mathjax, notes, syntax-highlighting]
-
-indexed: false
 ---
 
-<p>I'd like to tell you about an interesting problem I ran accross when doing a problem for my graphics class...</p>
+<p>I'd like to tell you about an interesting problem I ran across when working a project for my graphics class...</p>
 
 <p><note-ref to="skipping">Skipping much of the class,</note-ref> we'll start when I implemented intersection of two objects in 3d space:</p>
 
 <note-def id="skipping">
-  <p>In my class, we've been coding simple object rendering. We started with 2D, rendering simple colored polygons:</p>
+  <p>In the class, we've been coding simple object rendering. We started with 2D, drawing simple colored polygons:</p>
 
   <div class="figure">
     <img src="pics/cropped/00-2d-unclipped.png" />
@@ -28,35 +26,35 @@ indexed: false
     <p class="caption">A clipped polygon</p>
   </div>
 
-  <p>And then we moved onto 3D! This started out with rendering simple wireframes, for instance this torus:</p>
+  <p>And then we moved onto 3D! This started out with rendering simple wireframes, for instance of this torus:</p>
 
   <div class="figure">
     <img src="pics/cropped/02-3d-wireframe.png" />
     <p class="caption">A torus displayed as a 3d wireframe</p>
   </div>
 
-  <p>and we implemented an optimization called "backface elimiation" which improves rendering some shapes:</p>
+  <p>We then implemented an improvement called "backface elimiation" which improves rendering of some shapes, including this torus ...</p>
 
   <div class="figure">
     <img src="pics/cropped/03-3d-backface.png" />
     <p class="caption">Backface elimination removes the 'back' of the torus</p>
   </div>
 
-  <p>... but isn't perfect ...</p>
+  <p>... but only from certain angles ...</p>
 
   <div class="figure">
     <img src="pics/cropped/04-3d-backface-turned.png" />
     <p class="caption">Backface elimination does not work perfectly on a torus</p>
   </div>
 
-  <p>Then we painted the objects so they were more than just wireframes:</p>
+  <p>Then we actually filled in the polygons instead of just painting their wireframes:</p>
 
   <div class="figure">
     <img src="pics/cropped/05-3d-painted.png" />
     <p class="caption">A painted torus</p>
   </div>
 
-  <p><note-ref to="multiple-timing">And accounted for multtiple objects at once:</note-ref></p>
+  <p><note-ref to="multiple-timing">And allowed multtiple objects at once:</note-ref></p>
 
   <note-def id="multiple-timing">
     <p>Actually, I'm not sure where exactly this came in the timeline. It's not important.</p>
@@ -75,7 +73,7 @@ indexed: false
     <p class="caption">A torus next to a sphere, both lit</p>
   </div>
 
-  <p><note-ref to="intersecting-timing">Finally, accounted for objects intersecting, which I will discuss after this footnote...</note-ref></p>
+  <p><note-ref to="intersecting-timing">Most recently, we accounted for objects intersecting, which I will discuss after this footnote...</note-ref></p>
 
   <note-def id="intersecting-timing">
     <p>This is actually a slight lie: I accounted for intersections <em>before</em> doing lighting. But this order works better for the blog post.</p>
@@ -109,7 +107,7 @@ indexed: false
 
 <p>However, this cannot render any intersections, since each objects is rendered wholesale, one-at-a-time.</p>
 
-<p>Instead, you need to decompose all objects into their constituent polygons, put them all in a list, sort <em>that</em> by distance to observer, and paint each <em>polygon</em> one-at-a-time. So that's what we did. The comparator looked like the following:</p>
+<p>Instead, a better approach is to decompose all objects into their constituent polygons, collect them all in an aggregate list, sort <em>this</em> by distance to observer, and paint each <em>polygon</em> one-at-a-time. So that's what I did. The comparator looked the same as the previous one, but as a function of polygons instead of objects:</p>
 
 <pre><code class="javascript">function comparator(poly1, poly2) {
   // Order by distance
@@ -139,22 +137,22 @@ indexed: false
   <p class="caption">Cueing selection with a halo instead</p>
 </div>
 
-<p>Looking at the above images, you may think I succeeded in doing so. And I did! Kind of. With those particular objects in those particular positions with those particular rotations, the halos render correctly. In general, however, they don't. As it turns out, the problem of how to render these halos is quite tricky...</p>
+<p>Looking at the above images, you may think I succeeded in doing so. And I did! Kind of. With those specific objects in those specific positions with those specific angles, the halos render correctly. In general, however, they don't. As it turns out, the problem of how to render these halos is quite tricky...</p>
 
-<p>I decided, first of all, that the halo should be made by <note-ref to="select-option">running through each polygon of the selected object, dilating it around its center</note-ref>, and making it red. All these red polygons get thrown into the same list as the rest of the polygons, and get sorted, with the rest of the polygons, into some display order.</p>
+<p>So how did I render the halos?</p>
+
+<p>The change came when creating and sorting the list of polygons. Firstly, besides adding each polygon into an aggregate list like we were before, we also add extra polygons: <note-ref to="select-option">each polygon of the selected object gets duplicated, dilated, turned red, and added to the list as well</note-ref>. Thus, the objects, when selected, gets double the number of polygons in the aggregate list as compared to when it's they're not selected. These special red polygons then get sorted with the rest of the polygons in the list, and drawn with them, too.</p>
 
 <note-def id="select-option">
   <p>Another option is to dilate the object as a whole around its center; however, this has some issues. It would work perfectly on a sphere but wouldn't work as well on a torus: the inside of the torus would get no halo.</p>
 </note-def>
 
-<p>The question is then simply: where in the display order do these red polygons belong?</p>
-
-<p>Now, we would want the comparator to look something like this:</p>
+<p>The most direct answer is to draw each special red polygon directly before its regular, purple counterpart. This corresponds to the following comparator function:</p>
 
 <pre><code class="javascript">function comparator(poly1, poly2) {
-  // Place focused polygons behind unfocused polygons
-  if (is_focused(poly1) && !is_focused(poly2)) return PAINT_POLY1_FIRST;
-  if (is_focused(poly2) && !is_focused(poly1)) return PAINT_POLY2_FIRST;
+  // Place red polygons behind purple polygons
+  if (is_red(poly1) && !is_red(poly2)) return PAINT_POLY1_FIRST;
+  if (is_red(poly2) && !is_red(poly1)) return PAINT_POLY2_FIRST;
 
   // Otherwise, order by distance
   let distance1 = distance_to_observer(poly1);
@@ -173,17 +171,17 @@ indexed: false
   <p class="caption">The naive comparator algorithm does not work well</p>
 </div>
 
-<p>The issue is that each red poylgon is being placed <em>just behind</em> its purple counterpart. Since each red polygon is enlarged, it thus obscures all the purple polygons behind it.</p>
+<p>The issue is that since each red polygon is enlarged, it obscures all the purple polygons behind it. Thus, the only pruple polygon you're able to see is the one in the very front.</p>
 
-<p>Okay, I said, let's try again. In order to avoid the previous problem, we'll place each red polygon behind <em>all</em> polygons from the focused model. Otherwise, we'll sort by distance:</p>
+<p>Okay, let's try again. In order to avoid the previous problem, we'll place each red polygon behind <em>all</em> polygons from the focused model. Otherwise, we'll paint in order of decreasing distance, just as before:</p>
 
 <pre><code class="javascript">function comparator(poly1, poly2) {
-  // Place focused polygons behind unfocused polygons,
-  // but ONLY compare polygons from the focused model
-  if (   (is_red(poly1) || is_in_focused_polygon(poly1))
-      && (is_red(poly2) || is_in_focused_polygon(poly2)) ) {
-    if (is_focused(poly1) && !is_focused(poly2)) return PAINT_POLY1_FIRST;
-    if (is_focused(poly2) && !is_focused(poly1)) return PAINT_POLY2_FIRST;
+  // If both polygons are from the focused model
+  /// (they can be either red or purple)
+  if (is_in_focused_polygon(poly1) && is_in_focused_polygon(poly2)) {
+    // Paint red polygons first
+    if (is_red(poly1) && !is_red(poly2)) return PAINT_POLY1_FIRST;
+    if (is_red(poly2) && !is_red(poly1)) return PAINT_POLY2_FIRST;
   }
 
   // Otherwise, order by distance
@@ -196,16 +194,20 @@ indexed: false
 }
 </code></pre>
 
-<p>Unfortunately, this also doesn't work. However, it fails much more subtly... It appears to work at first&mdash;in fact, this is the comparator function I used to generate the original "correct" halo images. However, weird stuff starts to happen.</p>
+<p>Unfortunately, this also doesn't work. However, it fails in a much more subtle and interesting manner... And, <note-ref to="in-fact">in fact, it appears to work at first</note-ref>. However, weird stuff starts to happen.</p>
 
-<p>For instance, sometimes polygons would render out-of-order or not rendered at all:</p>
+<note-def id="in-face">
+  <p>It's the comparator function I used to generate the original "correct" halo images.</p>
+</note-def>
+
+<p>For instance, sometimes polygons render out-of-order or not render at all:</p>
 
 <div class="figure">
   <img src="pics/cropped/15-3d-weird_rendering-1.png" />
   <img src="pics/cropped/16-3d-weird_rendering-2.png" />
   <img src="pics/cropped/17-3d-weird_rendering-3.png" />
   <img src="pics/cropped/18-3d-weird_rendering-4.png" />
-  <p class="caption">Due to halos, some polygons are rendered out of order or not at all</p>
+  <p class="caption">With this comparator, some polygons are rendered out of order or not at all</p>
 </div>
 
 <p>Even weirder, I found a setup with a torus and a sphere in which the torus would render differently based on how the sphere was rotated:</p>
@@ -219,8 +221,6 @@ indexed: false
 
 <p>So what the hell is going on?</p>
 
-<p>When I first encountered this, I pondered for a bit, confuddled. But I think I figured it out.</p>
-
 <p>Consider more weird behavior in which the apparent overlapping of two objects will depend on which object is selected:</p>
 
 <div class="figure">
@@ -230,21 +230,30 @@ indexed: false
   <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
 </div>
 
-<p>In actuality, the sphere is clipping into the torus (as can be seen by the left image, where nothing is selected), and the left image is closer to the truth than the right image. However, I claim that, using <code>comparator</code>, I can prove&mdash;as long as the torus is selected&mdash;that the leftmost polygon on the torus is closer to the observer than the closest polygon on the sphere, and thus should be painted on top.</p>
+<p>In actuality, the sphere is clipping into the torus (as can be seen by the left image, where nothing is selected). However, I claim that the way <code>comparator</code> is defind, I can prove&mdash;as long as the torus is selected&mdash;that leftmost polygon of the torus should be painted on top of the closest polygon of the sphere, despite it being further.</p>
 
 <p>The proof is as follows:</p>
 <ol>
   <li>Assume the torus is selected.</li>
-  <li>Call the rightmost red polygon $R$, the leftmost torus polygon $T$, and the closest sphere polygon $S$.</li>
-  <li>Note that since $R$ is red and $T$ is purple, then <code>comparator(R, T) == PAINT_POLY1_FIRST</code>, meaning that $R$ is behind $T$.</li>
-  <li>Now note that since $R$ is closer to the observer than $S$, then $S$ is behind $R$.</li>
-  <li>Since $S$ is behind $R$ and $R$ is behind $T$, we conclude (wrongly) that $S$ is behind $T$.</li>
+  <li>Call the rightmost red torus polygon $R$, the leftmost purple torus polygon $T$, and the closest sphere polygon $S$.</li>
+  <li>Note that since $R$ is red and $T$ is purple, then <code>comparator</code> tells us to paint $R$ before $T$.</li>
+  <li>Now note that since $R$ is closer to the observer than $S$, and they are in different polygons, then <code>comparator</code> tells us to paint $S$ before $R$.</li>
+  <li>Since $S$ should be painted before $R$ and $R$ should be painted before $T$, we conclude that $S$ should be painted before $T$.</li>
 </ol>
 
-<p>I conjecture that these kinds of proofs are what <code>qsort</code> is doing, causing this strange behavior.</p>
+<p>I conjecture that <note-ref to="proofs">these kinds of proofs are what <code>qsort</code> is doing</note-ref>, causing this strange behavior.</p>
 
-<p>Actually, it turns out that we can also prove that $T$ is behind $S$ simply by comparing their distances to the observer. Thus, $S$ is behind $T$ and $T$ is behind $S$. But that's very clearly a contradiction!</p>
+<note-def id="proofs">
+  <p>Note we can also prove that $T$ should be painted before $T$, since they are from different polygons and $S$ is further than $T$. Thus, $S$ should be painted before $T$, but also, $T$ should be painted before $S$. Impossible!</p>
+  <p>I think (but have not proven) that you can (constructively, without use of LEM) prove, for any two polygons $a$ and $b$, that $a$ should be painted before $b$.</p>
+</note-def>
 
-<p>The issue lies in transitivity. We're assuming that $a < b \land b < c \implies a < c$; we're assuming that <code>coparator</code> is a total ordering when, in fact, it's not.</p>
+<p>The issue is that we're treating <code>comparator</code> as something it isn't&mdash;<code>qsort</code>. In particular, in our proof we assume the transitivity of <code>comparator</code>&mdash;that if it places $a$ before $b$ in the paint order, and placed $b$ before $c$, then it will also place $a$ before $c$. But this simply isn't true! (as shown by the fact that using transitivity leads to contradictions)</p>
 
-<p>So I thought that that was an interesting bug. I hope you enjoyed! I still don't know what algorithm I <em>should</em> use for <code>comparator</code>...</p>
+<p>This corresponds to the <note-ref to="fact">fact</note-ref> that <code>qsort</code> expects <code>comparator</code> to represent a total ordering&mdash;i.e., be sufficiently nice and sufficiently self-consistent in certain ways, such as transitivity&mdash;but the <code>compator</code> we wrote does not represent a total ordering.</p>
+
+<note-def id="fact">
+  <p>I actually haven't verified this, but I can't imagine that it isn't true.</p>
+</note-def>
+
+<p>So how did I fix <code>comparator</code>? Well, I didn't! I'm still not sure about a good solution to this issue. If you have any ideas, let me know! I hope you thought this was as interesting as I did!</p>
