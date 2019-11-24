@@ -25,10 +25,15 @@ body
   padding-bottom: 200px
 
   > *:not(.fullwidth):not(img):not(.figure)
-    padding: 0 $column-padding
     max-width: $column-width
     box-sizing: border-box
     width: 100%
+
+    &:not(ol):not(li)
+      padding: 0 $column-padding
+
+  > ol, > li
+    padding: 0 $column-padding 0 ($column-padding + 30px)
 
 #content, note-def
   // Images are supported in two ways: a plain <img> tag, or

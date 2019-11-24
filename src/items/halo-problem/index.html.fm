@@ -7,9 +7,9 @@ layout: post
 requires: [mathjax, notes, syntax-highlighting]
 ---
 
-<p>I'd like to tell you about an interesting problem I ran across when working a project for my graphics class...</p>
+<p>I'd like to share with you an interesting problem I ran across when working a project for my graphics class.</p>
 
-<p><note-ref to="skipping">Skipping much of the class,</note-ref> we'll start when I implemented intersection of two objects in 3d space:</p>
+<p><note-ref to="skipping">Skipping much of the course,</note-ref> we'll start the tale when I implemented intersection of two objects in 3d space:</p>
 
 <note-def id="skipping">
   <p>In the class, we've been coding simple object rendering. We started with 2D, drawing simple colored polygons:</p>
@@ -33,7 +33,7 @@ requires: [mathjax, notes, syntax-highlighting]
     <p class="caption">A torus displayed as a 3d wireframe</p>
   </div>
 
-  <p>We then implemented an improvement called "backface elimiation" which improves rendering of some shapes, including this torus ...</p>
+  <p>We then implemented an improvement called "backface elimination" which improves rendering of some shapes, including this torus ...</p>
 
   <div class="figure">
     <img src="pics/cropped/03-3d-backface.png" />
@@ -54,7 +54,7 @@ requires: [mathjax, notes, syntax-highlighting]
     <p class="caption">A painted torus</p>
   </div>
 
-  <p><note-ref to="multiple-timing">And allowed multtiple objects at once:</note-ref></p>
+  <p><note-ref to="multiple-timing">And allowed multiple objects at once:</note-ref></p>
 
   <note-def id="multiple-timing">
     <p>Actually, I'm not sure where exactly this came in the timeline. It's not important.</p>
@@ -134,18 +134,20 @@ requires: [mathjax, notes, syntax-highlighting]
 <div class="figure">
   <img src="pics/cropped/12-3d-correct_halo-1.png" />
   <img src="pics/cropped/13-3d-correct_halo-2.png" />
-  <p class="caption">Cueing selection with a halo instead</p>
+  <p class="caption">Cuing selection with a halo instead</p>
 </div>
 
 <p>Looking at the above images, you may think I succeeded in doing so. And I did! Kind of. With those specific objects in those specific positions with those specific angles, the halos render correctly. In general, however, they don't. As it turns out, the problem of how to render these halos is quite tricky...</p>
 
 <p>So how did I render the halos?</p>
 
-<p>The change came when creating and sorting the list of polygons. Firstly, besides adding each polygon into an aggregate list like we were before, we also add extra polygons: <note-ref to="select-option">each polygon of the selected object gets duplicated, dilated, turned red, and added to the list as well</note-ref>. Thus, the objects, when selected, gets double the number of polygons in the aggregate list as compared to when it's they're not selected. These special red polygons then get sorted with the rest of the polygons in the list, and drawn with them, too.</p>
+<p>The change came when creating and sorting the list of polygons. Firstly, besides adding each polygon into an aggregate list like we were before, we also add extra polygons: <note-ref to="select-option">each polygon of the selected object gets duplicated, dilated, turned red, and added to the list as well</note-ref>. Then we draw the red polygons behind their purple counterparts, giving a kind of "glow" around the whole object.</p>
 
 <note-def id="select-option">
   <p>Another option is to dilate the object as a whole around its center; however, this has some issues. It would work perfectly on a sphere but wouldn't work as well on a torus: the inside of the torus would get no halo.</p>
 </note-def>
+
+<p>The question, then, is how <em>exactly</em> to sort the list of polygons. We want red behind purple, of course, but code demands we be more precise.</p>
 
 <p>The most direct answer is to draw each special red polygon directly before its regular, purple counterpart. This corresponds to the following comparator function:</p>
 
@@ -171,7 +173,7 @@ requires: [mathjax, notes, syntax-highlighting]
   <p class="caption">The naive comparator algorithm does not work well</p>
 </div>
 
-<p>The issue is that since each red polygon is enlarged, it obscures all the purple polygons behind it. Thus, the only pruple polygon you're able to see is the one in the very front.</p>
+<p>The issue is that since each red polygon is enlarged, it obscures all the purple polygons behind it. Thus, the only purple polygon you're able to see is the one in the very front.</p>
 
 <p>Okay, let's try again. In order to avoid the previous problem, we'll place each red polygon behind <em>all</em> polygons from the focused model. Otherwise, we'll paint in order of decreasing distance, just as before:</p>
 
@@ -194,13 +196,13 @@ requires: [mathjax, notes, syntax-highlighting]
 }
 </code></pre>
 
-<p>Unfortunately, this also doesn't work. However, it fails in a much more subtle and interesting manner... And, <note-ref to="in-fact">in fact, it appears to work at first</note-ref>. However, weird stuff starts to happen.</p>
+<p>Deviously, this one <note-ref to="in-fact">it appears to work at first</note-ref>. However, weird stuff starts to happen.</p>
 
-<note-def id="in-face">
-  <p>It's the comparator function I used to generate the original "correct" halo images.</p>
+<note-def id="in-fact">
+  <p>In fact, it's the comparator function I used to generate the original "correct" halo images.</p>
 </note-def>
 
-<p>For instance, sometimes polygons render out-of-order or not render at all:</p>
+<p>For instance, sometimes polygons render out-of-order or don't render at all, causing glitchy holes and red blotches on the torus:</p>
 
 <div class="figure">
   <img src="pics/cropped/15-3d-weird_rendering-1.png" />
@@ -230,27 +232,30 @@ requires: [mathjax, notes, syntax-highlighting]
   <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
 </div>
 
-<p>In actuality, the sphere is clipping into the torus (as can be seen by the left image, where nothing is selected). However, I claim that the way <code>comparator</code> is defind, I can prove&mdash;as long as the torus is selected&mdash;that leftmost polygon of the torus should be painted on top of the closest polygon of the sphere, despite it being further.</p>
+<p>In actuality, the sphere is clipping into the torus (as can be seen by the first image, where nothing is selected). However, I claim that the way <code>comparator</code> is defined, I can prove that when the torus is selected, the leftmost polygon of the torus should be painted on top of the closest polygon of the sphere, despite it being further</p>
 
-<p>The proof is as follows:</p>
+<p>Why is this so? The proof goes something like this:</p>
 <ol>
   <li>Assume the torus is selected.</li>
-  <li>Call the rightmost red torus polygon $R$, the leftmost purple torus polygon $T$, and the closest sphere polygon $S$.</li>
-  <li>Note that since $R$ is red and $T$ is purple, then <code>comparator</code> tells us to paint $R$ before $T$.</li>
-  <li>Now note that since $R$ is closer to the observer than $S$, and they are in different polygons, then <code>comparator</code> tells us to paint $S$ before $R$.</li>
-  <li>Since $S$ should be painted before $R$ and $R$ should be painted before $T$, we conclude that $S$ should be painted before $T$.</li>
+  <li>Note that <code>comparator</code> tells us to paint the rightmost red torus polygon before we paint the leftmost purple torus polygon&mdash;because they are in the same object, <code>comparator</code> paints the red polygon before the purple polygon.</li>
+  <li>Now note that <code>comparator</code> tells us to paint the closest sphere polygon before we paint the leftmost red torus polygon&mdash;since they are from different objects, <code>comparator</code> compares their distances, and the sphere polygon is further than the torus polygon.</li>
+  <li>Thus, <code>comparator</code> has told us that (1) the sphere polygon should be painted before the red torus polygon, and (2) the red torus polygon should be painted before the purple torus polygon. We conclude, then, that the sphere polygon should be painted before the purple torus polygon.</li>
 </ol>
+
+<p>In this manner, we can show that, according to <code>comparator</code>, if the torus is selected, then the leftmost purple torus polygon <em>is</em>, visually, in front of the sphere. We can repeat a similar proof for <em>all</em> the polygons on the left side of the torus, and thus show that, visually, the torus is entirely in front of the sphere.</p>
+
+<p>Likewise, when the sphere is selected, we are able to do similar proofs for its polygons, showing that the sphere is visually on top of the torus.</p>
 
 <p>I conjecture that <note-ref to="proofs">these kinds of proofs are what <code>qsort</code> is doing</note-ref>, causing this strange behavior.</p>
 
 <note-def id="proofs">
-  <p>Note we can also prove that $T$ should be painted before $T$, since they are from different polygons and $S$ is further than $T$. Thus, $S$ should be painted before $T$, but also, $T$ should be painted before $S$. Impossible!</p>
+  <p>Note we can also prove that the sphere polygon should be painted before the purple polygon, since they are from different polygons and the sphere polygon is further than the purple polygon. Thus, the sphere polygon should be painted before the torus polygon, but also, as we have already shown, the torus polygon should be painted before the sphere polygon. Impossible!</p>
   <p>I think (but have not proven) that you can (constructively, without use of LEM) prove, for any two polygons $a$ and $b$, that $a$ should be painted before $b$.</p>
 </note-def>
 
 <p>The issue is that we're treating <code>comparator</code> as something it isn't&mdash;<code>qsort</code>. In particular, in our proof we assume the transitivity of <code>comparator</code>&mdash;that if it places $a$ before $b$ in the paint order, and placed $b$ before $c$, then it will also place $a$ before $c$. But this simply isn't true! (as shown by the fact that using transitivity leads to contradictions)</p>
 
-<p>This corresponds to the <note-ref to="fact">fact</note-ref> that <code>qsort</code> expects <code>comparator</code> to represent a total ordering&mdash;i.e., be sufficiently nice and sufficiently self-consistent in certain ways, such as transitivity&mdash;but the <code>compator</code> we wrote does not represent a total ordering.</p>
+<p>This corresponds to the <note-ref to="fact">fact</note-ref> that <code>qsort</code> expects <code>comparator</code> to represent a total ordering&mdash;i.e., be sufficiently nice and sufficiently self-consistent in certain ways, such as transitivity&mdash;but the <code>comparator</code> we wrote does not represent a total ordering.</p>
 
 <note-def id="fact">
   <p>I actually haven't verified this, but I can't imagine that it isn't true.</p>
