@@ -141,7 +141,7 @@ requires: [mathjax, notes, syntax-highlighting]
 
 <p>So how did I render the halos?</p>
 
-<p>The change came when creating and sorting the list of polygons. Firstly, besides adding each polygon into an aggregate list like we were before, we also add extra polygons: <note-ref to="select-option">each polygon of the selected object gets duplicated, dilated, turned red, and added to the list as well</note-ref>. Then we draw the red polygons behind their purple counterparts, giving a kind of "glow" around the whole object.</p>
+<p>The pieces of the algorithm relevant to halo rendernig are creating and sorting the list of polygons. Firstly, besides adding each polygon into an aggregate list like we were before, we also add extra polygons: <note-ref to="select-option">each polygon of the selected object gets duplicated, dilated, turned red, and added to the list as well</note-ref>. Then we draw the red polygons behind their purple counterparts, giving a kind of "glow" around the whole object.</p>
 
 <note-def id="select-option">
   <p>Another option is to dilate the object as a whole around its center; however, this has some issues. It would work perfectly on a sphere but wouldn't work as well on a torus: the inside of the torus would get no halo.</p>
@@ -238,7 +238,7 @@ requires: [mathjax, notes, syntax-highlighting]
 <ol>
   <li>Assume the torus is selected.</li>
   <li>Note that <code>comparator</code> tells us to paint the rightmost red torus polygon before we paint the leftmost purple torus polygon&mdash;because they are in the same object, <code>comparator</code> paints the red polygon before the purple polygon.</li>
-  <li>Now note that <code>comparator</code> tells us to paint the closest sphere polygon before we paint the leftmost red torus polygon&mdash;since they are from different objects, <code>comparator</code> compares their distances, and the sphere polygon is further than the torus polygon.</li>
+  <li>Now note that <code>comparator</code> tells us to paint the closest sphere polygon before we paint the rightmost red torus polygon&mdash;since they are from different objects, <code>comparator</code> compares their distances, and the sphere polygon is further than the torus polygon.</li>
   <li>Thus, <code>comparator</code> has told us that (1) the sphere polygon should be painted before the red torus polygon, and (2) the red torus polygon should be painted before the purple torus polygon. We conclude, then, that the sphere polygon should be painted before the purple torus polygon.</li>
 </ol>
 
@@ -253,7 +253,7 @@ requires: [mathjax, notes, syntax-highlighting]
   <p>I think (but have not proven) that you can (constructively, without use of LEM) prove, for any two polygons $a$ and $b$, that $a$ should be painted before $b$.</p>
 </note-def>
 
-<p>The issue is that we're treating <code>comparator</code> as something it isn't&mdash;<code>qsort</code>. In particular, in our proof we assume the transitivity of <code>comparator</code>&mdash;that if it places $a$ before $b$ in the paint order, and placed $b$ before $c$, then it will also place $a$ before $c$. But this simply isn't true! (as shown by the fact that using transitivity leads to contradictions)</p>
+<p>The issue is that we're treating <code>comparator</code> as something it isn't. In particular, in our proof we assume the transitivity of <code>comparator</code>&mdash;that if it places $a$ before $b$ in the paint order, and placed $b$ before $c$, then it will also place $a$ before $c$. But this simply isn't true! (as shown by the fact that using transitivity leads to contradictions)</p>
 
 <p>This corresponds to the <note-ref to="fact">fact</note-ref> that <code>qsort</code> expects <code>comparator</code> to represent a total ordering&mdash;i.e., be sufficiently nice and sufficiently self-consistent in certain ways, such as transitivity&mdash;but the <code>comparator</code> we wrote does not represent a total ordering.</p>
 
