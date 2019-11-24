@@ -2,6 +2,11 @@
 
 @import url('https://fonts.googleapis.com/css?family=Lato|Merriweather')
 
+.border-and-shadow
+  border: 1px solid $offdark
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3)
+  border-radius: 4px
+
 *
   box-sizing: border-box
 
@@ -19,11 +24,34 @@ body
   align-items: center
   padding-bottom: 200px
 
-  > *:not(.fullwidth)
+  > *:not(.fullwidth):not(img):not(.figure)
     padding: 0 $column-padding
     max-width: $column-width
     box-sizing: border-box
     width: 100%
+
+  // Images are supported in two ways: a plain <img> tag, or
+  // A <.figure> <img> <.caption> </.figure>
+
+  img
+    height: 225px
+    width: auto
+    padding: 0
+    @extend .border-and-shadow
+
+  > img, > .figure
+    margin: 15px 0
+
+  > .figure
+    text-align: center
+
+    .caption
+      margin: 0
+      margin-bottom: 5px
+      color: $offdark
+      text-align: center
+      font-style: italic
+      font-size: 0.9em
 
   > .fullwidth
     max-width: 100%
@@ -138,8 +166,6 @@ header
 
 
 
-// index styling
-
 .metadata
   color: $offdark
   font-size: 0.8em
@@ -162,3 +188,8 @@ table
     border-left: 1px solid $grey
   tr
     border-bottom: 1px solid $grey
+
+// Highlighted code
+pre > code
+  padding: 15px 25px !important
+  @extend .border-and-shadow

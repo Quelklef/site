@@ -11,3 +11,14 @@
   <script src="/assets/notes/linewrap.js"></script>
   <link rel="stylesheet" type="text/css" href="/assets/notes/notes.css">
 {% endif %}
+
+{% if 'syntax-highlighting' in item.requires %}
+  <link rel="stylesheet" href="/assets/syntax-highlighting/styles/dracula.css">
+  <script src="/assets/syntax-highlighting/highlight.pack.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    hljs.initHighlightingOnLoad();
+    console.log('c');
+  });
+  </script>
+{% endif %}
