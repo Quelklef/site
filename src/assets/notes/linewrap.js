@@ -44,7 +44,7 @@
     // Where we consider the start of the "next line"
     // (Doing it this way is useful to work properly with things like e.g. MathJax,
     // where symbols can just out a little bit below the bottom of the line they're in.)
-    const threshold = elBottom + el.getBoundingClientRect().height / 4;
+    const threshold = elBottom + el.getBoundingClientRect().height / 2;
 
     // Get the last word on the same line as the given element
     ensureDescendantTextNodesWrapped(paragraph);
