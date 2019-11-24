@@ -149,10 +149,12 @@ requires: [mathjax, notes, syntax-highlighting]
 
 <p>The question, then, is how <em>exactly</em> to sort the list of polygons. We want red behind purple, of course, but code demands we be more precise.</p>
 
-<p>The most direct answer is to draw each special red polygon directly before its regular, purple counterpart. This corresponds to the following comparator function:</p>
+<p><note-ref to="most-direct">The most direct answer</note-ref> is to draw each special red polygon directly before its regular, purple counterpart. This corresponds to the following comparator function:</p>
 
-<pre><code class="javascript">function comparator(poly1, poly2) {
-  // Place red polygons behind purple polygons
+<note-def id="most-direct">
+  <p>Another option is to paint all red polygons before all purple polygons, and otherwise paint by distance:</p>
+  <pre><code class="javascript">function comparator(poly1, poly2) {
+  // Place red before purple
   if (is_red(poly1) && !is_red(poly2)) return PAINT_POLY1_FIRST;
   if (is_red(poly2) && !is_red(poly1)) return PAINT_POLY2_FIRST;
 
@@ -161,6 +163,24 @@ requires: [mathjax, notes, syntax-highlighting]
   let distance2 = distance_to_observer(poly2);
   if (distance1 > distance2) return PAINT_POLY1_FIRST;
   if (distance2 > distance1) return PAINT_POLY2_FIRST;
+
+  return PAINT_EITHER_FIRST;
+}
+</code></pre>
+  <p>The issue with this is that it means that the halo is <em>never</em> painted on top of anything else. However, it is sometimes appropriate to paint the halo on top of other things. For instance, if a selected torus is entirely in front of a sphere, it would make sense for the halo to be painted on top of the sphere.</p>
+</note-def>
+
+<pre><code class="javascript">function comparator(poly1, poly2) {
+  // Order by distance
+  let distance1 = distance_to_observer(poly1);
+  let distance2 = distance_to_observer(poly2);
+  if (distance1 > distance2) return PAINT_POLY1_FIRST;
+  if (distance2 > distance1) return PAINT_POLY2_FIRST;
+
+  // If the same distance, for instance in the case of a pair
+  // of buddy red and purple polygons, paint the red polygon first
+  if (is_red(poly1) && !is_red(poly2)) return PAINT_POLY1_FIRST;
+  if (is_red(poly2) && !is_red(poly1)) return PAINT_POLY2_FIRST;
 
   return PAINT_EITHER_FIRST;
 }
