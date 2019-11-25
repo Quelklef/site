@@ -3,8 +3,8 @@
 @import url('https://fonts.googleapis.com/css?family=Lato|Merriweather')
 
 .border-and-shadow
-  border: 1px solid $grey
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3), inset 0 0 4px rgba(0, 0, 0, 0.2)
+  border: 1px solid $offdark
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3), inset 0 0 4px rgba(0, 0, 0, 0.2), 0 0 0 1px $grey
   border-radius: 6px
 
 *
@@ -40,10 +40,12 @@ body
   // A <.figure> <img> <.caption> </.figure>
 
   img
-    height: 225px
-    width: auto
     padding: 0
     @extend .border-and-shadow
+
+    &.--small
+      height: 225px
+      width: auto
 
   > img, > .figure
     margin: 15px 0
@@ -199,3 +201,60 @@ table
 pre > code
   padding: 15px 25px !important
   @extend .border-and-shadow
+
+
+
+
+input, button
+  padding: 10px 14px
+  border-radius: 3px
+
+button
+  border: none
+  background: $dark
+  color: white
+
+  &:hover
+    cursor: pointer
+
+input
+  border: 1px solid $offdark
+  color: $dark
+  background: white
+
+  &:focus, &:hover
+    outline: none
+    border-color: $dark
+
+// Mailing list CSS
+
+#mailing-list-wrapper
+  text-align: center
+  margin-top: 150px
+  width: 100%
+
+  > div
+    border: 1px solid $grey
+    padding: 10px 60px
+    display: inline-block
+    background: white
+
+  position: relative
+  &:before
+    z-index: -1
+    position: absolute
+    content: ''
+    display: inline-block
+    width: 100%
+    background: $grey
+    height: 1px
+    left: 0
+    top: 50%
+
+#mailing-list-succ
+  color: green
+  font-style: italic
+
+#mailing-list-fail
+  color: red
+  font-style: italic

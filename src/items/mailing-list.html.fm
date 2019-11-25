@@ -1,0 +1,39 @@
+---
+title: "Mailing List"
+tags: [more me]
+date: 2019-11-25
+layout: post
+requires: []
+---
+
+<div class="fullwidth" id="mailing-list-wrapper">
+  <div>
+    <p>Like my stuff? Get emailed when I make a new post:</p>
+    <form id="mailing-list-signup" action="https://www.formbackend.com/f/d48838df5cfa16e7" method="POST">
+      <input type="email" name="email" placeholder="Your email" required></input>
+      <button type="submit">Sign me up!</button>
+    </form>
+    <p><span id="mailing-list-succ" style="display: none">You're all signed up! Thank you!</span>
+    <span id="mailing-list-fail" style="display: none">I think something's gone wrong. Please try again.</span></p>
+  </div>
+</div>
+
+<script defer src="https://js.formbackend.com/formbackend.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const formbackend = window.formbackend || function() { (formbackend.q = formbackend.q || []).push(arguments) };
+
+    const $submit = document.getElementById('mailing-list-signup').querySelector('button')[0];
+    const $succ = document.getElementById('mailing-list-succ');
+    const $fail = document.getElementById('mailing-list-fail');
+
+    formbackend({
+      selector: '#mailing-list-signup',
+      onSuccess: function({ form, values, submission_text }) {
+        $succ.style.display = 'block';
+        $fail.style.dispaly = 'none';
+      }
+    });
+  });
+</script>
+

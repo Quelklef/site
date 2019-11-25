@@ -21,7 +21,7 @@ It is important to note that the center of the rotation and dilation is <em>not<
 
 <p>We have a function $f : \mathbb C \to \mathbb C$. Let's take a look at a single point in $\mathbb C$, call it $z_0$. Consider some small movement or "arrow" $\Delta z$ within the domain that will take $z_0$ to $z_0 + \Delta z$. If we consider the image of $z_0$ and $z_0 + \Delta z$, which are $f(z_0)$ and $f(z_0 + \Delta z)$, respectively, we may draw another arrow, analogous to the $\Delta z$ arrow, between them which represents the movement it would take to bring $f(z_0)$ to $f(z_0 + \Delta z)$. The size of this second arrow is $f(z_0 + \Delta z) - f(z_0)$.</p>
 
-<div class="fullwidth"><img src="fig.png"></div>
+<img src="fig.png">
 
 <p>But what's this got to do with analyticity? <note-ref to="analytic-differentiable">A function is analytic iff it is differentiable</note-ref>. And it is differentiable if its derivative exists, i.e.,</p>
 
