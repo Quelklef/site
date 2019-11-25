@@ -2,7 +2,7 @@
 title: Infinite Rigor
 tags: [math]
 date: 2019-10-24
-desc: "Finding (almost) infinte rigor in programming"
+desc: "Finding (almost) infinite rigor in programming"
 layout: post
 requires: [mathjax, notes]
 
@@ -15,7 +15,7 @@ indexed: false
 
 <p>Bummer. Perfect rigor isn't possible.</p>
 
-<p>I claim that, actually, it is... kind of. Essentially, we take the laws of physics to be our bottom-level language. The next level up is transistors, then circuits, all the way up to computers. Programming languages allow us to expresss ourselves in a way that is understandable by <em>the laws of physics</em>. When I write a program, this is a description of what I want, and it is <em>so</em> rigorous that a <em>physical system</em>, the quintessence of concreteness, can understand it.</p>
+<p>I claim that, actually, it is... kind of. Essentially, we take the laws of physics to be our bottom-level language. The next level up is transistors, then circuits, all the way up to computers. Programming languages allow us to express ourselves in a way that is understandable by <em>the laws of physics</em>. When I write a program, this is a description of what I want, and it is <em>so</em> rigorous that a <em>physical system</em>, the quintessence of concreteness, can understand it.</p>
 
-<p>Thus we have achieved infinite rigor! Almost. There is one big, gnawing issue. Physical systems err and decay. Weird things happen in real life which cause computers to do funn things. It doesn't always work as expected. Which means that we have infinite rigor&em;most of the time. And that's the best we can get.</p>
+<p>Thus we have achieved infinite rigor! Almost. There is one big, gnawing issue. Physical systems err and decay. Weird things happen in real life which cause computers to do funny things. It doesn't always work as expected. Which means that we have infinite rigor&em;most of the time. And that's the best we can get.</p>
 

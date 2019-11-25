@@ -26,7 +26,7 @@ tr td:nth-child(2) { text-align: center; }
   <tr> <td>S-Expression</td> <td><code>(f x y z)</code></td> <td>Lisps</td> </tr>
   <tr> <td>Interval notation</td> <td>$[2, +\infty)$</td> <td>Mathematics</td> </tr>
   <tr> <td>$n$ choose $k$</td> <td>${n \choose k}$</td> <td>Mathematics</td> </tr>
-  <tr> <td>Matricies</td> <td>$\left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Matrices</td> <td>$\left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)$</td> <td>Mathematics</td> </tr>
   <tr> <td>Greatest common divisor</td> <td>$(a, b) := \mathit{gcd}(a, b)$</td> <td>Mathematics</td> </tr>
   <tr> <td>Generator expression</td> <td><code>(f(x) for x in li)</code></td> <td>Python</td> </tr>
   <tr> <td>Function shorthand</td> <td><code>(+)</code>, <code>(+2)</code>, <code>(3*)</code></td> <td>Haskell</td> </tr>

@@ -25,7 +25,7 @@ $$ Q(x) := \begin{cases} 0 & x = 0 \\ 4+Q(x-1) & \text{otherwise} \end{cases} $$
 
 <h2>Conditionals and Booleans in $\lambda$ calculus</h2>
 
-<p>Like <note-ref to="recursive-algorithms">all recursive algorithms</note-ref>, $Q$ contains a base case, when $x = 0$, and a recursive case, when $x \neq 0$. If we want to implement this in $\lambda$ calculus, we'll need a way to distinguish betwen the base and recursive cases. Math does this, as shown above, with case notation; many programming languages do this with if-statements or" <a href="https://stackoverflow.com/questions/6259982/how-do-you-use-the-conditional-operator-in-javascript/6260001">the ternary operator</a>; $\lambda$ calculus does it with all it's got: functions</p>
+<p>Like <note-ref to="recursive-algorithms">all recursive algorithms</note-ref>, $Q$ contains a base case, when $x = 0$, and a recursive case, when $x \neq 0$. If we want to implement this in $\lambda$ calculus, we'll need a way to distinguish between the base and recursive cases. Math does this, as shown above, with case notation; many programming languages do this with if-statements or" <a href="https://stackoverflow.com/questions/6259982/how-do-you-use-the-conditional-operator-in-javascript/6260001">the ternary operator</a>; $\lambda$ calculus does it with all it's got: functions</p>
 
 <note-def id="recursive-algorithms">
   <p>One could argue that an algorithm such as:
@@ -45,7 +45,7 @@ $$(\geq 0x)(1)(-1).$$
 <note-def id="geq-neg">
   <p>Note that $-1$ is <em>not</em> the function $-$ applied to the value $1$ but rather the single unit <q>negative one</q></p>
   <p>Also: $\geq$, $0$, $1$, $-1$ and all other symbols which are not parameters are not <q>real</q> $\lambda$ calculus constructs, but merely shorthand. Assignment does not exist in $\lambda$ calculus. These values only stand for some unspecified functions, with the promise that these functions work together as expected. For instance, that $\geq00 = \text{true}$, $+24=6$, etc. This is elaborated on in another note.</p>
-  <p>Because assignment doesn't really exist and shorthand is not <q>real</q> $\lambda$ calculus, I tried to avoid using it in this post, generally opting for $\underbrace{\text{underbace}}$ and $\overbrace{\text{overbrace}}$ labeling notation instead. However, how $\geq$, $1$, $-1$ and the rest of the numbers are defined is out of the scope of this post, so I had little choice but to use shorthand for these items.</p>
+  <p>Because assignment doesn't really exist and shorthand is not <q>real</q> $\lambda$ calculus, I tried to avoid using it in this post, generally opting for $\underbrace{\text{underbrace}}$ and $\overbrace{\text{overbrace}}$ labeling notation instead. However, how $\geq$, $1$, $-1$ and the rest of the numbers are defined is out of the scope of this post, so I had little choice but to use shorthand for these items.</p>
 </note-def>
 
 <note-def id="sign-function">
@@ -77,7 +77,7 @@ but what should be put in the place of <code>RECUR</code>?</p>
   <p>Note that $Q^R$ is not some operation $\cdot^R$ applied to $Q$ but rather just another variable name.</p>
 </note-def>
 
-<p>Recursion is self-reference, so our implementation of $Q$ needs to have access to itself in its body. However, lambdas <note-ref to="no-recursion">don't innately have this</note-ref>. A lambda only has access to its arguments. Perhaps, then, we could... pass the function <em>to</em> itself as an arguemnet? Something like:
+<p>Recursion is self-reference, so our implementation of $Q$ needs to have access to itself in its body. However, lambdas <note-ref to="no-recursion">don't innately have this</note-ref>. A lambda only has access to its arguments. Perhaps, then, we could... pass the function <em>to</em> itself as an argument? Something like:
 $$ \underbrace{\lambda \color{red}{R}x.Zx0(+4(\color{red}{R}(-x1)))}_{Q^R} $$
 where $R$ is just <note-ref to="superscripts">$Q^R$</note-ref>, but passed as an argument. Then ${Q^R}{Q^R}$ should be a quadrupling function. Let's try it:
 $$ \begin{align*}
@@ -108,7 +108,7 @@ $$ \begin{align*}
 &= \one{8}
 \end{align*} $$</p>
 
-<p>In general, a function in <q>double-$R$</q> form should, when passed to itself, produce the desired recursive function. We can wrap up this <q>passing-to-self</q> or <q>self-invokation</q> into <note-ref to="function-I">a function $I$</note-ref> to do the work for us:</p>
+<p>In general, a function in <q>double-$R$</q> form should, when passed to itself, produce the desired recursive function. We can wrap up this <q>passing-to-self</q> or <q>self-invocation</q> into <note-ref to="function-I">a function $I$</note-ref> to do the work for us:</p>
 <note-def id="function-I">
   <p>$I$ is a fun function because $II =_\beta II$:
   $$ \begin{align*}

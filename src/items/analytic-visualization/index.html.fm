@@ -11,7 +11,7 @@ requires: [mathjax, notes]
 
 <p>But what's with those two circles in the domain and codomain?</p>
 
-<p>The circles have to do with complex-analytic functions. The idea of a function being 'analytic' may be thought of as it being <note-ref to="locally">'locally a dilation and rotation'</note-ref>. That is, if we zoom in really close to a neighborhood around a point, and look at the image of that neighborhood under the function, the latter will look like a rotation and scaling of the former. The rircles are used to visualize that rotation and scaling.</p>
+<p>The circles have to do with complex-analytic functions. The idea of a function being 'analytic' may be thought of as it being <note-ref to="locally">'locally a dilation and rotation'</note-ref>. That is, if we zoom in really close to a neighborhood around a point, and look at the image of that neighborhood under the function, the latter will look like a rotation and scaling of the former. The circles are used to visualize that rotation and scaling.</p>
 
 <note-def id="locally"><p>
 It is important to note that the center of the rotation and dilation is <em>not</em> zero but rather the center of a neighborhood.
@@ -45,8 +45,8 @@ $$ f'(z_0) \cdot \Delta z \approx f(z_0 + \Delta z) - f(z_0) $$
 The rigorous version is that <em>in the limit case</em>, the two arrows are multiples of each other.
 </p></note-def>
 
-<p>Since $\Delta z$ is aribtrary, we may point the domain arrow in any direction and give it any magnitude, and the corresponding arrow in the image will still be a multiple of it. In fact, since this multiple is $f'(z_0)$, which is independent of $\Delta z$, it's the <em>same</em> multiple for every arrow we draw.</p>
+<p>Since $\Delta z$ is arbitrary, we may point the domain arrow in any direction and give it any magnitude, and the corresponding arrow in the image will still be a multiple of it. In fact, since this multiple is $f'(z_0)$, which is independent of $\Delta z$, it's the <em>same</em> multiple for every arrow we draw.</p>
 
-<p>This means that we could instead draw a circle in the domain, and the correspinding circle in the image could also be approximated as a multiple of the domain's circle. This is what the circles are. They are a way of visualizing the local rotation and scaling of the function. A circle is drawn in the domain, centered around $z_0$, and drawn, rotated and scaled by $f'(z_0)$, in the codomain, centered around $f(z_0)$.</p>
+<p>This means that we could instead draw a circle in the domain, and the corresponding circle in the image could also be approximated as a multiple of the domain's circle. This is what the circles are. They are a way of visualizing the local rotation and scaling of the function. A circle is drawn in the domain, centered around $z_0$, and drawn, rotated and scaled by $f'(z_0)$, in the codomain, centered around $f(z_0)$.</p>
 
 <p>The size of the circle may be changed in the settings menu, but not that it's called $\epsilon$ rather than $\Delta z$.</p>

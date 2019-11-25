@@ -21,7 +21,7 @@ requires: [mathjax, notes]
 
 <h2>Associativity as Composition</h2>
 
-<p>Addition is an assocative operation. This is a fact. We write this fact as follows:</p>
+<p>Addition is an associative operation. This is a fact. We write this fact as follows:</p>
 
 $$ x + (y + z) = (x + y) + z $$
 
@@ -93,7 +93,7 @@ $$ \begin{align*}
 
 </note-def>
 
-<p>Let's put ourselves in the shoes of a game designer for a second. We're making a game about an adventerous hedgehog. We represent the hedgehog as a really big polygon with a bunch of points, and call it $h$:</p>
+<p>Let's put ourselves in the shoes of a game designer for a second. We're making a game about an adventurous hedgehog. We represent the hedgehog as a really big polygon with a bunch of points, and call it $h$:</p>
  
 $$ h = \left[ \begin{matrix}
  0  & 3  & 5  & 8  & -2 & 16 & \cdots \\
@@ -136,7 +136,7 @@ $$ h' = Sh(1.1) \cdot [ Di(0.9) \cdot [ Rot(1^\circ) \cdot h ]] $$
 
 <p>Recall that we're in the shoes of a game developer here. We want things to be <i>fast</i>. However, this is not very fast. Matrix multiplication is relatively cheap, certainly, but it gets slower as the number of points in your matrices increases. And $h$, as noted previously, is a very large matrix&mdash;so multiplication with $h$ is slow, relatively speaking.</p>
 
-<p>The first calculation we do here is $Rot(1^\circ) \cdot h$, which will be slow since it invoves $h$. The result, just a rotation of $h$, will have the same number of points as $h$, and thus be just as large. Then we multiply <em>this</em> matrix by $Di(0.9)$. Again, this will be slow, since one of the matricies is so big. And, again this will produce a large matrix. Finally, we multiply by $Sh(1.1)$, which has all the same problems: it's slow, and produces a large matrix.</p>
+<p>The first calculation we do here is $Rot(1^\circ) \cdot h$, which will be slow since it involves $h$. The result, just a rotation of $h$, will have the same number of points as $h$, and thus be just as large. Then we multiply <em>this</em> matrix by $Di(0.9)$. Again, this will be slow, since one of the matrices is so big. And, again this will produce a large matrix. Finally, we multiply by $Sh(1.1)$, which has all the same problems: it's slow, and produces a large matrix.</p>
 
 <p>In this manner, we do a lot of work every time we apply a transformation to the hedgehog.</p>
 
@@ -156,7 +156,7 @@ $$ h' = [[Sh(1.1) \cdot Di(0.9)] \cdot Rot(1^\circ)] \cdot h$$
 
 <p>Subtraction makes a great example of this. It's not associative; however, it can still be composed.</p>
 
-<p>First, we need to address an ambiguity. <note-ref to="ambiguity">There are actually <em>two</em> ways we can think about assocativity with subtraction. Consider a difference $a - b$. One way to think of this is as the action of subtracting something from $a$, applied to $b$. Alternatively, we think of this as the action of subtracting $b$ from something, applied to $a$.</note-ref>  Neither choice is correct or incorrect; both are valid. Further, both cases are interesting. However, only one is composable.</p>
+<p>First, we need to address an ambiguity. <note-ref to="ambiguity">There are actually <em>two</em> ways we can think about associativity with subtraction. Consider a difference $a - b$. One way to think of this is as the action of subtracting something from $a$, applied to $b$. Alternatively, we think of this as the action of subtracting $b$ from something, applied to $a$.</note-ref>  Neither choice is correct or incorrect; both are valid. Further, both cases are interesting. However, only one is composable.</p>
 
 <note-def id="ambiguity">
   <p>This ambiguity didn't arise with addition because addition is commutative. Since $a+b=b+a$, the two cases are actually the same.</p>
