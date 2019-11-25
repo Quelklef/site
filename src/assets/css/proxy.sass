@@ -1,17 +1,11 @@
 // This sass file is designed to overwrite global.sass for proxy files
 @import "_params.sass"
 
-body
-  min-height: 100vh
-
 #iframe-wrap
+  @extend .border-and-shadow
   box-sizing: border-box
-  border: 1px solid $grey
   margin: 15px 0
-  width: 100vw
-  max-width: $column-width * 2
-
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+  width: $column-width * 2
 
 #iframe
   border: none

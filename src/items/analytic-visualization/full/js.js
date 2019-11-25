@@ -319,7 +319,7 @@ function fieldProxy($el, parse, setterMap) {
   setterMap = setterMap || (x => x);
 
   'change onchange keyup keypress onpaste mouseup mousewheel mousedown click'.split(' ').forEach(event =>
-    $el.addEventListener(event, draw));
+    $el.addEventListener(event, draw, { passive: true }));
 
   const o = {
     _prevValue: $el.value,
@@ -395,8 +395,7 @@ document.addEventListener('wheel', function scrollHandler(e) {
     codScaleField.set(codScaleField.get() * scaleScale);
 
   draw();
-  e.preventDefault();
-});
+}, { passive: true });
 
 let interval;
 function animateMovement(deltaZ) {
