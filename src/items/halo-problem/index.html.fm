@@ -252,19 +252,30 @@ requires: [mathjax, notes, syntax-highlighting]
   <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
 </div>
 
-<p>In actuality, the sphere is clipping into the torus (as can be seen by the first image, where nothing is selected). However, I claim that the way <code>comparator</code> is defined, I can prove that when the torus is selected, the leftmost polygon of the torus should be painted on top of the closest polygon of the sphere, despite it being further</p>
+<p>In actuality, the sphere is clipping into the torus (as can be seen by the third image, where nothing is selected). However, when the torus is selected, the way <code>comparator</code> is defined allows us to prove that it should be drawn entirely on top of the sphere.</p>
 
-<p>Why is this so? The proof goes something like this:</p>
+<p>To show you why, let's label some points:</p>
+
+<div class="figure">
+  <img class="--small" src="pics/3d-incorrect_intersection-overlapping-1-labeled.png" />
+  <img class="--small" src="pics/3d-incorrect_intersection-overlapping-2-labeled.png" />
+  <img class="--small" src="pics/3d-incorrect_intersection-overlapping-3-labeled.png" />
+  <p class="caption">Labelings of three choice points. Labels are always shown, but dots are only visible when the points they represent are visible. $A$ is on the sphere, $B$ is on the torus, and $C$ is on the torus' halo. Since $B$ is behind the sphere (see image 3), we know that $A$ is closer to the observer than $B$.</div>
+
+<p>I will use the notation $X \rightharpoonup Y$ to mean that <code>comparator</code> tells us to paint $Y$ after $X$. The arrow points from painted first to painted last, from painted on the bottom to painted on the top. It may be pronounced "before" or "and then" or "under".</p>
+
+<p>Now I will show that, strangely, $A \rightharpoonup B$ despite $B$ being further from the observer:</p>
+
 <ol>
-  <li>Assume the torus is selected.</li>
-  <li>Note that <code>comparator</code> tells us to paint the rightmost red torus polygon before we paint the leftmost purple torus polygon&mdash;because they are in the same object, <code>comparator</code> paints the red polygon before the purple polygon.</li>
-  <li>Now note that <code>comparator</code> tells us to paint the closest sphere polygon before we paint the rightmost red torus polygon&mdash;since they are from different objects, <code>comparator</code> compares their distances, and the sphere polygon is further than the torus polygon.</li>
-  <li>Thus, <code>comparator</code> has told us that (1) the sphere polygon should be painted before the red torus polygon, and (2) the red torus polygon should be painted before the purple torus polygon. We conclude, then, that the sphere polygon should be painted before the purple torus polygon.</li>
+  <li>First, assume the torus is selected.</li>
+  <li>Consider $C$ and $B$. Since they are both on the selected object but $C$ is red and $B$ is purple, then <code>comparator</code> tells us to paint $C$ before $B$, i.e. $C \rightharpoonup B$.</li>
+  <li>Now take a look at $A$ and $C$. Since $A$ is further from us than $C$, <code>comparator</code> tells us that $A$ should be painted under $C$, aka that $A \rightharpoonup C$.</li>
+  <li>Now for the final move. Since $A \rightharpoonup C$ and $C \rightharpoonup B$, we conclude that $A \rightharpoonup B$.
 </ol>
 
-<p>In this manner, we can show that, according to <code>comparator</code>, if the torus is selected, then the leftmost purple torus polygon <em>is</em>, visually, in front of the sphere. We can repeat a similar proof for <em>all</em> the polygons on the left side of the torus, and thus show that, visually, the torus is entirely in front of the sphere.</p>
+<p>In this manner we are able to show that, if the torus is selected, then <code>comparator</code> tells us to paint $A$ before $B$. A similar proof may be repeated for all the pounts near $B$ on the torus, thus painting the torus entirely on top of the sphere.</p>
 
-<p>Likewise, when the sphere is selected, we are able to do similar proofs for its polygons, showing that the sphere is visually on top of the torus.</p>
+<p>When the sphere is selected instead of the torus, we are able to do similar proofs for its polygons, showing that the sphere is visually on top of the torus.</p>
 
 <p>I conjecture that <note-ref to="proofs">these kinds of proofs are what <code>qsort</code> is doing</note-ref>, causing this strange behavior.</p>
 
@@ -273,7 +284,9 @@ requires: [mathjax, notes, syntax-highlighting]
   <p>I think (but have not proven) that you can (constructively, without use of LEM) prove, for any two polygons $a$ and $b$, that $a$ should be painted before $b$.</p>
 </note-def>
 
-<p>The issue is that we're treating <code>comparator</code> as something it isn't. In particular, in our proof we assume the transitivity of <code>comparator</code>&mdash;that if it places $a$ before $b$ in the paint order, and placed $b$ before $c$, then it will also place $a$ before $c$. But this simply isn't true! (as shown by the fact that using transitivity leads to contradictions)</p>
+<p>So what's going wrong here? Where's the mistake in these proofs?</p>
+
+<p>The issue is that we're treating <code>comparator</code> as something it isn't. In particular, in our proof we assume the transitivity of $\rightharpoonup$, that if <code>comparator</code> it places $a$ before $b$ in the paint order (i.e. $a \rightharpoonup b$), and placed $b$ before $c$ (i.e. $b \rightharpoonup c$), then it will also place $a$ before $c$ (i.e. $a \rightharpoonup c$). But this simply isn't true!</p>
 
 <p>This corresponds to the <note-ref to="fact">fact</note-ref> that <code>qsort</code> expects <code>comparator</code> to represent a total ordering&mdash;i.e., be sufficiently nice and sufficiently self-consistent in certain ways, such as transitivity&mdash;but the <code>comparator</code> we wrote does not represent a total ordering.</p>
 
