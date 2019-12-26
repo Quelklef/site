@@ -6,27 +6,29 @@ layout: post
 requires: [mathjax]
 ---
 
-<p>Parentheses are used in... many different ways. I thought I'd collect them.</p>
+<p>Notationally, parantheses seem to be very popular. Almost too popular. The following is a collection of all the different notations that I've found paranthesis used for. If you would like to add one, <a href="https://github.com/Quelklef/site/blob/master/src/items/parentheses.html.fm">send me a pull request on Github</a>.</p>
 
 <style>
-tr td:nth-child(2) { text-align: center; }
+tr td:nth-child(2) {
+  text-align: center;
+}
 </style>
 
 <div class="fullwidth">
-<table>
+<table class="sticky-headers">
   <tr> <th>Name</th> <th>Usage</th> <th>Locations (non-exhaustive)</th> </tr>
-  <tr> <td>Function application</td> <td>$f(x)$</td> <td>Mathematics, programming</td> </tr>
-  <tr> <td>Precedence</td> <td>$2+(3\cdot5)$</td> <td>Mathematics, programming</td> </tr>
+  <tr> <td>Function application</td> <td>The value $f(2)$ is, oddly, ...</td> <td>Mathematics, programming</td> </tr>
+  <tr> <td>Precedence</td> <td>$2+(3\cdot5) \neq (2 + 3) \cdot 5$</td> <td>Mathematics, programming</td> </tr>
   <tr> <td>Parentheticals</td> <td>The man (who wore flannel) began ...</td> <td>Writing</td> </tr>
   <tr> <td>Ideal</td> <td>$(N) := \{kN \mid k \in \mathbb Z\}$</td> <td>Ring Theory</td> </tr>
   <tr> <td>Tuples</td> <td>$(x,y)=(0.5, 1.7)$</td> <td>Mathematics, programming</td> </tr>
-  <tr> <td>Indexing</td> <td><code>li(i)</code></td> <td>MATLAB</td> </tr>
+  <tr> <td>Indexing</td> <td><code>item = my_list(i)</code></td> <td>MATLAB</td> </tr>
   <tr> <td>$n$-dimensional sequences</td> <td>Consider the sequence $(a_{ij})$ ...</td> <td>Mathematics</td> </tr>
-  <tr> <td>Multiplication</td> <td>$(5)(17)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Multiplication</td> <td>$(5)(17) = 85$</td> <td>Mathematics</td> </tr>
   <tr> <td>S-Expression</td> <td><code>(f x y z)</code></td> <td>Lisps</td> </tr>
-  <tr> <td>Interval notation</td> <td>$[2, +\infty)$</td> <td>Mathematics</td> </tr>
-  <tr> <td>$n$ choose $k$</td> <td>${n \choose k}$</td> <td>Mathematics</td> </tr>
-  <tr> <td>Matrices</td> <td>$\left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Interval notation</td> <td>...so for any $x$ in $[0, +\infty)$ we have ...</td> <td>Mathematics</td> </tr>
+  <tr> <td>$n$ choose $k$</td> <td>${n \choose k} = \frac{n!}{k!(n-k)!}$</td> <td>Mathematics</td> </tr>
+  <tr> <td>Matrices</td> <td>$I_2 := \left( \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right)$</td> <td>Mathematics</td> </tr>
   <tr> <td>Greatest common divisor</td> <td>$(a, b) := \mathit{gcd}(a, b)$</td> <td>Mathematics</td> </tr>
   <tr> <td>Generator expression</td> <td><code>(f(x) for x in li)</code></td> <td>Python</td> </tr>
   <tr> <td>Function shorthand</td> <td><code>(+)</code>, <code>(+2)</code>, <code>(3*)</code></td> <td>Haskell</td> </tr>
