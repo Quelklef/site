@@ -1,0 +1,114 @@
+---
+title: An Alternative Construction of Equivalence Classes
+tags: [math]
+date: 2019-11-25
+desc: "Creating equivalence classes via shared 'attributes' rather than equivalence relations"
+layout: post
+requires: [mathjax, notes]
+
+indexed: no
+---
+
+<p>Equivalence classes are undoubtedly a useful tool for mathematics. However, I've recently begun to feel that equivalence relations, the primary and canonical method of creating equivalence classes, is an awkward way of creating equivalence classes. I have an alternative method which seems to me to be more straightforward and perhaps (at least in some situations) superior.</p>
+
+<p>The problem, in my eyes, with equivalence relations is that they take too long to get to the punchline. The punchline of equivalence relations is that "the groups that equivalence relations divide a set into, called equivalence classes, form a disjoint union of the set". However, coming to this conclusion from the equivalence relation axioms takes a fair bit of work. Perhaps too much work.</p>
+
+<p>So, I'd like to show you a better way, first through example:</p>
+
+<h2>Constructing $\mathbb Z$ from $\mathbb N$</h2>
+
+<p>One example use of equivalence classes is performing the construction of the integers from the naturals. Usually, this is done by defining the following equivalence relations on $\mathbb N ^2$:</p>
+
+$$ (a, b) \sim (c, d) \iff a + d = b + c $$
+
+<p>Which, by black magic, creates the integers.</p>
+
+<p>Just kidding. It isn't, of course, black magic, but it is a touch obfuscated. I don't know about you, but the first time I saw the equation $a + d = b + c$, I was confused about what it had to do with negative numbers. To ruin the suspense, the trick is that</p>
+
+$$ a + d = b + c $$
+
+<p>is true if and only if</p>
+
+$$ a - b = c - d $$
+
+<p><note-ref to="cant-subtract-integers">is true</note-ref>. Thus the equivalence classes that $\sim$ splits $\mathbb N ^2$ into are set up such that each class represents a difference, and a each 2-tuple of integers is in the appropriate equivalence class according to the difference between its two items.</p>
+
+<note-def id="cant-subtract-integers">
+  <p>But we can't say this since we can't talk about "a - b" or "c - d" since $\sim$ works with integers.</p>
+</note-def>
+
+<p>In other words, take your favorite pair of integers. <note-ref to="secrets">Mine happens to be $(15, 61)$</note-ref>. The equivalence relation $\sim$ cares not about the actual numbers in this pair, but their difference: in this case, $15 - 61 = -46$, so to $\sim$, this tuple represents $-46$. And $\sim$ places this tuple in an equivalence class with all the other tuples that represent $-46$, such as $(54, 100)$, $(7, 53)$, and, notably, $(0, 46)$.</p>
+
+<note-def id="secrets">
+  <p>But don't ask me why.</p>
+</note-def>
+
+<p>The special thing about $(0, 46)$ is it's in a sense the "canonical" element of the equivalence class. There are many pairs of integers in the equivalence class that represents $-46$, but $(0, 46)$ is the one that most <em>obviously</em> represents $-46$.</p>
+
+<p>The basic idea I have about how to better construct equivalence classes is to use these "canonical elements". Starting with a set, instead of defining an equivalence relation and grouping related elements, we instead ask each element for its "canonical" form&mdash;i.e., an encoding of what the element represents&mdash;and group elements if they have the same canonical form.</p>
+
+<p>In the case of constructing the integers, we would again begin with $\mathbb N ^2$, but we would never create $\sim$. Instead, we would assign each pair of integers a canonical element, and create equivalence classes that way. <note-ref to="notation">A pair $(a, b)$ would be canonized to $(a-b, 0)$ if $a \geq b$ and $(0, a-b)$ if $b > a$</note-ref>. In this manner, the (canonized) tuple $(x, 0)$ represents $+x$, and $(0, x)$ represents $-x$.</p>
+
+<note-def id="notation">
+  <p>A quick note: the choice of canonizing pairs $(a, b)$ into either $(x, 0)$ or $(0, x)$ is a little bit special, but not <em>that</em> special.</p>
+  <p>It's special because it has the property that a canonized pair $(x, y)$ represents the value $x - y$, which is convenient.</p>
+  <p>But it's not <em>that</em> special since it's really just encoding the value $\lvert a - b \rvert$ along with the information of whether $a \geq b$ or $b > a$. We may as well have, instead of canonizing into $\{0\} \times \mathbb N \cup \mathbb N \times \{0\}$, canonized into <note-ref to="plus-minus">$\{+, -\} \times \mathbb N$</note-ref>. In fact, this likely would be a more natural and elegant way of doing it, except that the use of 2-tuples rise naturally from previous discussion in this post. Plus, it'd be kinda strange notation&mdash;we'd have, for instance, the pair $(-, 3)$, which looks a li'l funky.</p>
+  <note-def id="plus-minus">
+    <p>Where $+$ and $-$ are arbitrary distinct elements.</p>
+  </note-def>
+</note-def>
+
+<p>So $(4, 2)$ is canonized to $(2, 0)$, as is $(7, 5)$; they are thus both placed in the same equivalence class since they represent the same integer: $2$. And $(5, 10)$ is canonized to $(0, 5)$, as is $(3, 8)$, so they both represent the integer $-5$ and belong to the same equivalence class.</p>
+
+<h2>Correctness</h2>
+
+<p>Thus I hope to have succeeded in explaining to you <em>how</em> this new construction works. What I have yet to show is that it indeed faithfully constructs equivalence classes, and that it is superior to equivalence relations. Luckily, both of these are not too difficult.</p>
+
+<p>To show that this method is "correct", I am to show that it is a faithful replacement for equivalence relations. To do so, I will show that for each equivalence relation, there is a canonization relation that produces the same equivalence classes, and vice-versa.</p>
+
+<p>Before doing so, let's define the canonization construction mathematically. We'll represent our choices for how to canonize elements as a function $c : A \to C$, where $A$ is the set over which we're defining equivalence classes, and $C$ is a set of our choice.</p>
+
+<p>For example, when creating the integers, we had $A = \mathbb N ^2$. We chose that we would canonize elements to something of the form $(x, 0)$ or $(0, x)$, with $x$ being an integer, which means that $C = \{0\} \times \mathbb N \cup \mathbb N \times \{0\}$, and our canonization function was defined as:</p>
+
+$$ c((a, b)) = \begin{cases}
+  (a - b, 0) & a \geq b \\
+  (0, a - b) & b > a
+\end{cases} $$
+
+<p>Once we have our canonizing function $c$, we define the equivalence classes to be:</p>
+
+$$ \{S \in P(A) \mid \forall a, b \in S : c(a) = c(b) \} $$
+
+<p>&mdash;that is, the subsets where elements are grouped by having the same canonized value.</p>
+
+<p>Okay, fantastic. Now we may begin.</p>
+
+<p>First we will show that each equivalence relation could instead be expressed as a canonization function $c$. We will start with an equivalence relation $\sim$ defined on some set $A$. We will then construct the equivalence classes that $\sim$ defines. Now we will define $C$ to be the set of equivalence classes, and let $c(a)$ be the equivalence class that $a$ belongs to. From this, it is clear that the equivalence classes that $c$ defines are the correct one, since $c(a) = c(b)$ if and only if they're in the same equivalence class (according to $\sim$).</p>
+
+<p>This isn't a particularly pretty or enlightening way of going about this. However, this is because it's <em>can't be</em>&mdash;it only has the information that $\sim$ gives it, which is not very much information. The cool thing about the canonizing construction is that it feels less arcane than equivalence classes; however, in this case, we're forced to build off of the arcaneness of equivalence classes.</p>
+
+<p>Now for the other direction, showing that each canonization construction could instead be an equivalence class. This direction is a bit more interesting, but not any more difficult. We start with a canonizing function $c : A \to C$ and define a relation $\sim$ on $A$ as follows:</p>
+
+$$ a \sim b \iff c(a) = c(b) $$
+
+<p>Now it's very clear that they groups that $\sim$ will sort elements into will be the same groups as $c$. However, the fun part here is that, in order to construct equivalence classes, we have to show that $\sim$ is an equivalence relation. Luckily, all three required properties, reflexivity, symmetry, and transitivity, fall directly out of the reflexivity, symmetry, and transitivity of equiality.</p>
+
+<p>Thus we have shown that every equivalence relation can be faithfully rephrased as a canonization construction, and every canonization construction can be faithfully rephrased as an equivalence relation. Thus, I claim, this construction actually does its job of replacing equivalence relations.</p>
+
+<h2>Elegance</h2>
+
+<p>I've dragged you along this far, and perhaps you've been waiting for the payoff. We've now shown how the construction works, and verified that it indeed <em>does</em> work; what remains is for me to defend my original claim: that canonization constructions are superior to equivalence classes.</p>
+
+<p>I will do my best.</p>
+
+<p>First I'd like to note that of course they're not going to be superior in <em>every</em> case&mdash;but I claim they're good for many.</p>
+
+<p>My first argument in support of canonization relations is that they get more to the point. In the case of constructing the integers, for instance, using equivalence relations required some ceremony and dancing around the subject: since we couldn't mention differences <em>explicitly</em>, since they're not well-defined for integers, we had to use the awkward $a + d = b + c$ relation. However, using a canonization construction lets us be more direct: of course we technically still can't talk about differences, since we're in the middle of defining them, but we <em>basically</em> can, by choosing some kind of natural encoding, such as $(0, x)$ and $(x, 0)$.</p>
+
+<p>My second argument in support of canonization relations is that they're more transparent about the equivalence classes they create. With equivalence relations, it takes some work to show that equivalence classes are a disjoint union of the original set. With a canonization construction, on the other hand, it's pretty damn clear, at least in my opinion. While it would of course still take some work to <em>prove</em> that this is the case with canonization constructions, this work word be more of a mathematical formality, since it's sufficiently intuitively obvious, whereas with equivalence classes the proofs come hand-in-hand with genuine discovery of the fact.</p>
+
+<!-- Note to self: this is also an interesting method because it introduces the set C that is fairly arbitrary. It's kinda like parameterizing a curve. -->
+
+<h2>Example: Construction of $\mathbb Q$ from $\mathbb Z$</h2>
+
+<h2>Example: Construction of $\mathbb Z / (k \mathbb Z)$</h2>
