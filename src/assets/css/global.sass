@@ -188,9 +188,13 @@ code
 table
   border-collapse: collapse
   border: 1px solid $grey
+  &.sticky-headers th
+    position: sticky
+    top: -1px  // Because 1px border
+    z-index: 1  // work properly with MathJax
   th
+    background-color: rgb(240, 240, 240)
     border-bottom: 1px solid $grey
-    background-color: rgba(0, 0, 0, 0.05)
   td, th
     padding: 8px 16px
     border-left: 1px solid $grey
