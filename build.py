@@ -15,12 +15,12 @@ from lib.log import log_section
 
 __doc__ = """
 build.py [--no-latex]
-build.py watch <args...>
+build.py serve <args...>
 
   --no-latex: don't compile latex
 """
 
-if len(sys.argv) > 1 and sys.argv[1] == 'watch':
+if len(sys.argv) > 1 and sys.argv[1] == 'serve':
   args = ' '.join("'" + s.replace("'", "\\'") + "'" for s in sys.argv[2:])
   os.system(f"""
   ( cd site/ && python3 -m http.server ) & pid=$!
