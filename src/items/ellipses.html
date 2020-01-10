@@ -164,7 +164,7 @@ function getCanvSize() {
   return { width: canv.width, height: canv.height }
 }
 
-function getClick(canv, callback) {
+async function getClick(canv) {
   function getCursorPosition(canv, event) {
     // https://stackoverflow.com/a/18053642/4608364
     const rect = canv.getBoundingClientRect();
@@ -173,16 +173,20 @@ function getClick(canv, callback) {
     return { x, y };
   }
 
-  const clickListener = event => {
-    canv.removeEventListener('mousedown', clickListener);
-    const { x, y } = getCursorPosition(canv, event);
-    callback(p(x, y));
-  }
-
-  canv.addEventListener('mousedown', clickListener);
+  // Thanks to https://stackoverflow.com/a/44746691/4608364
+  return new Promise(resolve =>
+    canv.addEventListener(
+      'mousedown',
+      event => {
+        const { x, y } = getCursorPosition(canv, event);
+        resolve(p(x, y));
+      },
+      { once: true },
+    )
+  );
 }
 
-function playRound() {
+async function playGame() {
   const { width: ctxWidth, height: ctxHeight } = getCanvSize();
 
   ctx.clearRect(0, 0, ctxWidth, ctxHeight);
@@ -190,21 +194,20 @@ function playRound() {
   const { x, y, radiusX, radiusY, rotation, focus1, focus2 } = randomEllipse(ctxWidth, ctxHeight);
 
   ctx.beginPath();
+  ctx.lineWidth = 2;
   ctx.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
   ctx.stroke();
 
-  getClick(canv, userGuess => {
+  const userGuess = await getClick(canv)
 
-    focus1.drawOn(ctx, 8);
-    focus2.drawOn(ctx, 8);
-    userGuess.drawOn(ctx, 10);
+  focus1.drawOn(ctx, 8);
+  focus2.drawOn(ctx, 8);
+  userGuess.drawOn(ctx, 10);
 
-    setTimeout(playRound, 1500);
-
-  });
+  setTimeout(playGame, 1500);
 }
 
-playRound();
+playGame();
 
 </script>
 
