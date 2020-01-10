@@ -1,0 +1,212 @@
+<html>
+  <head>
+  </head>
+  <body>
+
+<style>
+
+body {
+  margin: 0;
+}
+
+ctxas {
+  border: 1px solid red;
+}
+
+</style>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+'use strict';
+
+// Vectors / Points
+
+const v = (...items) => new PointVector(...items);
+const p = v;
+
+class PointVector {
+  /* A point of a vector */
+
+  constructor(...items) {
+    this.items = items;
+  }
+
+  static fromItems(items) {
+    return new PointVector(...items);
+  }
+
+  get x() { return this.items[0]; }
+  set x(x) { this.items[0] = x; }
+
+  get y() { return this.items[1]; }
+  set y(y) { this.items[1] = y; }
+
+  get z() { return this.items[2]; }
+  set z(z) { this.items[2] = z; }
+
+  get length() {
+    return this.items.length;
+  }
+
+  plus(other) {
+    if (this.length !== other.length) throw "Cannot add different-length vectors.";
+
+    const addedItems = Array(this.length).fill(null).map((_, i) => this.items[i] + other.items[i]);
+    return PointVector.fromItems(addedItems);
+  }
+
+  times(scalar) {
+    /* Scalar multiplication */
+    if (typeof scalar !== 'number') throw "Requires a number.";
+    return PointVector.fromItems(this.items.map(x => x * scalar));
+  }
+
+  withLength(length) {
+    /* Set the length. */
+    if (typeof length !== 'number' || length < 0) throw "Requires a nonnegative number.";
+    return this.times(length / this.length);
+  }
+
+  negated() {
+    return this.times(-1);
+  }
+
+  static angle(theta) {
+    /* A unit vector pointing in a given direction */
+    return new PointVector(Math.cos(theta), Math.sin(theta));
+  }
+
+  drawOn(ctx, size=1) {
+    if (size === 1 || size === 2) {
+      ctx.fillRect(this.x - size / 2, this.y - size / 2, size, size);
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+
+// == // == //
+
+function random(lo, hi) {
+  /* Return random float in [lo, hi) */
+  return lo + (Math.random() * (hi - lo));
+}
+
+function randomEllipse(maxX, maxY) {
+  /* Generate a random ellipse within the given bounds */
+  if (typeof maxX !== 'number') throw 'Argument `maxX` must be a number.';
+  if (typeof maxY !== 'number') throw 'Argument `maxY` must be a number.';
+
+  const radiusX = random(maxX / 100, maxX / 2);
+  const radiusY = random(maxY / 100, maxY / 2);
+
+  const major = Math.max(radiusX, radiusY);
+  const minor = Math.min(radiusX, radiusY);
+
+  const x = random(major, maxX - major);
+  const y = random(major, maxY - major);
+
+  const rotation = random(0, 2 * Math.PI);
+
+  const center = v(x, y);
+  const center_to_foci_dist = Math.sqrt(Math.pow(major, 2) - Math.pow(minor, 2));
+
+  // Normaized pointing from center and along major axis
+  const vMajor =
+    radiusX > radiusY ? PointVector.angle(rotation)
+                      : PointVector.angle(rotation + Math.PI / 2);
+
+  const focus1 = center.plus(vMajor.withLength(center_to_foci_dist))
+  const focus2 = center.plus(vMajor.withLength(center_to_foci_dist).negated())
+
+  return { x, y, radiusX, radiusY, rotation, focus1, focus2 };
+}
+
+function getWindowSize() {
+  // https://stackoverflow.com/a/1038781/4608364
+  const width = Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+
+  const height = Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+
+  return { width, height };
+}
+
+const canv = document.getElementById('canvas');
+const ctx = canv.getContext('2d');
+
+function syncCanvSize() {
+  const { width, height } = getWindowSize();
+  canv.width = width;
+  canv.height = height;
+}
+
+window.addEventListener('resize', syncCanvSize);
+syncCanvSize();
+
+function getCanvSize() {
+  return { width: canv.width, height: canv.height }
+}
+
+function getClick(canv, callback) {
+  function getCursorPosition(canv, event) {
+    // https://stackoverflow.com/a/18053642/4608364
+    const rect = canv.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return { x, y };
+  }
+
+  const clickListener = event => {
+    canv.removeEventListener('mousedown', clickListener);
+    const { x, y } = getCursorPosition(canv, event);
+    callback(p(x, y));
+  }
+
+  canv.addEventListener('mousedown', clickListener);
+}
+
+function playRound() {
+  const { width: ctxWidth, height: ctxHeight } = getCanvSize();
+
+  ctx.clearRect(0, 0, ctxWidth, ctxHeight);
+
+  const { x, y, radiusX, radiusY, rotation, focus1, focus2 } = randomEllipse(ctxWidth, ctxHeight);
+
+  ctx.beginPath();
+  ctx.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
+  ctx.stroke();
+
+  getClick(canv, userGuess => {
+
+    focus1.drawOn(ctx, 8);
+    focus2.drawOn(ctx, 8);
+    userGuess.drawOn(ctx, 10);
+
+    setTimeout(playRound, 1500);
+
+  });
+}
+
+playRound();
+
+</script>
+
+  </body>
+</html>
