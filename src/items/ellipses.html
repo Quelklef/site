@@ -189,7 +189,7 @@ class Ellipse {
                               : PointVector.angle(this.rotation + Math.PI / 2);
     const foci = [
       this.center.plus(vMajor.withMagnitude(center_to_foci_dist)),
-      this.center.plus(vMajor.withMagnitude(center_to_foci_dist).negated()),
+      this.center.minus(vMajor.withMagnitude(center_to_foci_dist)),
     ];
 
     return foci;
