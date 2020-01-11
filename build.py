@@ -7,6 +7,7 @@ import jinja2
 import datetime
 import time
 from sortedcollections import SortedList
+from docopt import docopt
 
 from lib.calc_item_tree import calc_item_tree
 from lib.log import log_section
@@ -14,30 +15,46 @@ from lib.log import log_section
 # == CLI == #
 
 __doc__ = """
-build.py [--no-latex]
-build.py serve <args...>
 
-  --no-latex: don't compile latex
+Site building utility
+
+Usage:
+  build.py build [--no-latex]
+  build.py serve [--no-latex]
+
+Commands:
+  build   Build the website once and exit.
+  serve   Build the website once and rebuild when files change. Additionally,
+          serve the website on localhost. Given arguments are passed onto
+          the resulting `built.py build` calls.
+
+Options:
+  --no-latex   Do not build latex files.
+
 """
 
-if len(sys.argv) > 1 and sys.argv[1] == 'serve':
-  args = ' '.join("'" + s.replace("'", "\\'") + "'" for s in sys.argv[2:])
+print(f"Command: {' '.join(sys.argv)}")  # Naive
+args = docopt(__doc__)
+
+if args['serve']:
+
+  nolatex = '--no-latex' if args['--no-latex'] else ''
+
   os.system(f"""
   ( cd site/ && python3 -m http.server ) & pid=$!
-  python3 build.py {args}
+  python3 build.py build {nolatex}
   trap "kill $pid" EXIT INT
 
   while inotifywait -qqre close_write *
   do
-    python3 build.py {args}
+    python3 build.py build {nolatex}
   done
   """)
   quit()
 
+
 print("\n= = = = = = = = = = = = = = = = = = = = = = = =")
 with log_section("Building website", multiline=True):
-  print(f"Command: {' '.join(sys.argv)}")  # Naive
-
   # == Renderers == #
 
   def render_markdown(text):
@@ -60,7 +77,7 @@ with log_section("Building website", multiline=True):
     os.chdir('site/')
 
   # Compile LaTeX
-  if '--no-latex' in sys.argv:
+  if args['--no-latex']:
     print("Skipping LaTeX due to '--no-latex'")
   else:
     with log_section(f"Compiling LaTeX") as printer:
