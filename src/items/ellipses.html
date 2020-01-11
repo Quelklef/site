@@ -156,22 +156,36 @@ class Ellipse {
     this.radiusX = radiusX;
     this.radiusY = radiusY;
     this.rotation = rotation;
+  }
 
-    this.majorAxis = Math.max(radiusX, radiusY);
-    this.minorAxis = Math.min(radiusX, radiusY);
+  get majorAxis() {
+    return Math.max(this.radiusX, this.radiusY);
+  }
 
+  get minorAxis() {
+    return Math.min(this.radiusX, this.radiusY);
+  }
+
+  get foci() {
     const center_to_foci_dist = Math.sqrt(Math.pow(this.majorAxis, 2) - Math.pow(this.minorAxis, 2));
     // Normaized vector pointing from center and along major axis
     const vMajor =
-      radiusX > radiusY ? PointVector.angle(rotation)
-                        : PointVector.angle(rotation + Math.PI / 2);
-    this.foci = [
-      center.plus(vMajor.withMagnitude(center_to_foci_dist)),
-      center.plus(vMajor.withMagnitude(center_to_foci_dist).negated()),
+      this.radiusX > this.radiusY ? PointVector.angle(this.rotation)
+                                  : PointVector.angle(this.rotation + Math.PI / 2);
+    const foci = [
+      this.center.plus(vMajor.withMagnitude(center_to_foci_dist)),
+      this.center.plus(vMajor.withMagnitude(center_to_foci_dist).negated()),
     ];
 
-    this.focus1 = this.foci[0];
-    this.focus2 = this.foci[1];
+    return foci;
+  }
+
+  get focus1() {
+    return this.foci[0];
+  }
+
+  get focus2() {
+    return this.foci[1];
   }
 
 }
@@ -293,13 +307,12 @@ function drawStats() {
 async function playGame() {
   const { width: ctxWidth, height: ctxHeight } = getCanvSize();
 
-  ctx.strokeStyle = "black";
-  ctx.fillStyle = "black";
   ctx.clearRect(0, 0, ctxWidth, ctxHeight);
 
   drawStats();
 
   ctx.strokeStyle = "black";
+  ctx.fillStyle = "black";
 
   const ellipse = randomEllipse(ctxWidth, ctxHeight);
 
