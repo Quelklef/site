@@ -23,6 +23,23 @@ function sum(xs) {
   return r;
 }
 
+function mean(xs) {
+  return sum(xs) / xs.length;
+}
+
+function stdev(xs) {
+  // Modified from https://derickbailey.com/2014/09/21/calculating-standard-deviation-with-array-map-and-array-reduce-in-javascript/
+  const avg = mean(xs);
+  const squareDiffs = xs.map(x => {
+    var diff = x - avg;
+    var sqrDiff = diff * diff;
+    return sqrDiff;
+  });
+  const avgSquareDiff = mean(squareDiffs);
+  const stdDev = Math.sqrt(avgSquareDiff);
+  return stdDev;
+}
+
 // Vectors / Points
 
 const v = (...items) => new PointVector(...items);
@@ -240,12 +257,49 @@ async function getClick(canv) {
   );
 }
 
+
+
+const userErrors = [];
+
+function drawStats() {
+
+  const n = 5;
+  const historyStrs =
+    userErrors.map((err, i) => `#${i}: ${Math.round(err)}`)
+      .slice(Math.max(0, userErrors.length - n));  // Get the last n
+
+  const texts = [
+    `Mean error: ${Math.round(mean(userErrors))}%`,
+    `Stdev: ${Math.round(stdev(userErrors))}`,
+    `History:`,
+    ...historyStrs,
+  ];
+
+  ctx.font = "15px Arial";
+  ctx.strokeStyle = "white";
+  ctx.fillStyle = "black";
+  ctx.textAlign = "left";
+
+  let y = 20;
+  const x = 10;
+  for (const text of texts) {
+    ctx.strokeText(text, x, y);
+    ctx.fillText(text, x, y);
+
+    y += 20;
+  }
+}
+
 async function playGame() {
   const { width: ctxWidth, height: ctxHeight } = getCanvSize();
 
   ctx.strokeStyle = "black";
   ctx.fillStyle = "black";
   ctx.clearRect(0, 0, ctxWidth, ctxHeight);
+
+  drawStats();
+
+  ctx.strokeStyle = "black";
 
   const ellipse = randomEllipse(ctxWidth, ctxHeight);
 
@@ -264,8 +318,10 @@ async function playGame() {
 
   const textLoc = userGuess.minus(p(0, 25));
   const discrepancy = Math.round(userGuess.distance(closer));
-  const percentErr = 100 * (discrepancy / ellipse.majorAxis);
-  const text = `Off by ${Math.round(percentErr)}%`;
+  const error = 100 * (discrepancy / ellipse.majorAxis);
+  userErrors.push(error)
+
+  const text = `Off by ${Math.round(error)}%`;
   ctx.font = "30px Arial";
   ctx.strokeStyle = "white";
   ctx.fillStyle = "red";
