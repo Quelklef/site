@@ -151,7 +151,7 @@ function random(lo, hi) {
 }
 
 class Ellipse {
-  constructor(center, radiusX, radiusY, rotation) {
+  static fromRadii(center, radiusX, radiusY, rotation) {
     this.center = center;
     this.radiusX = radiusX;
     this.radiusY = radiusY;
@@ -209,7 +209,7 @@ function randomEllipse(maxX, maxY) {
 
   const rotation = random(0, 2 * Math.PI);
 
-  return new Ellipse(center, radiusX, radiusY, rotation);
+  return Ellipse.fromRadii(center, radiusX, radiusY, rotation);
 }
 
 function getWindowSize() {
@@ -279,7 +279,7 @@ function drawStats() {
 
   const n = 5;
   const historyStrs =
-    userErrors.map((err, i) => `#${i}: ${Math.round(err)}`)
+    userErrors.map((err, i) => `#${i}: ${Math.round(err)}%`)
       .slice(Math.max(0, userErrors.length - n));  // Get the last n
 
   const texts = [
