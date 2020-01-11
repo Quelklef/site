@@ -17,6 +17,12 @@ body {
 
 'use strict';
 
+function sum(xs) {
+  let r = 0;
+  for (const x of xs) r += x;
+  return r;
+}
+
 // Vectors / Points
 
 const v = (...items) => new PointVector(...items);
@@ -42,14 +48,19 @@ class PointVector {
   get z() { return this.items[2]; }
   set z(z) { this.items[2] = z; }
 
-  get length() {
+  get dimension() {
     return this.items.length;
   }
 
-  plus(other) {
-    if (this.length !== other.length) throw "Cannot add different-length PointVectors.";
+  get magnitude() {
+    const sum_sqs = sum(this.items.map(x => x * x));
+    return Math.sqrt(sum_sqs);
+  }
 
-    const addedItems = Array(this.length).fill(null).map((_, i) => this.items[i] + other.items[i]);
+  plus(other) {
+    if (this.dimension !== other.dimension) throw "Cannot add different-dimension PointVectors.";
+
+    const addedItems = Array(this.dimension).fill(null).map((_, i) => this.items[i] + other.items[i]);
     return PointVector.fromItems(addedItems);
   }
 
@@ -59,10 +70,10 @@ class PointVector {
     return PointVector.fromItems(this.items.map(x => x * scalar));
   }
 
-  withLength(length) {
-    /* Set the length. */
-    if (typeof length !== 'number' || length < 0) throw "Requires a nonnegative number.";
-    return this.times(length / this.length);
+  withMagnitude(mag) {
+    /* Set the magnitude. */
+    if (typeof mag !== 'number' || mag < 0) throw "Requires a nonnegative number.";
+    return this.times(mag / this.magnitude);
   }
 
   negated() {
@@ -74,6 +85,15 @@ class PointVector {
     return new PointVector(Math.cos(theta), Math.sin(theta));
   }
 
+  distance(other) {
+    if (this.dimension !== other.dimension) throw "Cannot find distance between different-dimension PointVectors";
+    const diffs = Array(this.dimension).fill(null).map((_, i) => this.items[i] + other.items[i]);
+    const sum_diff_sqs = sum(diffs.map(x => x * x));
+    return Math.sqrt(sum);
+  }
+
+  // == Drawing == //
+
   drawOn(ctx, size=1) {
     if (size === 1 || size === 2) {
       ctx.fillRect(this.x - size / 2, this.y - size / 2, size, size);
@@ -82,6 +102,14 @@ class PointVector {
       ctx.arc(this.x, this.y, size / 2, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+
+  drawTo(other, ctx) {
+    if (this.dimension !== 2 || other.dimension !== 2) throw "Requires two PointVectors of dimension 2";
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(other.x, other.y);
+    ctx.stroke();
   }
 }
 
@@ -117,8 +145,8 @@ function randomEllipse(maxX, maxY) {
     radiusX > radiusY ? PointVector.angle(rotation)
                       : PointVector.angle(rotation + Math.PI / 2);
 
-  const focus1 = center.plus(vMajor.withLength(center_to_foci_dist))
-  const focus2 = center.plus(vMajor.withLength(center_to_foci_dist).negated())
+  const focus1 = center.plus(vMajor.withMagnitude(center_to_foci_dist))
+  const focus2 = center.plus(vMajor.withMagnitude(center_to_foci_dist).negated())
 
   return { x, y, radiusX, radiusY, rotation, focus1, focus2 };
 }
@@ -199,6 +227,8 @@ async function playGame() {
   focus1.drawOn(ctx, 8);
   focus2.drawOn(ctx, 8);
   userGuess.drawOn(ctx, 10);
+  const closer = focus1.distance(userGuess) < focus2.distance(userGuess) ? focus1 : focus2;
+  userGuess.drawTo(closer, ctx);
 
   setTimeout(playGame, 1500);
 }
