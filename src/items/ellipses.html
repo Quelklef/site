@@ -9,10 +9,6 @@ body {
   margin: 0;
 }
 
-ctxas {
-  border: 1px solid red;
-}
-
 </style>
 
 <canvas id="canvas"></canvas>
@@ -27,7 +23,7 @@ const v = (...items) => new PointVector(...items);
 const p = v;
 
 class PointVector {
-  /* A point of a vector */
+  /* A point or a vector */
 
   constructor(...items) {
     this.items = items;
@@ -51,7 +47,7 @@ class PointVector {
   }
 
   plus(other) {
-    if (this.length !== other.length) throw "Cannot add different-length vectors.";
+    if (this.length !== other.length) throw "Cannot add different-length PointVectors.";
 
     const addedItems = Array(this.length).fill(null).map((_, i) => this.items[i] + other.items[i]);
     return PointVector.fromItems(addedItems);
