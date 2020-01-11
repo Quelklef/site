@@ -217,7 +217,7 @@ function randomEllipse(maxX, maxY) {
   if (typeof maxY !== 'number') throw 'Argument `maxY` must be a number.';
 
   const minor = Math.min(maxX, maxY);
-  const majorAxis = random(minor / 20, minor / 3);
+  const majorAxis = random(minor / 10, minor / 3);
 
   // Generate center such that the ellipse is always on screen
   // (An ellipse is fully contained in the circle of its major axis)
