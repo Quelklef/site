@@ -181,7 +181,7 @@ class Ellipse {
   }
 
   get foci() {
-    const center_to_foci_dist = Math.sqrt(Math.pow(this.majorAxis, 2) - Math.pow(this.minorAxis, 2));
+    const center_to_foci_dist = Math.sqrt(Math.pow(this.majorAxis / 2, 2) - Math.pow(this.minorAxis / 2, 2));
 
     // Normaized vector pointing from center and along major axis
     const vMajor =
