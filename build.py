@@ -6,6 +6,8 @@ import markdown
 import jinja2
 import datetime
 import time
+import subprocess
+import atexit
 from sortedcollections import SortedList
 from docopt import docopt
 
@@ -38,12 +40,16 @@ args = docopt(__doc__)
 
 if args['serve']:
 
-  nolatex = '--no-latex' if args['--no-latex'] else ''
+  # Start webserver
+  process = subprocess.Popen(['python3', '-m', 'http.server'], cwd='./site')
 
+  # Kill webserver on program exit
+  atexit.register(lambda: process.kill())
+
+  # Build once and rebuild on change
+  nolatex = '--no-latex' if args['--no-latex'] else ''
   os.system(f"""
-  ( cd site/ && python3 -m http.server ) & pid=$!
   python3 build.py build {nolatex}
-  trap "kill $pid" EXIT INT
 
   while inotifywait -qqre close_write *
   do
