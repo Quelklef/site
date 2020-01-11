@@ -151,27 +151,42 @@ function random(lo, hi) {
 }
 
 class Ellipse {
-  static fromRadii(center, radiusX, radiusY, rotation) {
-    this.center = center;
-    this.radiusX = radiusX;
-    this.radiusY = radiusY;
-    this.rotation = rotation;
+  static fromRadii(center, axis1, axis2, rotation) {
+    const el = new Ellipse();
+
+    el.center = center;
+    el.axis1 = axis1;
+    el.axis2 = axis2;
+    el.rotation = rotation;
+
+    return el;
+  }
+
+  static fromEccentricity(center, majorAxis, rotation, eccentricity) {
+    // https://www.mathsisfun.com/geometry/ellipse.html
+    const minorAxis = 2 * Math.sqrt(Math.pow(majorAxis / 2, 2) - Math.pow(eccentricity * majorAxis / 2, 2))
+    return Ellipse.fromRadii(center, minorAxis, majorAxis, rotation);
+  }
+
+  get radii() {
+    return [this.axis1, this.axis2];
   }
 
   get majorAxis() {
-    return Math.max(this.radiusX, this.radiusY);
+    return Math.max(this.axis1, this.axis2);
   }
 
   get minorAxis() {
-    return Math.min(this.radiusX, this.radiusY);
+    return Math.min(this.axis1, this.axis2);
   }
 
   get foci() {
     const center_to_foci_dist = Math.sqrt(Math.pow(this.majorAxis, 2) - Math.pow(this.minorAxis, 2));
+
     // Normaized vector pointing from center and along major axis
     const vMajor =
-      this.radiusX > this.radiusY ? PointVector.angle(this.rotation)
-                                  : PointVector.angle(this.rotation + Math.PI / 2);
+      this.axis1 > this.axis2 ? PointVector.angle(this.rotation)
+                              : PointVector.angle(this.rotation + Math.PI / 2);
     const foci = [
       this.center.plus(vMajor.withMagnitude(center_to_foci_dist)),
       this.center.plus(vMajor.withMagnitude(center_to_foci_dist).negated()),
@@ -188,6 +203,12 @@ class Ellipse {
     return this.foci[1];
   }
 
+  drawOn(ctx) {
+    ctx.beginPath();
+    ctx.ellipse(this.center.x, this.center.y, this.axis1 / 2, this.axis2 / 2, this.rotation, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
 }
 
 function randomEllipse(maxX, maxY) {
@@ -195,21 +216,19 @@ function randomEllipse(maxX, maxY) {
   if (typeof maxX !== 'number') throw 'Argument `maxX` must be a number.';
   if (typeof maxY !== 'number') throw 'Argument `maxY` must be a number.';
 
-  const radiusX = random(maxX / 100, maxX / 3);
-  const radiusY = random(maxY / 100, maxY / 3);
-
-  const majorAxis = Math.max(radiusX, radiusY);
-  const minorAxis = Math.min(radiusX, radiusY);
+  const minor = Math.min(maxX, maxY);
+  const majorAxis = random(minor / 20, minor / 3);
 
   // Generate center such that the ellipse is always on screen
   // (An ellipse is fully contained in the circle of its major axis)
-  const x = random(majorAxis, maxX - majorAxis);
-  const y = random(majorAxis, maxY - majorAxis);
+  const x = random(majorAxis / 2, maxX - majorAxis / 2);
+  const y = random(majorAxis / 2, maxY - majorAxis / 2);
   const center = p(x, y);
 
   const rotation = random(0, 2 * Math.PI);
+  const eccentricity = Math.sqrt(random(0, 1));  // sqrt to skew it towards 1
 
-  return Ellipse.fromRadii(center, radiusX, radiusY, rotation);
+  return Ellipse.fromEccentricity(center, majorAxis, rotation, eccentricity);
 }
 
 function getWindowSize() {
@@ -314,12 +333,9 @@ async function playGame() {
   ctx.strokeStyle = "black";
   ctx.fillStyle = "black";
 
-  const ellipse = randomEllipse(ctxWidth, ctxHeight);
-
-  ctx.beginPath();
   ctx.lineWidth = 2;
-  ctx.ellipse(ellipse.center.x, ellipse.center.y, ellipse.radiusX, ellipse.radiusY, ellipse.rotation, 0, Math.PI * 2);
-  ctx.stroke();
+  const ellipse = randomEllipse(ctxWidth, ctxHeight);
+  ellipse.drawOn(ctx);
 
   const userGuess = await getClick(canv)
 
