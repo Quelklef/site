@@ -59,9 +59,14 @@ class PointVector {
 
   plus(other) {
     if (this.dimension !== other.dimension) throw "Cannot add different-dimension PointVectors.";
-
     const addedItems = Array(this.dimension).fill(null).map((_, i) => this.items[i] + other.items[i]);
     return PointVector.fromItems(addedItems);
+  }
+
+  minus(other) {
+    if (this.dimension !== other.dimension) throw "Cannot subtract different-dimension PointVectors.";
+    const subtractedItems = Array(this.dimension).fill(null).map((_, i) => this.items[i] - other.items[i]);
+    return PointVector.fromItems(subtractedItems);
   }
 
   times(scalar) {
@@ -128,34 +133,52 @@ function random(lo, hi) {
   return lo + (Math.random() * (hi - lo));
 }
 
+class Ellipse {
+  constructor(center, radiusX, radiusY, rotation) {
+    this.center = center;
+    this.radiusX = radiusX;
+    this.radiusY = radiusY;
+    this.rotation = rotation;
+
+    this.majorAxis = Math.max(radiusX, radiusY);
+    this.minorAxis = Math.min(radiusX, radiusY);
+
+    const center_to_foci_dist = Math.sqrt(Math.pow(this.majorAxis, 2) - Math.pow(this.minorAxis, 2));
+    // Normaized vector pointing from center and along major axis
+    const vMajor =
+      radiusX > radiusY ? PointVector.angle(rotation)
+                        : PointVector.angle(rotation + Math.PI / 2);
+    this.foci = [
+      center.plus(vMajor.withMagnitude(center_to_foci_dist)),
+      center.plus(vMajor.withMagnitude(center_to_foci_dist).negated()),
+    ];
+
+    this.focus1 = this.foci[0];
+    this.focus2 = this.foci[1];
+  }
+
+}
+
 function randomEllipse(maxX, maxY) {
   /* Generate a random ellipse within the given bounds */
   if (typeof maxX !== 'number') throw 'Argument `maxX` must be a number.';
   if (typeof maxY !== 'number') throw 'Argument `maxY` must be a number.';
 
-  const radiusX = random(maxX / 100, maxX / 2);
-  const radiusY = random(maxY / 100, maxY / 2);
+  const radiusX = random(maxX / 100, maxX / 3);
+  const radiusY = random(maxY / 100, maxY / 3);
 
-  const major = Math.max(radiusX, radiusY);
-  const minor = Math.min(radiusX, radiusY);
+  const majorAxis = Math.max(radiusX, radiusY);
+  const minorAxis = Math.min(radiusX, radiusY);
 
-  const x = random(major, maxX - major);
-  const y = random(major, maxY - major);
+  // Generate center such that the ellipse is always on screen
+  // (An ellipse is fully contained in the circle of its major axis)
+  const x = random(majorAxis, maxX - majorAxis);
+  const y = random(majorAxis, maxY - majorAxis);
+  const center = p(x, y);
 
   const rotation = random(0, 2 * Math.PI);
 
-  const center = v(x, y);
-  const center_to_foci_dist = Math.sqrt(Math.pow(major, 2) - Math.pow(minor, 2));
-
-  // Normaized pointing from center and along major axis
-  const vMajor =
-    radiusX > radiusY ? PointVector.angle(rotation)
-                      : PointVector.angle(rotation + Math.PI / 2);
-
-  const focus1 = center.plus(vMajor.withMagnitude(center_to_foci_dist))
-  const focus2 = center.plus(vMajor.withMagnitude(center_to_foci_dist).negated())
-
-  return { x, y, radiusX, radiusY, rotation, focus1, focus2 };
+  return new Ellipse(center, radiusX, radiusY, rotation);
 }
 
 function getWindowSize() {
@@ -224,24 +247,25 @@ async function playGame() {
   ctx.fillStyle = "black";
   ctx.clearRect(0, 0, ctxWidth, ctxHeight);
 
-  const { x, y, radiusX, radiusY, rotation, focus1, focus2 } = randomEllipse(ctxWidth, ctxHeight);
+  const ellipse = randomEllipse(ctxWidth, ctxHeight);
 
   ctx.beginPath();
   ctx.lineWidth = 2;
-  ctx.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
+  ctx.ellipse(ellipse.center.x, ellipse.center.y, ellipse.radiusX, ellipse.radiusY, ellipse.rotation, 0, Math.PI * 2);
   ctx.stroke();
 
   const userGuess = await getClick(canv)
 
-  focus1.drawOn(ctx, 8);
-  focus2.drawOn(ctx, 8);
+  ellipse.focus1.drawOn(ctx, 8);
+  ellipse.focus2.drawOn(ctx, 8);
   userGuess.drawOn(ctx, 10);
-  const closer = focus1.distance(userGuess) < focus2.distance(userGuess) ? focus1 : focus2;
+  const closer = ellipse.focus1.distance(userGuess) < ellipse.focus2.distance(userGuess) ? ellipse.focus1 : ellipse.focus2;
   userGuess.drawTo(closer, ctx);
 
-  const textLoc = userGuess.plus(closer).divided(2);
+  const textLoc = userGuess.minus(p(0, 25));
   const discrepancy = Math.round(userGuess.distance(closer));
-  const text = `Off by ${discrepancy}`;
+  const percentErr = 100 * (discrepancy / ellipse.majorAxis);
+  const text = `Off by ${Math.round(percentErr)}%`;
   ctx.font = "30px Arial";
   ctx.strokeStyle = "white";
   ctx.fillStyle = "red";
