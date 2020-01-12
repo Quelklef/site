@@ -44,6 +44,24 @@ Options:
 """
 
 
+def watch_dir(target, callback):
+  """ Watch the target directory and call the decorated function on each change. Blocking. """
+
+  class EventHandler(watchdog.events.FileSystemEventHandler):
+    def on_any_event(self, event):
+      callback(event)
+
+  event_handler = EventHandler()
+  observer = watchdog.observers.Observer()
+  file_observer = watchdog.observers.Observer()
+  observer.schedule(event_handler, target, recursive=True)
+
+  atexit.register(observer.stop)
+
+  observer.start()
+  observer.join()
+
+
 def main():
 
   print(f"Command: {' '.join(sys.argv)}")  # Naive
@@ -61,20 +79,10 @@ def main():
     build_latex = not args['--no-latex']
     build_site(build_latex=build_latex)
 
-    class EventHandler(watchdog.events.FileSystemEventHandler):
-      def on_any_event(self, event):
-        print(event)
-        build_site(build_latex=build_latex)
+    def build_on_change(change_event):
+      build_site(build_latex=build_latex)
 
-    event_handler = EventHandler()
-    observer = watchdog.observers.Observer()
-    file_observer = watchdog.observers.Observer()
-    observer.schedule(event_handler, 'src/', recursive=True)
-
-    atexit.register(observer.stop)
-
-    observer.start()
-    observer.join()
+    watch_dir('src/', build_on_change)
 
   elif args['build']:
     build_site(build_latex=not args['--no-latex'])

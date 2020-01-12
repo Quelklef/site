@@ -82,8 +82,7 @@
         },
         "pathtools": {
             "hashes": [
-                "sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0",
-                "sha256:c4a2121f551fb09cf7f94e1ffaf3efce366e9b4bbfc3ae625238d86fb6136a21"
+                "sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"
             ],
             "version": "==0.1.2"
         },
