@@ -40,6 +40,11 @@ function stdev(xs) {
   return stdDev;
 }
 
+function round(x, precision) {
+  const factor = Math.pow(10, precision);
+  return Math.round(x * factor) / factor;
+}
+
 // Vectors / Points
 
 const v = (...items) => new PointVector(...items);
@@ -298,12 +303,12 @@ function drawStats() {
 
   const n = 5;
   const historyStrs =
-    userErrors.map((err, i) => `#${i}: ${Math.round(err)}%`)
+    userErrors.map((err, i) => `#${i}: ${round(err, 2)}%`)
       .slice(Math.max(0, userErrors.length - n));  // Get the last n
 
   const texts = [
-    `Mean error: ${Math.round(mean(userErrors))}%`,
-    `Stdev: ${Math.round(stdev(userErrors))}%`,
+    `Mean error: ${round(mean(userErrors), 3)}%`,
+    `Stdev: ${round(stdev(userErrors), 3)}%`,
     `History:`,
     ...historyStrs,
   ];
@@ -346,11 +351,11 @@ async function playGame() {
   userGuess.drawTo(closer, ctx);
 
   const textLoc = userGuess.minus(p(0, 25));
-  const discrepancy = Math.round(userGuess.distance(closer));
+  const discrepancy = userGuess.distance(closer);
   const error = 100 * (discrepancy / ellipse.majorAxis);
   userErrors.push(error)
 
-  const text = `Off by ${Math.round(error)}%`;
+  const text = `Off by ${round(error, 2)}%`;
   ctx.font = "30px Arial";
   ctx.strokeStyle = "white";
   ctx.fillStyle = "red";
