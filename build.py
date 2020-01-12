@@ -67,7 +67,10 @@ def main():
   print(f"Command: {' '.join(sys.argv)}")  # Naive
   args = docopt(__doc__)
 
-  if args['serve']:
+  if args['build']:
+    build_site(build_latex=not args['--no-latex'])
+
+  elif args['serve']:
 
     # Start webserver
     process = subprocess.Popen(['python3', '-m', 'http.server'], cwd='./site')
@@ -83,9 +86,6 @@ def main():
       build_site(build_latex=build_latex)
 
     watch_dir('src/', build_on_change)
-
-  elif args['build']:
-    build_site(build_latex=not args['--no-latex'])
 
 @contextlib.contextmanager
 def temp_chdir(target):
