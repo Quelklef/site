@@ -19,6 +19,9 @@ from docopt import docopt
 from lib.calc_item_tree import calc_item_tree
 from lib.log import log_section
 
+# TODO: Port to pathlib
+# TODO: Refactor. This is bad code.
+
 # == CLI == #
 
 __doc__ = """
