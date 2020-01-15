@@ -121,7 +121,7 @@ function main() {
     $shadowRoot.appendChild($schedule);
 
     // Note that this does not transmit hex color codes properly:
-    $bookmark.href = `data:text/html, ${encodeURI($schedule.innerHTML)}`;
+    $bookmark.href = `data:text/html, ${encodeURI($schedule.outerHTML)}`;
   }
 
   // TODO: REMOVE -- TESTING ONLY
@@ -287,6 +287,19 @@ function createSectionSettingsUI(section) {
 // == Building HTML == //
 
 function createSchedule(sections) {
+  const $container = el('<div class="schedule-container">');
+  $container.style = "display: inline-block;"
+
+  $container.appendChild(createScheduleTable(sections));
+  $container.appendChild(createScheduleKey(sections));
+
+  const style = createScheduleStyle(sections);
+  $container.appendChild(el(`<style>${style}</style>`));
+
+  return $container;
+}
+
+function createScheduleTable(sections) {
 
   const earliestSection = minBy(sections, sec => sec.startTime);
   const latestSection = maxBy(sections, sec => sec.endTime);
@@ -308,10 +321,6 @@ function createSchedule(sections) {
 
   const $schedule = el('<table id="schedule">');
   $container.appendChild($schedule);
-
-  const style = makeScheduleStyle(sections);
-  const $style = el(`<style>${style}</style>`);
-  $container.appendChild($style);
 
   const $topRow = el('<tr>')
   $topRow.appendChild(el('<th>Day</th>'));
@@ -367,43 +376,49 @@ function createSchedule(sections) {
   return $container;
 }
 
-function makeScheduleStyle(sections) {
-
-  // Cell width
-  const cellWidth = settings.cellWidth;
-
+function createScheduleStyle(sections) {
 
   let style = `
+.schedule-container {
+  background: white;
+  padding: 15px;
+  font-family: serif;
+  font-size: 14px;
+}
+
 table {
   border: 1px solid grey;
   border-collapse: collapse;
-  font-family: serif;
-  font-size: 14px;
-  background: white;
 }
+
 td {
-  width: ${cellWidth}px;
+  width: ${settings.cellWidth}px;
   padding: 0;
 }
+
 th {
   white-space: nowrap;
   padding: 0;
   padding-left: 5px;
 }
+
 tr:nth-child(2n+1) {
   background-color: rgb(240, 240, 240);
 }
+
 th:first-child {
   max-width: 100px;
   min-width: 100px;
   text-align: left;
 }
+
 td, th {
-  width: ${cellWidth}px;
-  max-width: ${cellWidth}px;
+  width: ${settings.cellWidth}px;
+  max-width: ${settings.cellWidth}px;
   height: 30px;
   text-align: center;
 }
+
 .siderule {
   border-left: 1px dotted grey;
 }
@@ -522,6 +537,47 @@ function prettifyTime(time) {
     throw 'Uh oh';
   }
 
+}
+
+function createScheduleKey(sections) {
+  const $container = el('<div>');
+  $container.style = `
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  `;
+
+  for (const section of sections) {
+    const sectionSettings = settings.sections[section.name];
+
+    const $sectionKey = el(`<div>`);
+    $sectionKey.style = `
+      border: 1px solid ${sectionSettings.backgroundColor};
+      margin: 0 7px;
+    `;
+
+    const $sectionName = el(`<p>${sectionSettings.shortName}</p>`)
+    $sectionName.style = `
+      text-align: center;
+      padding: 2px 6px;
+      margin: 0;
+      background-color: ${sectionSettings.backgroundColor};
+      color: ${sectionSettings.textColor};
+    `;
+    $sectionKey.appendChild($sectionName);
+
+    const location = `${section.building} rm ${section.room}`;
+    const $sectionLocation = el(`<p>${location}</p>`);
+    $sectionLocation.style = `
+      margin: 0;
+      padding: 2px 6px;
+    `;
+    $sectionKey.appendChild($sectionLocation);
+
+    $container.appendChild($sectionKey);
+  }
+
+  return $container;
 }
 
 
