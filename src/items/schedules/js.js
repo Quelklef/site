@@ -85,6 +85,16 @@ function hexToRgb(hex) {
   return `rgb(${xs.slice(1).map(x=>parseInt(x,16)).join(',')})`;
 }
 
+const daysInWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 
 // == Main == //
 
@@ -154,8 +164,12 @@ function bindElement(observableObject, observedProperty, element, mapper = x => 
 const settings = makeObservable({
 
   timeFormat: 'standard',
+
   cellWidth: 15,
   cellHeight: 20,
+
+  weekend: 'none',
+
   sections: {
     // For each section there will be
     // [section.name]: {
@@ -250,6 +264,21 @@ function updateSettingsUI(sections) {
     bindInput(settings, 'timeFormat', $timeFormatField);
     $timeFormatSetting.appendChild($timeFormatField);
     $container.appendChild($timeFormatSetting);
+
+    // -
+
+    const $weekendSetting = el('<p>Weekend: </p>');
+    const $weekendField = el(`
+    <select>
+      <option value="none">No weekend</option>
+      <option value="prefix">Begin with weekend</option>
+      <option value="suffix">End with weekend</option>
+      <option value="split">Split weekend</option>
+    </select>
+    `);
+    bindInput(settings, 'weekend', $weekendField);
+    $weekendSetting.appendChild($weekendField);
+    $container.appendChild($weekendSetting);
 
   }
 
@@ -357,7 +386,7 @@ function createScheduleTable(sections) {
   $schedule.appendChild($topRow);
 
   const dayTable = buildDayTable(sections, startTime, endTime);
-  for (const day of daysInWeek) {
+  for (const day of getChosenDays()) {
     const $dayRow = el('<tr>');
     $dayRow.appendChild(el(`<th>${day}</th>`));
 
@@ -396,6 +425,27 @@ function createScheduleTable(sections) {
   }
 
   return $container;
+}
+
+function getChosenDays() {
+  switch(settings.weekend) {
+
+    case 'none':
+      return daysInWeek.slice(0, -2);
+
+    case 'prefix':
+      return daysInWeek.slice(-2).concat(daysInWeek.slice(0, -2));
+
+    case 'suffix':
+      return daysInWeek;
+
+    case 'split':
+      return daysInWeek.slice(-1).concat(daysInWeek.slice(0, -1));
+
+    default:
+      throw 'Uh oh';
+
+  }
 }
 
 function createScheduleStyle(sections) {
@@ -630,16 +680,6 @@ function parseSections(pasted) {
 
   return sectionsStrings.map(parseSection); 
 }
-
-const daysInWeek = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
 
 function parseSection(sectionString) {
   const primaryInfo = sectionString.split('\n\n')[1];
