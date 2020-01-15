@@ -462,6 +462,8 @@ table {
   border: 1px solid grey;
   border-collapse: collapse;
   font-family: serif;
+  font-size: 14px;
+  background: white;
 }
 td {
   width: ${cellWidth}px;
@@ -484,11 +486,7 @@ td, th {
   width: ${cellWidth}px;
   max-width: ${cellWidth}px;
   height: 30px;
-  font-size: 14px;
   text-align: center;
-}
-td, th, tr {
-  border: none;
 }
 .siderule {
   border-left: 1px dotted grey;
