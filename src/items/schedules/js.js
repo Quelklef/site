@@ -112,8 +112,8 @@ function main() {
   }
 
   // TODO: REMOVE -- TESTING ONLY
-  getSections();
-  renderSchedule();
+  //getSections();
+  //renderSchedule();
 
   settings.listenDeep(() => renderSchedule());
 
@@ -133,6 +133,27 @@ function makeObservable(target) {
   // and all child objects
   const deepObservers = []
 
+
+  let callbacksPaused = false;
+  const propertyBacklog = new Set();
+
+  function fireCallbacks(changedProps = new Set()) {
+    if (callbacksPaused) {
+      changedProps.forEach(p => propertyBacklog.add(p));
+      return;
+    }
+
+    for (const callback of deepObservers) {
+      callback(proxy);
+    }
+
+    for (const { observedProperty, callback } of observers) {
+      if (changedProps.has(observedProperty)) {
+        callback(target[observedProperty]);
+      }
+    }
+  }
+
   const handler = {
     set: function(target, prop, newVal) {
 
@@ -144,15 +165,7 @@ function makeObservable(target) {
 
       target[prop] = newVal;
 
-      for (const callback of deepObservers) {
-        callback(proxy);
-      }
-
-      for (const { observedProperty, callback } of observers) {
-        if (observedProperty === prop) {
-          callback(newVal);
-        }
-      }
+      fireCallbacks(new Set([prop]));
 
       if (target.parent !== null) target.parent.descendantChanged();
     }
@@ -164,7 +177,7 @@ function makeObservable(target) {
   if (typeof target.parent === 'undefined') target.parent = null;
 
   proxy.descendantChanged = function() {
-    deepObservers.forEach(callback => callback(proxy));
+    fireCallbacks();
     if (target.parent !== null) target.parent.descendantChanged();
   }
 
@@ -174,6 +187,16 @@ function makeObservable(target) {
 
   proxy.listenDeep = function(callback) {
     deepObservers.push(callback);
+  }
+
+  proxy.pause = function() {
+    callbacksPaused = true;
+    propertyBacklog.clear();
+  }
+
+  proxy.resume = function() {
+    callbacksPaused = false;
+    if (propertyBacklog.size !== 0) fireCallbacks(propertyBacklog);
   }
 
   return proxy;
@@ -195,6 +218,8 @@ const settings = makeObservable({});
 
 // Default settings
 
+settings.timeFormat = 'standard';
+
 settings.cellWidth = 20;
 
 settings.sections = {
@@ -207,30 +232,36 @@ settings.sections = {
 };
 
 function updateSettings(sections) {
+
+  settings.pause();
+
   for (const section of sections) {
     if (!(section.name in settings.sections)) {
       settings.sections[section.name] = {
 
         shortName       : shortenName(section.name),
         backgroundColor : randomColor(),
-        textColor       : 'black',
+        textColor       : 'white',
 
       };
     }
   }
+
+  settings.resume();
+
 }
 
 
 
-let cellWidthSettingRendered = false;
+let topLevelSettingsRendered = false;
 
 // Map section name to rendered element
 const renderedSections = {};
 
 function updateSettingsUI(sections) {
 
-  if (!cellWidthSettingRendered) {
-    cellWidthSettingRendered = true;
+  if (!topLevelSettingsRendered) {
+    topLevelSettingsRendered = true;
 
     const $cellWidthSetting = el('<p>Cell width: </p>')
     const $cellWidthField = el('<input type="range" min="1" max="50" />');
@@ -240,8 +271,24 @@ function updateSettingsUI(sections) {
     bindInput(settings, 'cellWidth', $cellWidthField);
 
     $cellWidthSetting.appendChild($cellWidthField);
+    $cellWidthSetting.appendChild(tx(' '));
     $cellWidthSetting.appendChild($cellWidthDisplay);
     $settings.appendChild($cellWidthSetting);
+
+    // -
+
+    const $timeFormatSetting = el('<p>Time format: </p>');
+    const $timeFormatField = el(`
+    <select>
+      <option value="standard">Standard</option>
+      <option value="military">Military</option>
+      <option value="colloquial">Colloquial</option>
+    </select>
+    `);
+    bindInput(settings, 'timeFormat', $timeFormatField);
+    $timeFormatSetting.appendChild($timeFormatField);
+    $settings.appendChild($timeFormatSetting);
+
   }
 
   for (const section of sections) {
@@ -348,7 +395,8 @@ function createSchedule(sections) {
 
         const shortName = settings.sections[section.name].shortName;
         const backgroundColor = settings.sections[section.name].backgroundColor;
-        const $td = el(`<td style="background-color: ${backgroundColor}" colspan=${columnSpan}>${shortName}</td>`);
+        const textColor = settings.sections[section.name].textColor;
+        const $td = el(`<td style="background-color: ${backgroundColor}; color: ${textColor}" colspan=${columnSpan}>${shortName}</td>`);
         $td.style.backgroundColor = section.color;
         $dayRow.appendChild($td);
 
@@ -425,13 +473,50 @@ function buildDayTable(sections, startTime, endTime) {
 }
 
 function prettifyTime(time) {
-  const hour = Math.floor(time / 60);
+  const hour24 = Math.floor(time / 60);
   const minute = time % 60;
 
-  const suffix = hour < 12 ? 'AM' : 'PM';
-  const hourStr = hour > 12 ? String(hour - 12) : String(hour);
-  const minuteStr = String(minute).padStart(2, '0');
-  return `${hourStr}:${minuteStr}${suffix}`;
+  const hour12 = hour24 > 12 ? hour24 - 12
+               : hour24 === 0 ? 12
+               : hour24;
+
+  const hour24Pad = String(hour24).padStart(2, '0');
+  const minutePad = String(minute).padStart(2, '0');
+  const hour12Pad = String(hour12).padStart(2, '0');
+
+  const suffix = hour24 < 12 ? 'AM' : 'PM';
+
+  const words = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Eleven', 12: 'Twelve' };
+  const hourWord = words[hour12];
+
+  switch(settings.timeFormat) {
+
+    case 'military':
+      return `${hour24Pad}:${minutePad}`;
+    break;
+
+    case 'standard':
+      return `${hour12Pad}:${minutePad}${suffix}`;
+    break;
+
+    case 'colloquial':
+      if (hour24 === 12 && minute === 0) return 'Noon';
+      if (hour24 === 0 && minute === 0) return 'Midnight';
+      if (minute === 0) return `${hourWord} o'clock`;
+      return `${hour12}:${minutePad}`;
+    break;
+
+    default: throw 'Uh oh';
+
+  }
+
+  if (settings.timeFormat === 'military') {
+    suffix = '';
+  } else if (settings.timeFormat === 'standard') {
+  } else {
+    throw 'Uh oh';
+  }
+
 }
 
 

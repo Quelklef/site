@@ -12,7 +12,7 @@ indexed: false
 
 <h2>Input</h2>
 
-<p>Go to <code>Webadvisor > Manage My Waitlist</code>, press Ctrl+A, copy, and paste into the box below:</p>
+<p>Go to <code>Webadvisor > Manage My Waitlist</code>, press <code>Ctrl+A</code>, copy, and paste into the box below:</p>
 
 <textarea id="input">
 Contact Us
