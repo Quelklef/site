@@ -134,8 +134,10 @@ function main() {
     $bookmark.innerHTML = '';
     $bookmark.appendChild(el('<h2>Bookmark</h2>'));
     $bookmark.appendChild(el(`<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>`));
+
     // Note that this does not transmit hex color codes properly:
-    $bookmark.appendChild(el(`<a href="data:text/html, ${encodeURI($schedule.outerHTML)}">Class schedule</a>`));
+    const html = '<title>Class Schedule</title>' + encodeURI($schedule.outerHTML);
+    $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Class schedule</a>`));
   }
 
   settings.addDeepObserver(() => renderSchedule());
