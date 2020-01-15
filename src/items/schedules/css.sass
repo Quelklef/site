@@ -1,0 +1,36 @@
+#input
+  height: 100px
+
+#schedule
+  border: 1px solid grey
+
+  td
+    color: white
+
+  tr
+    &:nth-child(2n+1)
+      background-color: rgb(240, 240, 240)
+
+  td, th
+    height: 30px
+    padding: 0
+    font-size: 14px
+    text-align: center
+
+    &.siderule
+      border-left: 1px dotted grey
+
+  th
+    background-color: transparent
+    font-weight: initial
+
+    padding-left: 5px
+
+    &:first-child
+      max-width: 130px
+      min-width: 130px
+      text-align: left
+
+  td, th, tr
+    border: none
+
