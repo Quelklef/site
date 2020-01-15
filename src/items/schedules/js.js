@@ -37,8 +37,8 @@ function tx(text) {
 }
 
 function randomColor() {
-  // https://stackoverflow.com/a/55346027/4608364
-  return "#xxxxxx".replace(/x/g, y=>(Math.random()*16|0).toString(16));
+  // Modified from https://stackoverflow.com/a/5092872/4608364
+  return "#xxxxxx".replace(/x/g,()=>(~~(Math.random()*16)).toString(16));
 }
 
 function shortenName(name) {
@@ -79,14 +79,19 @@ function maxBy(array, key) {
   return minBy(array, x => -key(x));
 }
 
-
+function hexToRgb(hex) {
+  // Derived from https://stackoverflow.com/a/5624139/4608364
+  const xs = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return `rgb(${xs.slice(1).map(x=>parseInt(x,16)).join(',')})`;
+}
 
 
 // == Main == //
 
-const $input = document.getElementById('input');
-const $output = document.getElementById('output');
+const $input    = document.getElementById('input');
+const $output   = document.getElementById('output');
 const $settings = document.getElementById('settings');
+const $bookmark = document.getElementById('bookmark');
 
 function main() {
 
@@ -106,14 +111,22 @@ function main() {
   }
 
   function renderSchedule() {
-    const schedule = createSchedule(sections);
+    const $schedule = createSchedule(sections);
     $output.innerHTML = '';
-    $output.appendChild(schedule);
+
+    const $shadowContainer = el('<div>');
+    $output.appendChild($shadowContainer);
+
+    const $shadowRoot = $shadowContainer.attachShadow({ mode: 'open' });
+    $shadowRoot.appendChild($schedule);
+
+    // Note that this does not transmit hex color codes properly:
+    $bookmark.href = `data:text/html, ${encodeURI($schedule.innerHTML)}`;
   }
 
   // TODO: REMOVE -- TESTING ONLY
-  //getSections();
-  //renderSchedule();
+  getSections();
+  renderSchedule();
 
   settings.listenDeep(() => renderSchedule());
 
@@ -231,6 +244,10 @@ settings.sections = {
   // }
 };
 
+
+let id = 0;
+function nextId() { return id++; }
+
 function updateSettings(sections) {
 
   settings.pause();
@@ -239,9 +256,10 @@ function updateSettings(sections) {
     if (!(section.name in settings.sections)) {
       settings.sections[section.name] = {
 
+        id              : nextId(),
         shortName       : shortenName(section.name),
         backgroundColor : randomColor(),
-        textColor       : 'white',
+        textColor       : '#ffffff',
 
       };
     }
@@ -263,9 +281,15 @@ function updateSettingsUI(sections) {
   if (!topLevelSettingsRendered) {
     topLevelSettingsRendered = true;
 
+    const $container = el('<div>');
+    $container.style = "display: flex; justify-content: space-around;"
+    $settings.appendChild($container)
+
+    // -
+
     const $cellWidthSetting = el('<p>Cell width: </p>')
     const $cellWidthField = el('<input type="range" min="1" max="50" />');
-    const $cellWidthDisplay = el('<span>')
+    const $cellWidthDisplay = el('<span style="font-family: monospace">')
 
     bindElement(settings, 'cellWidth', $cellWidthDisplay);
     bindInput(settings, 'cellWidth', $cellWidthField);
@@ -273,7 +297,7 @@ function updateSettingsUI(sections) {
     $cellWidthSetting.appendChild($cellWidthField);
     $cellWidthSetting.appendChild(tx(' '));
     $cellWidthSetting.appendChild($cellWidthDisplay);
-    $settings.appendChild($cellWidthSetting);
+    $container.appendChild($cellWidthSetting);
 
     // -
 
@@ -287,7 +311,7 @@ function updateSettingsUI(sections) {
     `);
     bindInput(settings, 'timeFormat', $timeFormatField);
     $timeFormatSetting.appendChild($timeFormatField);
-    $settings.appendChild($timeFormatSetting);
+    $container.appendChild($timeFormatSetting);
 
   }
 
@@ -313,28 +337,31 @@ function updateSettingsUI(sections) {
 
 function createSectionSettingsUI(section) {
   const $container = el('<div>');
-
   $container.appendChild(el(`<h3>${section.name}</h3>`));
+
+  const $settingsContainer = el('<div>');
+  $settingsContainer.style = "display: flex; justify-content: space-between;";
+  $container.appendChild($settingsContainer);
 
   const sectionSettings = settings.sections[section.name];
 
-  const $shortNameSetting = el('<p>Short name: </p>');
+  const $shortNameSetting = el('<p>Name: </p>');
   const $shortNameField = el('<input type="text">');
   bindInput(sectionSettings, 'shortName', $shortNameField);
   $shortNameSetting.appendChild($shortNameField);
-  $container.appendChild($shortNameSetting);
+  $settingsContainer.appendChild($shortNameSetting);
 
-  const $backgroundColorSetting = el('<p>Background color: </p>')
+  const $backgroundColorSetting = el('<p>Background: </p>')
   const $backgroundColorField = el('<input type="color" />');
   bindInput(sectionSettings, 'backgroundColor', $backgroundColorField);
   $backgroundColorSetting.appendChild($backgroundColorField);
-  $container.appendChild($backgroundColorSetting);
+  $settingsContainer.appendChild($backgroundColorSetting);
 
-  const $textColorSetting = el('<p>Text color: </p>');
+  const $textColorSetting = el('<p>Text: </p>');
   const $textColorField = el('<input type="color" />')
   bindInput(sectionSettings, 'textColor', $textColorField);
   $textColorSetting.appendChild($textColorField);
-  $container.appendChild($textColorSetting);
+  $settingsContainer.appendChild($textColorSetting);
 
   return $container;
 }
@@ -359,21 +386,25 @@ function createSchedule(sections) {
   // The size of our time blocks (in minutes)
   const timeStep = 10;
 
-  // Cell width
-  const cellWidth = settings.cellWidth;
-
   // = Rendering = //
 
+  const $container = el('<div>');
+
   const $schedule = el('<table id="schedule">');
+  $container.appendChild($schedule);
+
+  const style = makeScheduleStyle(sections);
+  const $style = el(`<style>${style}</style>`);
+  $container.appendChild($style);
 
   const $topRow = el('<tr>')
   $topRow.appendChild(el('<th>Day</th>'));
   for (let time = startTime; time <= endTime; time += timeStep) {
     if (time % 60 === 0) {
       // Full hour
-      $topRow.appendChild(el(`<th style="max-width: ${cellWidth}px" class="siderule">${prettifyTime(time)}</th>`))
+      $topRow.appendChild(el(`<th class="siderule">${prettifyTime(time)}</th>`))
     } else {
-      $topRow.appendChild(el(`<th style="width: ${cellWidth}px">`));
+      $topRow.appendChild(el(`<th>`));
     }
   }
   $schedule.appendChild($topRow);
@@ -392,11 +423,9 @@ function createSchedule(sections) {
       if (block.section !== null) {
 
         const section = block.section;
-
         const shortName = settings.sections[section.name].shortName;
-        const backgroundColor = settings.sections[section.name].backgroundColor;
-        const textColor = settings.sections[section.name].textColor;
-        const $td = el(`<td style="background-color: ${backgroundColor}; color: ${textColor}" colspan=${columnSpan}>${shortName}</td>`);
+        const id = settings.sections[section.name].id;
+        const $td = el(`<td class="section-${id}" colspan=${columnSpan}>${shortName}</td>`);
         $td.style.backgroundColor = section.color;
         $dayRow.appendChild($td);
 
@@ -405,9 +434,9 @@ function createSchedule(sections) {
         for (let i = 0; i < columnSpan; i++) {
           const time = previousEndTime + i * timeStep;
           if (time % 60 === 0) {
-            $dayRow.appendChild(el(`<td style="width: ${cellWidth}px" class="siderule">`));
+            $dayRow.appendChild(el(`<td class="siderule">`));
           } else {
-            $dayRow.appendChild(el(`<td style="width: ${cellWidth}px">`));
+            $dayRow.appendChild(el(`<td>`));
           }
         }
 
@@ -419,7 +448,69 @@ function createSchedule(sections) {
     $schedule.append($dayRow);
   }
 
-  return $schedule;
+  return $container;
+}
+
+function makeScheduleStyle(sections) {
+
+  // Cell width
+  const cellWidth = settings.cellWidth;
+
+
+  let style = `
+table {
+  border: 1px solid grey;
+  border-collapse: collapse;
+  font-family: serif;
+}
+td {
+  width: ${cellWidth}px;
+  padding: 0;
+}
+th {
+  white-space: nowrap;
+  padding: 0;
+  padding-left: 5px;
+}
+tr:nth-child(2n+1) {
+  background-color: rgb(240, 240, 240);
+}
+th:first-child {
+  max-width: 100px;
+  min-width: 100px;
+  text-align: left;
+}
+td, th {
+  width: ${cellWidth}px;
+  max-width: ${cellWidth}px;
+  height: 30px;
+  font-size: 14px;
+  text-align: center;
+}
+td, th, tr {
+  border: none;
+}
+.siderule {
+  border-left: 1px dotted grey;
+}
+`;
+
+  for (const section of sections) {
+    const id = settings.sections[section.name].id;
+    const backgroundColor = settings.sections[section.name].backgroundColor;
+    const textColor = settings.sections[section.name].textColor;
+
+    // We have to convert the hex color to RGB because hashtags fuck up the bookmark--
+    // presumably because in the URL they're interpreted as an ID specifier
+    style += `
+.section-${id} {
+  background-color: ${hexToRgb(backgroundColor)};
+  color: ${hexToRgb(textColor)};
+}
+`;
+  }
+
+  return style;
 }
 
 function buildDayTable(sections, startTime, endTime) {

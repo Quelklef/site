@@ -8,13 +8,12 @@ indexed: false
 ---
 
 <script type="text/javascript" src="js.js"></script>
-<link rel="stylesheet" type="text/css" href="css.css" />
 
 <h2>Input</h2>
 
 <p>Go to <code>Webadvisor > Manage My Waitlist</code>, press <code>Ctrl+A</code>, copy, and paste into the box below:</p>
 
-<textarea id="input">
+<textarea id="input" style="height: 100px;">
 Contact Us
 Help
 Students Menu
@@ -102,10 +101,14 @@ Log Out
 <div id="output" class="fullwidth">
 </div>
 
+<h2>Bookmark</h2>
+
+<p>If you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>
+<p><a id="bookmark" href="#">Class schedule</a></p>
+<p>Otherwise, you can customize your schedule in the next section:</p>
+
 <h2>Customize</h2>
 
 <div id="settings">
 </div>
-
-<h2>Bookmark</h2>
 
