@@ -82,49 +82,6 @@ function maxBy(array, key) {
 
 
 
-// == Box == //
-
-class Box {
-  constructor(value) {
-    this._value = value;
-    this.observers = [];
-  }
-
-  get value() {
-    return this._value;
-  }
-
-  set value(newValue) {
-    if (this._value !== newValue) {
-      this._value = newValue;
-      this.observers.forEach(callback => callback(this._value));
-    }
-  }
-
-  listen(callback) {
-    this.observers.push(callback);
-    return this;
-  }
-
-  listenGet(callback) {
-    this.listen(callback);
-    callback(this.value);
-  }
-}
-
-function bind(input, box) {
-  // Bind an input element to a box
-
-  const toInput = () => input.value = box.value;
-  const toBox = () => box.value = input.value;
-
-  input.addEventListener('input', toBox);
-  box.listen(toInput);
-
-  toInput();
-}
-
-
 // == Main == //
 
 const $input = document.getElementById('input');
@@ -133,25 +90,32 @@ const $settings = document.getElementById('settings');
 
 function main() {
 
-  input.addEventListener('input', () => renderSchedule());
+  let sections;
+
+  input.addEventListener('input', () => {
+    getSections();
+    renderSchedule();
+  });
+
+  function getSections() {
+    const text = $input.value;
+    sections = parseSections(text);
+
+    updateSettings(sections);
+    updateSettingsUI(sections);
+  }
 
   function renderSchedule() {
-    const text = $input.value;
-
-    const sections = parseSections(text);
-    updateSettings(sections);
-
-    updateSettingsUI(sections);
-
     const schedule = createSchedule(sections);
     $output.innerHTML = '';
     $output.appendChild(schedule);
-  };
-
-  onSettingsChange(() => renderSchedule());
+  }
 
   // TODO: REMOVE -- TESTING ONLY
+  getSections();
   renderSchedule();
+
+  settings.listenDeep(() => renderSchedule());
 
 }
 
@@ -159,29 +123,86 @@ function main() {
 
 // == Building Settings == //
 
-const settings = {};
 
-const settingsObservers = [];
+function makeObservable(target) {
 
-function onSettingsChange(callback) {
-  settingsObservers.push(callback);
+  // { observedProperty : callback }
+  const observers = [];
+
+  // Listening to changes to this object
+  // and all child objects
+  const deepObservers = []
+
+  const handler = {
+    set: function(target, prop, newVal) {
+
+      // Make all child objects also observable
+      if (typeof newVal === 'object' && newVal !== null) {
+        newVal.parent = proxy;
+        newVal = makeObservable(newVal, proxy);
+      }
+
+      target[prop] = newVal;
+
+      for (const callback of deepObservers) {
+        callback(proxy);
+      }
+
+      for (const { observedProperty, callback } of observers) {
+        if (observedProperty === prop) {
+          callback(newVal);
+        }
+      }
+
+      if (target.parent !== null) target.parent.descendantChanged();
+    }
+  };
+
+  const proxy = new Proxy(target, handler);
+
+  // Parent object
+  if (typeof target.parent === 'undefined') target.parent = null;
+
+  proxy.descendantChanged = function() {
+    deepObservers.forEach(callback => callback(proxy));
+    if (target.parent !== null) target.parent.descendantChanged();
+  }
+
+  proxy.listen = function(observedProperty, callback) {
+    observers.push({ observedProperty, callback });
+  }
+
+  proxy.listenDeep = function(callback) {
+    deepObservers.push(callback);
+  }
+
+  return proxy;
 }
 
-function reportSettingsChanged() {
-  settingsObservers.forEach(k => k(settings));
+function bindInput(observableObject, observedProperty, inputElement) {
+  observableObject.listen(observedProperty, v => inputElement.value = v);
+  inputElement.addEventListener('input', e => observableObject[observedProperty] = e.target.value);
+  inputElement.value = observableObject[observedProperty];
 }
+
+function bindElement(observableObject, observedProperty, element) {
+  observableObject.listen(observedProperty, v => element.innerHTML = v);
+  element.innerHTML = observableObject[observedProperty];
+}
+
+
+const settings = makeObservable({});
 
 // Default settings
 
-settings.cellWidth = new Box(20);
-settings.cellWidth.listen(reportSettingsChanged);
+settings.cellWidth = 20;
 
 settings.sections = {
   // For each section there will be
   // [section.name]: {
-  //   shortName: Box(String),
-  //   backgroundColor: Box(String),
-  //   textColor: Box(String),
+  //   shortName: String,
+  //   backgroundColor: String,
+  //   textColor: String,
   // }
 };
 
@@ -190,9 +211,9 @@ function updateSettings(sections) {
     if (!(section.name in settings.sections)) {
       settings.sections[section.name] = {
 
-        shortName       : new Box(shortenName(section.name)).listen(reportSettingsChanged),
-        backgroundColor : new Box(randomColor())            .listen(reportSettingsChanged),
-        textColor       : new Box('black')                  .listen(reportSettingsChanged),
+        shortName       : shortenName(section.name),
+        backgroundColor : randomColor(),
+        textColor       : 'black',
 
       };
     }
@@ -210,11 +231,14 @@ function updateSettingsUI(sections) {
 
   if (!cellWidthSettingRendered) {
     cellWidthSettingRendered = true;
+
     const $cellWidthSetting = el('<p>Cell width: </p>')
     const $cellWidthField = el('<input type="range" min="1" max="50" />');
     const $cellWidthDisplay = el('<span>')
-    settings.cellWidth.listenGet(v => $cellWidthDisplay.innerHTML = v);
-    bind($cellWidthField, settings.cellWidth);
+
+    bindElement(settings, 'cellWidth', $cellWidthDisplay);
+    bindInput(settings, 'cellWidth', $cellWidthField);
+
     $cellWidthSetting.appendChild($cellWidthField);
     $cellWidthSetting.appendChild($cellWidthDisplay);
     $settings.appendChild($cellWidthSetting);
@@ -249,19 +273,19 @@ function createSectionSettingsUI(section) {
 
   const $shortNameSetting = el('<p>Short name: </p>');
   const $shortNameField = el('<input type="text">');
-  bind($shortNameField, sectionSettings.shortName);
+  bindInput(sectionSettings, 'shortName', $shortNameField);
   $shortNameSetting.appendChild($shortNameField);
   $container.appendChild($shortNameSetting);
 
   const $backgroundColorSetting = el('<p>Background color: </p>')
   const $backgroundColorField = el('<input type="color" />');
-  bind($backgroundColorField, sectionSettings.backgroundColor);
+  bindInput(sectionSettings, 'backgroundColor', $backgroundColorField);
   $backgroundColorSetting.appendChild($backgroundColorField);
   $container.appendChild($backgroundColorSetting);
 
   const $textColorSetting = el('<p>Text color: </p>');
   const $textColorField = el('<input type="color" />')
-  bind($textColorField, sectionSettings.textColor);
+  bindInput(sectionSettings, 'textColor', $textColorField);
   $textColorSetting.appendChild($textColorField);
   $container.appendChild($textColorSetting);
 
@@ -289,7 +313,7 @@ function createSchedule(sections) {
   const timeStep = 10;
 
   // Cell width
-  const cellWidth = settings.cellWidth.value;
+  const cellWidth = settings.cellWidth;
 
   // = Rendering = //
 
@@ -322,8 +346,8 @@ function createSchedule(sections) {
 
         const section = block.section;
 
-        const shortName = settings.sections[section.name].shortName.value;
-        const backgroundColor = settings.sections[section.name].backgroundColor.value;
+        const shortName = settings.sections[section.name].shortName;
+        const backgroundColor = settings.sections[section.name].backgroundColor;
         const $td = el(`<td style="background-color: ${backgroundColor}" colspan=${columnSpan}>${shortName}</td>`);
         $td.style.backgroundColor = section.color;
         $dayRow.appendChild($td);
