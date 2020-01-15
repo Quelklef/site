@@ -124,19 +124,23 @@ function main() {
     const $schedule = createSchedule(sections);
     $output.innerHTML = '';
 
+    document.getElementById('output-title').innerHTML = 'Schedule';
     const $shadowContainer = el('<div>');
     $output.appendChild($shadowContainer);
 
     const $shadowRoot = $shadowContainer.attachShadow({ mode: 'open' });
     $shadowRoot.appendChild($schedule);
 
+    $bookmark.innerHTML = '';
+    $bookmark.appendChild(el('<h2>Bookmark</h2>'));
+    $bookmark.appendChild(el(`<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>`));
     // Note that this does not transmit hex color codes properly:
-    $bookmark.href = `data:text/html, ${encodeURI($schedule.outerHTML)}`;
+    $bookmark.appendChild(el(`<a href="data:text/html, ${encodeURI($schedule.outerHTML)}">Class schedule</a>`));
   }
 
   // TODO: REMOVE -- TESTING ONLY
-  getSections();
-  renderSchedule();
+  //getSections();
+  //renderSchedule();
 
   settings.addDeepObserver(() => renderSchedule());
 
@@ -165,8 +169,8 @@ const settings = makeObservable({
 
   timeFormat: 'standard',
 
-  cellWidth: 15,
-  cellHeight: 20,
+  cellWidth: 20,
+  cellHeight: 30,
 
   weekend: 'none',
 
@@ -212,6 +216,8 @@ function updateSettingsUI(sections) {
 
   if (!topLevelSettingsRendered) {
     topLevelSettingsRendered = true;
+
+    $settings.appendChild(el('<h2>Settings</h2>'));
 
     const $container = el('<div>');
     $container.style = `

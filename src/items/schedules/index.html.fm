@@ -97,17 +97,7 @@ Main Menu
 Log Out
 </textarea>
 
-<h2>Schedule</h2>
-
-<div id="output" style="position: sticky; top: 0;" class="fullwidth">
-</div>
-
-<h2>Customize</h2>
-
-<div id="settings">
-</div>
-
-<h2>Bookmark</h2>
-
-<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>
-<p><a id="bookmark" href="#">Class schedule</a></p>
+<h2 id="output-title"></h2>
+<div id="output" class="fullwidth" style="position: sticky; top: 0; box-shadow: 0 3px 4px 0 rgb(0, 0, 0, 0.1)"></div>
+<div id="settings"></div>
+<div id="bookmark"></div>
