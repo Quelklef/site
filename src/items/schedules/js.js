@@ -144,16 +144,18 @@ function bindInput(observableObject, observedProperty, inputElement) {
   inputElement.value = observableObject[observedProperty];
 }
 
-function bindElement(observableObject, observedProperty, element) {
-  observableObject.addObserver(observedProperty, v => element.innerHTML = v);
-  element.innerHTML = observableObject[observedProperty];
+function bindElement(observableObject, observedProperty, element, mapper = x => x) {
+  const update = () => element.innerHTML = mapper(observableObject[observedProperty]);
+  observableObject.addObserver(observedProperty, update);
+  update();
 }
 
 
 const settings = makeObservable({
 
   timeFormat: 'standard',
-  cellWidth: 20,
+  cellWidth: 15,
+  cellHeight: 20,
   sections: {
     // For each section there will be
     // [section.name]: {
@@ -198,22 +200,42 @@ function updateSettingsUI(sections) {
     topLevelSettingsRendered = true;
 
     const $container = el('<div>');
-    $container.style = "display: flex; justify-content: space-around;"
+    $container.style = `
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    `;
     $settings.appendChild($container)
 
     // -
 
     const $cellWidthSetting = el('<p>Cell width: </p>')
-    const $cellWidthField = el('<input type="range" min="1" max="50" />');
     const $cellWidthDisplay = el('<span style="font-family: monospace">')
+    const $cellWidthField = el('<input type="range" min="1" max="50" />');
 
-    bindElement(settings, 'cellWidth', $cellWidthDisplay);
     bindInput(settings, 'cellWidth', $cellWidthField);
+    bindElement(settings, 'cellWidth', $cellWidthDisplay, x => String(x).padStart(2, '0'));
 
+    $cellWidthSetting.appendChild($cellWidthDisplay);
+    $cellWidthSetting.appendChild(tx(' '));
     $cellWidthSetting.appendChild($cellWidthField);
     $cellWidthSetting.appendChild(tx(' '));
-    $cellWidthSetting.appendChild($cellWidthDisplay);
     $container.appendChild($cellWidthSetting);
+
+    // -
+
+    const $cellHeightSetting = el('<p>Cell height: </p>')
+    const $cellHeightDisplay = el('<span style="font-family: monospace">')
+    const $cellHeightField = el('<input type="range" min="1" max="50" />');
+
+    bindInput(settings, 'cellHeight', $cellHeightField);
+    bindElement(settings, 'cellHeight', $cellHeightDisplay, x => String(x).padStart(2, '0'));
+
+    $cellHeightSetting.appendChild($cellHeightDisplay);
+    $cellHeightSetting.appendChild(tx(' '));
+    $cellHeightSetting.appendChild($cellHeightField);
+    $cellHeightSetting.appendChild(tx(' '));
+    $container.appendChild($cellHeightSetting);
 
     // -
 
@@ -415,7 +437,7 @@ th:first-child {
 td, th {
   width: ${settings.cellWidth}px;
   max-width: ${settings.cellWidth}px;
-  height: 30px;
+  height: ${settings.cellHeight}px;
   text-align: center;
 }
 
