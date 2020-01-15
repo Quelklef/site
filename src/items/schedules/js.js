@@ -128,7 +128,7 @@ function main() {
   getSections();
   renderSchedule();
 
-  settings.listenDeep(() => renderSchedule());
+  settings.addDeepObserver(() => renderSchedule());
 
 }
 
@@ -136,137 +136,53 @@ function main() {
 
 // == Building Settings == //
 
-
-function makeObservable(target) {
-
-  // { observedProperty : callback }
-  const observers = [];
-
-  // Listening to changes to this object
-  // and all child objects
-  const deepObservers = []
-
-
-  let callbacksPaused = false;
-  const propertyBacklog = new Set();
-
-  function fireCallbacks(changedProps = new Set()) {
-    if (callbacksPaused) {
-      changedProps.forEach(p => propertyBacklog.add(p));
-      return;
-    }
-
-    for (const callback of deepObservers) {
-      callback(proxy);
-    }
-
-    for (const { observedProperty, callback } of observers) {
-      if (changedProps.has(observedProperty)) {
-        callback(target[observedProperty]);
-      }
-    }
-  }
-
-  const handler = {
-    set: function(target, prop, newVal) {
-
-      // Make all child objects also observable
-      if (typeof newVal === 'object' && newVal !== null) {
-        newVal.parent = proxy;
-        newVal = makeObservable(newVal, proxy);
-      }
-
-      target[prop] = newVal;
-
-      fireCallbacks(new Set([prop]));
-
-      if (target.parent !== null) target.parent.descendantChanged();
-    }
-  };
-
-  const proxy = new Proxy(target, handler);
-
-  // Parent object
-  if (typeof target.parent === 'undefined') target.parent = null;
-
-  proxy.descendantChanged = function() {
-    fireCallbacks();
-    if (target.parent !== null) target.parent.descendantChanged();
-  }
-
-  proxy.listen = function(observedProperty, callback) {
-    observers.push({ observedProperty, callback });
-  }
-
-  proxy.listenDeep = function(callback) {
-    deepObservers.push(callback);
-  }
-
-  proxy.pause = function() {
-    callbacksPaused = true;
-    propertyBacklog.clear();
-  }
-
-  proxy.resume = function() {
-    callbacksPaused = false;
-    if (propertyBacklog.size !== 0) fireCallbacks(propertyBacklog);
-  }
-
-  return proxy;
-}
+const { makeObservable } = window.DeepObservables;
 
 function bindInput(observableObject, observedProperty, inputElement) {
-  observableObject.listen(observedProperty, v => inputElement.value = v);
+  observableObject.addObserver(observedProperty, v => inputElement.value = v);
   inputElement.addEventListener('input', e => observableObject[observedProperty] = e.target.value);
   inputElement.value = observableObject[observedProperty];
 }
 
 function bindElement(observableObject, observedProperty, element) {
-  observableObject.listen(observedProperty, v => element.innerHTML = v);
+  observableObject.addObserver(observedProperty, v => element.innerHTML = v);
   element.innerHTML = observableObject[observedProperty];
 }
 
 
-const settings = makeObservable({});
+const settings = makeObservable({
 
-// Default settings
+  timeFormat: 'standard',
+  cellWidth: 20,
+  sections: {
+    // For each section there will be
+    // [section.name]: {
+    //   shortName: String,
+    //   backgroundColor: String,
+    //   textColor: String,
+    // }
+  },
 
-settings.timeFormat = 'standard';
+});
 
-settings.cellWidth = 20;
-
-settings.sections = {
-  // For each section there will be
-  // [section.name]: {
-  //   shortName: String,
-  //   backgroundColor: String,
-  //   textColor: String,
-  // }
-};
 
 
 let id = 0;
 function nextId() { return id++; }
 
 function updateSettings(sections) {
-
-  settings.pause();
-
-  for (const section of sections) {
-    if (!(section.name in settings.sections)) {
-      settings.sections[section.name] = {
-
-        id              : nextId(),
-        shortName       : shortenName(section.name),
-        backgroundColor : randomColor(),
-        textColor       : '#ffffff',
-
-      };
+  settings.atomically(() => {
+    for (const section of sections) {
+      if (!(section.name in settings.sections)) {
+        settings.sections[section.name] = {
+          id              : nextId(),
+          shortName       : shortenName(section.name),
+          backgroundColor : randomColor(),
+          textColor       : '#ffffff',
+        };
+      }
     }
-  }
-
-  settings.resume();
-
+  });
 }
 
 

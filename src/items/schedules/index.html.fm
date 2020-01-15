@@ -8,6 +8,7 @@ indexed: false
 ---
 
 <script type="text/javascript" src="js.js"></script>
+<script type="text/javascript" src="deepObservables.js"></script>
 
 <h2>Input</h2>
 
