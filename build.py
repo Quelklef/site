@@ -1,23 +1,25 @@
-import sys
 import os
-import frontmatter
+import sys
 import glob
-import markdown
-import jinja2
-import datetime
 import time
-import subprocess
+import jinja2
 import atexit
+import markdown
+import datetime
+import subprocess
+import contextlib
+import frontmatter
+
 import watchdog
 import watchdog.events
 import watchdog.observers
-import contextlib
-from pathlib import Path
-from sortedcollections import SortedList
-from docopt import docopt
 
-from lib.calc_item_tree import calc_item_tree
+from pathlib import Path
+from docopt import docopt
+from sortedcollections import SortedList
+
 from lib.log import log_section
+from lib.calc_item_tree import calc_item_tree
 
 # TODO: Port to pathlib
 # TODO: Refactor. This is bad code.
