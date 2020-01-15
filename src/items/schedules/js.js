@@ -138,10 +138,6 @@ function main() {
     $bookmark.appendChild(el(`<a href="data:text/html, ${encodeURI($schedule.outerHTML)}">Class schedule</a>`));
   }
 
-  // TODO: REMOVE -- TESTING ONLY
-  //getSections();
-  //renderSchedule();
-
   settings.addDeepObserver(() => renderSchedule());
 
 }
