@@ -116,6 +116,17 @@ function main() {
     const text = $input.value;
     sections = parseSections(text);
 
+    sections = sections.filter(section => {
+
+      if (Object.keys(section).some(key => section[key] === null)) {
+        console.warn(`Section '${section.name}' has fields with unknown values, so we are skipping it.`);
+        return false;
+      } else {
+        return true;
+      }
+
+    });
+
     updateSettings(sections);
     updateSettingsUI(sections);
   }
@@ -662,6 +673,15 @@ function createScheduleKey(sections) {
 
 function parseSections(pasted) {
   // Given text pasted from WebAdvisor, parse the text into information about sections
+  // Return value in form
+  //   { name, days, startTime, endTime, building, room };
+  // where
+  //   name      : string
+  //   days      : list of strings, or "Unknown" if unknown
+  //   startTime : in minutes
+  //   endTime   : in minutes
+  //   building  : string
+  //   room      : integer
 
   const sections = [];
 
@@ -676,9 +696,11 @@ function parseSections(pasted) {
 
 function parseSection(sectionString) {
 
+  console.log(sectionString);
+
   function indexOf(string, subString) {
     if (!string.includes(subString)) {
-      throw "Parsing failed";
+      throw new Error("Parsing failed");
     }
     return string.indexOf(subString);
   }
@@ -689,32 +711,51 @@ function parseSection(sectionString) {
     name = chunk.slice(0, indexOf(chunk, '\n'));
   }
 
-  const days = [];
+  let days;
   {
     const chunk_ = sectionString.slice(sectionString.indexOf(') '));
     const chunk = chunk_.split('\n').slice(0, 2).join('\n');
-    for (const day of daysInWeek) {
-      if (chunk.includes(day)) days.push(day);
+
+    if (chunk.includes('Days to be Announced')) {
+      console.warn(`Class '${name}' does not have known days.`);
+      days = null;
+    } else {
+      days = daysInWeek.filter(d => chunk.includes(d));
     }
+
   }
 
   let startTime;
   let endTime;
   {
-    const chunk = sectionString.slice(indexOf(sectionString, ') '));
-    const i = indexOf(chunk, ' - ');
-    startTimeString = chunk.slice(i - "00:00AM".length, i);
-    endTimeString = chunk.slice(i + 3, i + 3 + "00:00AM".length);
+    const chunk_ = sectionString.slice(indexOf(sectionString, ') '));
+    const chunk = chunk_.split('\n').slice(0, 2).join('\n');
 
-    startTime = parseTime(startTimeString);
-    endTime = parseTime(endTimeString);
+    if (chunk.includes('Times to be Announced')) {
+      console.warn(`Class '${name}' does not have known times.`);
+      startTime = null;
+      endTime = null;
+    } else {
+      const i = indexOf(chunk, ' - ');
+      startTimeString = chunk.slice(i - "00:00AM".length, i);
+      endTimeString = chunk.slice(i + 3, i + 3 + "00:00AM".length);
+
+      startTime = parseTime(startTimeString);
+      endTime = parseTime(endTimeString);
+    }
   }
 
   let building;
   {
-    const chunk_ = sectionString.slice(indexOf(sectionString, ') '));
-    const chunk = chunk_.slice(indexOf(chunk_, ' - '));
-    building = chunk.split(', ')[1];
+    const chunk__ = sectionString.slice(indexOf(sectionString, ') '));
+    const chunk_ = chunk__.split('\n').slice(0, 2).join('\n');
+    if (chunk_.includes('Times to be Announced')) {
+      const chunk = chunk_.slice(indexOf(chunk_, 'Times to be Announced') + 'Times to be Announced'.length);
+      building = chunk.split(',')[0];
+    } else {
+      const chunk = chunk_.slice(indexOf(chunk_, ' - '));
+      building = chunk.split(', ')[1];
+    }
   }
 
   let room;
