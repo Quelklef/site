@@ -127,7 +127,10 @@ function main() {
     });
 
     updateSettings(sections);
-    updateSettingsUI(sections);
+
+    const $settingsUI = createSettingsUI(sections);
+    $settings.innerHTML = '';
+    $settings.appendChild($settingsUI);
   }
 
   function renderSchedule() {
@@ -215,103 +218,88 @@ function updateSettings(sections) {
 
 
 
-let topLevelSettingsRendered = false;
+function createSettingsUI(sections) {
 
-// Map section name to rendered element
-const renderedSections = {};
+  const $UIcontainer = el('<div>');
 
-function updateSettingsUI(sections) {
+  $UIcontainer.appendChild(el('<h2>Settings</h2>'));
 
-  if (!topLevelSettingsRendered) {
-    topLevelSettingsRendered = true;
+  const $container = el('<div>');
+  $container.style = `
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  `;
+  $UIcontainer.appendChild($container)
 
-    $settings.appendChild(el('<h2>Settings</h2>'));
+  // -
 
-    const $container = el('<div>');
-    $container.style = `
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-    `;
-    $settings.appendChild($container)
+  const $cellWidthSetting = el('<p>Cell width: </p>')
+  const $cellWidthDisplay = el('<span style="font-family: monospace">')
+  const $cellWidthField = el('<input type="range" min="1" max="50" />');
 
-    // -
+  bindInput(settings, 'cellWidth', $cellWidthField);
+  bindElement(settings, 'cellWidth', $cellWidthDisplay, x => String(x).padStart(2, '0'));
 
-    const $cellWidthSetting = el('<p>Cell width: </p>')
-    const $cellWidthDisplay = el('<span style="font-family: monospace">')
-    const $cellWidthField = el('<input type="range" min="1" max="50" />');
+  $cellWidthSetting.appendChild($cellWidthDisplay);
+  $cellWidthSetting.appendChild(tx(' '));
+  $cellWidthSetting.appendChild($cellWidthField);
+  $cellWidthSetting.appendChild(tx(' '));
+  $container.appendChild($cellWidthSetting);
 
-    bindInput(settings, 'cellWidth', $cellWidthField);
-    bindElement(settings, 'cellWidth', $cellWidthDisplay, x => String(x).padStart(2, '0'));
+  // -
 
-    $cellWidthSetting.appendChild($cellWidthDisplay);
-    $cellWidthSetting.appendChild(tx(' '));
-    $cellWidthSetting.appendChild($cellWidthField);
-    $cellWidthSetting.appendChild(tx(' '));
-    $container.appendChild($cellWidthSetting);
+  const $cellHeightSetting = el('<p>Cell height: </p>')
+  const $cellHeightDisplay = el('<span style="font-family: monospace">')
+  const $cellHeightField = el('<input type="range" min="1" max="50" />');
 
-    // -
+  bindInput(settings, 'cellHeight', $cellHeightField);
+  bindElement(settings, 'cellHeight', $cellHeightDisplay, x => String(x).padStart(2, '0'));
 
-    const $cellHeightSetting = el('<p>Cell height: </p>')
-    const $cellHeightDisplay = el('<span style="font-family: monospace">')
-    const $cellHeightField = el('<input type="range" min="1" max="50" />');
+  $cellHeightSetting.appendChild($cellHeightDisplay);
+  $cellHeightSetting.appendChild(tx(' '));
+  $cellHeightSetting.appendChild($cellHeightField);
+  $cellHeightSetting.appendChild(tx(' '));
+  $container.appendChild($cellHeightSetting);
 
-    bindInput(settings, 'cellHeight', $cellHeightField);
-    bindElement(settings, 'cellHeight', $cellHeightDisplay, x => String(x).padStart(2, '0'));
+  // -
 
-    $cellHeightSetting.appendChild($cellHeightDisplay);
-    $cellHeightSetting.appendChild(tx(' '));
-    $cellHeightSetting.appendChild($cellHeightField);
-    $cellHeightSetting.appendChild(tx(' '));
-    $container.appendChild($cellHeightSetting);
+  const $timeFormatSetting = el('<p>Time format: </p>');
+  const $timeFormatField = el(`
+  <select>
+    <option value="standard">Standard</option>
+    <option value="military">Military</option>
+    <option value="colloquial">Colloquial</option>
+  </select>
+  `);
+  bindInput(settings, 'timeFormat', $timeFormatField);
+  $timeFormatSetting.appendChild($timeFormatField);
+  $container.appendChild($timeFormatSetting);
 
-    // -
+  // -
 
-    const $timeFormatSetting = el('<p>Time format: </p>');
-    const $timeFormatField = el(`
-    <select>
-      <option value="standard">Standard</option>
-      <option value="military">Military</option>
-      <option value="colloquial">Colloquial</option>
-    </select>
-    `);
-    bindInput(settings, 'timeFormat', $timeFormatField);
-    $timeFormatSetting.appendChild($timeFormatField);
-    $container.appendChild($timeFormatSetting);
+  const $weekendSetting = el('<p>Weekend: </p>');
+  const $weekendField = el(`
+  <select>
+    <option value="none">No weekend</option>
+    <option value="prefix">Begin with weekend</option>
+    <option value="suffix">End with weekend</option>
+    <option value="split">Split weekend</option>
+  </select>
+  `);
+  bindInput(settings, 'weekend', $weekendField);
+  $weekendSetting.appendChild($weekendField);
+  $container.appendChild($weekendSetting);
 
-    // -
-
-    const $weekendSetting = el('<p>Weekend: </p>');
-    const $weekendField = el(`
-    <select>
-      <option value="none">No weekend</option>
-      <option value="prefix">Begin with weekend</option>
-      <option value="suffix">End with weekend</option>
-      <option value="split">Split weekend</option>
-    </select>
-    `);
-    bindInput(settings, 'weekend', $weekendField);
-    $weekendSetting.appendChild($weekendField);
-    $container.appendChild($weekendSetting);
-
-  }
+  // -
 
   for (const section of sections) {
-    if (!(section.name in renderedSections)) {
-      // Render new section
-      const $settingsUI = createSectionSettingsUI(section);
-      renderedSections[section.name] = $settingsUI;
-      $settings.appendChild($settingsUI);
-    }
+    // Render new section
+    const $settingsUI = createSectionSettingsUI(section);
+    $UIcontainer.appendChild($settingsUI);
   }
 
-  for (const sectionName in renderedSections) {
-    const shouldBeRemoved = sections.every(s => s.name !== sectionName);
-    if (shouldBeRemoved) {
-      // Remove outdated section
-      renderedSections[sectionName].remove();
-    }
-  }
+  return $UIcontainer;
 
 }
 
