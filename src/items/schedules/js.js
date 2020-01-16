@@ -678,7 +678,7 @@ function parseSection(sectionString) {
 
   function indexOf(string, subString) {
     if (!string.includes(subString)) {
-      throw new "Parsing failed";
+      throw "Parsing failed";
     }
     return string.indexOf(subString);
   }
