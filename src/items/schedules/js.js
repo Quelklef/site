@@ -663,26 +663,17 @@ function createScheduleKey(sections) {
 function parseSections(pasted) {
   // Given text pasted from WebAdvisor, parse the text into information about sections
 
-  let preferredSectionsString = stringBetween(
-    pasted,
-    "Preferred Sections",
-    "Current Registrations",
-  );
-  preferredSectionsString = skipLines(preferredSectionsString, 4);
-    
+  // Parse enrolled sections
   let currentSectionsString = stringBetween(
     pasted,
-    "Current Registrations",
+    "Registered Sections",
     "If one of my choices is not available",
   );
   currentSectionsString = skipLines(currentSectionsString, 4);
 
-  const sectionsStrings = [].concat(
-    preferredSectionsString.split('\n\n\n'),
-    currentSectionsString.split('\n\n\n')
-  );
+  const enrolledSections = currentSectionsString.split('\n\n\n').map(parseSection);
 
-  return sectionsStrings.map(parseSection); 
+  return enrolledSections;
 }
 
 function parseSection(sectionString) {
