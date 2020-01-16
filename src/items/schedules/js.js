@@ -663,34 +663,83 @@ function createScheduleKey(sections) {
 function parseSections(pasted) {
   // Given text pasted from WebAdvisor, parse the text into information about sections
 
-  // Parse enrolled sections
-  let currentSectionsString = stringBetween(
-    pasted,
-    "Registered Sections",
-    "If one of my choices is not available",
-  );
-  currentSectionsString = skipLines(currentSectionsString, 4);
+  const sections = [];
 
-  const enrolledSections = currentSectionsString.split('\n\n\n').map(parseSection);
+  while (pasted !== '') {
+    let section;
+    [section, pasted] = parseSection(pasted);
+    sections.push(section);
+  }
 
-  return enrolledSections;
+  return sections;
 }
 
 function parseSection(sectionString) {
-  const primaryInfo = sectionString.split('\n\n')[1];
-  const [nameInfo, timeAndLoc] = primaryInfo.split('\n');
 
-  const name = nameInfo.slice(nameInfo.indexOf(') ') + 2);
-  const days = daysInWeek.filter(day => timeAndLoc.includes(day));
-  let [startTime, endTime] = timeAndLoc.split(', ').slice(-3)[0].split(' ').slice(1).join(' ').split(' - ');
-  startTime = parseTime(startTime);
-  endTime = parseTime(endTime);
-  const building = timeAndLoc.split(', ').slice(-2)[0];
-  const room = parseInt(timeAndLoc.split(', ').slice(-1)[0].replace('Room ', ''), 10);
+  console.log(sectionString);
+
+  function indexOf(string, subString) {
+    if (!string.includes(subString)) {
+      throw new "Parsing failed";
+    }
+    return string.indexOf(subString);
+  }
+
+  let name;
+  {
+    const chunk = sectionString.slice(indexOf(sectionString, ')') + 2);
+    name = chunk.slice(0, indexOf(chunk, '\n'));
+  }
+
+  const days = [];
+  {
+    const chunk_ = sectionString.slice(sectionString.indexOf(') '));
+    const chunk = chunk_.split('\n').slice(0, 2).join('\n');
+    for (const day of daysInWeek) {
+      if (chunk.includes(day)) days.push(day);
+    }
+  }
+
+  let startTime;
+  let endTime;
+  {
+    const chunk = sectionString.slice(indexOf(sectionString, ') '));
+    const i = indexOf(chunk, ' - ');
+    startTimeString = chunk.slice(i - "00:00AM".length, i);
+    endTimeString = chunk.slice(i + 3, i + 3 + "00:00AM".length);
+
+    startTime = parseTime(startTimeString);
+    endTime = parseTime(endTimeString);
+  }
+
+  let building;
+  {
+    const chunk_ = sectionString.slice(indexOf(sectionString, ') '));
+    const chunk = chunk_.slice(indexOf(chunk_, ' - '));
+    building = chunk.split(', ')[1];
+  }
+
+  let room;
+  {
+    const chunk = sectionString.slice(indexOf(sectionString, ', Room '));
+    room = chunk.slice(', Room '.length, indexOf(chunk, '\n'));
+  }
+
+  let leftover;
+  {
+    leftover = sectionString.slice(indexOf(sectionString, ', Room ') + ', Room '.length);
+
+    if (!leftover.includes(')')) {
+      // If there are no more sections, set leftover to empty string
+      leftover = '';
+    }
+
+    if (leftover === sectionString) throw 'Leftover is same :(';
+  }
 
   const section = { name, days, startTime, endTime, building, room };
-
-  return section;
+  console.log(section);
+  return [section, leftover];
 }
 
 function parseTime(time) {
