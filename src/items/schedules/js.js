@@ -116,15 +116,14 @@ function main() {
     const text = $input.value;
     sections = parseSections(text);
 
+    // TODO: If a section is skipped, the user should somehow be notified
     sections = sections.filter(section => {
-
       if (Object.keys(section).some(key => section[key] === null)) {
         console.warn(`Section '${section.name}' has fields with unknown values, so we are skipping it.`);
         return false;
       } else {
         return true;
       }
-
     });
 
     updateSettings(sections);
@@ -406,7 +405,7 @@ function createScheduleTable(sections) {
     $dayRow.appendChild(el(`<th>${day}</th>`));
 
     // Running time of at the end of the previous block
-    let previousEndTime = 0;
+    let previousEndTime = startTime;
 
     for (const block of dayTable[day]) {
       const columnSpan = Math.floor(block.length / timeStep);
