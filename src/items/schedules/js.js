@@ -676,8 +676,6 @@ function parseSections(pasted) {
 
 function parseSection(sectionString) {
 
-  console.log(sectionString);
-
   function indexOf(string, subString) {
     if (!string.includes(subString)) {
       throw new "Parsing failed";
@@ -738,7 +736,6 @@ function parseSection(sectionString) {
   }
 
   const section = { name, days, startTime, endTime, building, room };
-  console.log(section);
   return [section, leftover];
 }
 
