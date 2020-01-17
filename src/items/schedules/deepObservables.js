@@ -1,26 +1,13 @@
 (function() {
 'use strict';
 
-
-function makeProxyBut(target, handler, object) {
-  /* Make a proxy with the given target and handler
-  but also assign all the stuff from `object` onto the proxy.
-  */
-  const proxyHandler = {};
-  const proxy = new Proxy(target, proxyHandler);
-  Object.assign(proxy, object);
-  Object.assign(proxyHandler, handler);
-  return proxy;
-}
+window.DeepObservables = {}
 
 
-window.DeepObservables = {};
-
-const newObservable =
-window.DeepObservables.newObservable =
-function newObservable(parent = null, propertyNameInParent = null) {
+window.DeepObservables.makeObservable =
+function makeObservable(object = {}) {
   /*
-  Create and return an empty deeply observable object. A deeply observable
+  Create and return a  deeply observable object. A deeply observable
   object is an object on which you can listen for attribute changes, as well
   changes in any children object attributes, or their children, etc.
 
@@ -29,7 +16,9 @@ function newObservable(parent = null, propertyNameInParent = null) {
 
   A simple example:
 
-    const person = newObservable();
+    const person = createObservable({
+      name: 'Cornelius',
+    });
 
     person.addObserver('name'
       newName => console.log(`New name is ${newName}`));
@@ -85,7 +74,7 @@ function newObservable(parent = null, propertyNameInParent = null) {
   and notify the observers only after all changes are
   completed. This can be achieved with .atomically:
 
-    const point = newObservable({});
+    const point = createObservable();
     point.x = ...;
     point.y = ...;
     point.addObserver('x', ...);
@@ -97,116 +86,120 @@ function newObservable(parent = null, propertyNameInParent = null) {
     })
     // Now both observers are notified.
 
-
   */
 
-  // Target object for Proxy
-  const proxyTarget = {};
+  return _makeObservable(object);
+}
 
-  // Singleton symbol for use later
-  const AllProperties = Symbol();
 
-  const proxy = {
+function _makeObservable(target = {}, parent = null, propertyNameInParent = null) {
+  const { ...props } = target;
+  const observable = _newObservable(target, parent, propertyNameInParent);
+  Object.assign(observable, props);
+  return observable;
+}
 
-    // { proxyTarget: String, callback: Function }
-    // where proxyTarget is either AllProperties, to observe all
-    // properties, or a string, to obsrve one property.
-    observers: [],
 
-    // Parent Proxy
-    parent: parent,
+// Singleton symbol for use later
+const AllProperties = Symbol("DeepObservables.AllProperties");
 
-    // Name of the property in the parent that this proxy corresponds to
-    propertyNameInParent: propertyNameInParent,
+// Singleton symbol for safely storying information in target object
+const Internal = Symbol("DeepObservables.Internal");
 
-    addObserver: function(...args) {
-      if (args.length === 2) {
-        const [targetProp, callback] = args;
-        proxy.observers.push({ targetProp, callback });
-      } else {
-        const [callback] = args;
-        proxy.observers.push({ targetProp: AllProperties, callback });
+function _newObservable(target, parent, propertyNameInParent) {
+  /* Create and return a new empty deeply observable object. */
+
+  // We need to keep on the target without polluting
+  // the property namespace or causing naming conflicts.
+  // Hidden/private/internal attributes will go here, and
+  // exposed/public/external attributes will be assigned to
+  // the target object directly.
+  target[Internal] = {};
+
+  // { target: String, callback: Function }
+  // where target is either AllProperties, to observe all
+  // properties, or a string, to obsrve one property.
+  target[Internal].observers = [],
+
+  // Parent Proxy
+  target[Internal].parent = parent,
+
+  // Name of the property in the parent that this proxy corresponds to
+  target[Internal].propertyNameInParent = propertyNameInParent,
+
+  target.addObserver = function(...args) {
+    if (args.length === 2) {
+      const [targetProp, callback] = args;
+      target[Internal].observers.push({ targetProp, callback });
+    } else {
+      const [callback] = args;
+      target[Internal].observers.push({ targetProp: AllProperties, callback });
+    }
+  },
+
+  // We are able to pause notifying observers
+  target[Internal].notificationsPaused = false,
+
+  // While notifications are paused, we will keep track of what
+  // properties changed.
+  target[Internal].propertyBacklog = new Set(),
+
+  target.atomically = function(operation) {
+    target[Internal].notificationsPaused = true;
+    operation();
+    target[Internal].notificationsPaused = false;
+
+    if (target[Internal].propertyBacklog.size > 0) {
+      target[Internal].notifyObservers(...target[Internal].propertyBacklog);
+      target[Internal].propertyBacklog.clear()
+    }
+  };
+
+  target[Internal].notifyObservers = function(...changedProps) {
+    // Notify all the observers who are listening to any of the changed properties
+
+    if (target[Internal].notificationsPaused) {
+      // Add the props to the backlog
+      changedProps.forEach(p => target[Internal].propertyBacklog.add(p));
+      return;
+    }
+
+    for (const { targetProp, callback } of target[Internal].observers) {
+      if (targetProp === AllProperties) {
+        callback(changedProps);
+      } else if (changedProps.includes(targetProp)) {
+        callback(target[targetProp]);
       }
-    },
+    }
 
-    atomically: function(operation) {
-      proxy.notificationsPaused = true;
-      operation();
-      proxy.notificationsPaused = false;
-
-      if (proxy.propertyBacklog.size > 0) {
-        proxy.notifyObservers(...proxy.propertyBacklog);
-        proxy.propertyBacklog.clear()
-      }
-    },
-
-    // We are able to pause notifying observers
-    notificationsPaused: false,
-
-    // While notifications are paused, we will keep track of what
-    // properties changed.
-    propertyBacklog: new Set(),
-
-    notifyObservers: function(...changedProps) {
-      // Fire all the callbacks who are listening
-      // to any of the changed properties
-
-      if (proxy.notificationsPaused) {
-        // Add the props to the backlog
-        changedProps.forEach(p => proxy.propertyBacklog.add(p));
-        return;
-      }
-
-      for (const { targetProp, callback } of proxy.observers) {
-        if (targetProp === AllProperties) {
-          callback(changedProps);
-        } else if (changedProps.includes(targetProp)) {
-          callback(proxyTarget[targetProp]);
-        }
-      }
-
-      // Propogate notification
-      if (proxy.parent !== null) {
-        proxy.parent.notifyObservers(proxy.propertyNameInParent);
-      }
-    },
-
+    // Propogate notification
+    if (target[Internal].parent !== null) {
+      target[Internal].parent[Internal].notifyObservers(target[Internal].propertyNameInParent);
+    }
   };
 
 
-  // Now turn the proxy into an actual Proxy object
-
   const handler = {
-    set: function(proxyTarget, property, newValue) {
+    set: function(target, property, newValue) {
 
       // Make all child objects also deeply observable
       if (typeof newValue === 'object' && newValue !== null) {
-        newValue = makeObservable(newValue, proxy, property);
+        newValue = _makeObservable(newValue, target, property);
       }
 
-      proxyTarget[property] = newValue;
+      target[property] = newValue;
+      target[Internal].notifyObservers(property);
 
-      proxyTarget.notifyObservers(property);
-
-      return true;
+      return true;  // Yes, we successfully set the attribute
 
     }
-
   };
 
-  return makeProxyBut(proxyTarget, handler, proxy)
+  return new Proxy(target, handler)
   
 }
 
 
-const makeObservable =
-window.DeepObservables.makeObservable =
-function makeObservable(proxyTarget, parent, propertyNameInParent) {
-  /* Turn an existing object into a deeply observable object */
-  const observable = newObservable(parent, propertyNameInParent);
-  Object.assign(observable, proxyTarget);
-  return observable;
-}
 
 
 })();

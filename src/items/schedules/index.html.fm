@@ -22,7 +22,9 @@ indexed: false
 <textarea id="input" style="height: 100px;">
 </textarea>
 
-<h2 id="output-title"></h2>
-<div id="output" class="fullwidth" style="position: sticky; top: 0; box-shadow: 0 3px 4px 0 rgb(0, 0, 0, 0.1)"></div>
+<div id="schedule-title"></div>
+<div id="schedule" class="fullwidth"></div>
+
 <div id="settings"></div>
+
 <div id="bookmark"></div>

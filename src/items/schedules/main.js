@@ -1,27 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
-'use scrict';
+'use strict';
 
 const { el, tx  } = window.Util;
+const { makeObservable } = window.DeepObservables;
 const { settings, prepareSettings } = window.Settings;
 const { renderSchedule, createSettingsUI } = window.Display;
 
 
 const $input    = document.getElementById('input');
-const $output   = document.getElementById('output');
+const $schedule = document.getElementById('schedule');
 const $settings = document.getElementById('settings');
 const $bookmark = document.getElementById('bookmark');
 
-
-let courses;
-
-input.addEventListener('input', () => {
-  getCourses();
-  renderSchedule_();
-});
-
 function getCourses() {
   const text = $input.value;
-  courses = window.Parsing.parseCourses(text);
+  let courses = window.Parsing.parseCourses(text);
 
   // TODO: If a course is skipped, the user should somehow be notified
   courses = courses.filter(course => {
@@ -33,34 +26,62 @@ function getCourses() {
     }
   });
 
-  prepareSettings(courses);
-
-  const $settingsUI = createSettingsUI(courses);
-  $settings.innerHTML = '';
-  $settings.appendChild($settingsUI);
+  return courses;
 }
 
-function renderSchedule_() {
-  const $schedule = renderSchedule(courses);
-  $output.innerHTML = '';
 
-  document.getElementById('output-title').innerHTML = 'Schedule';
+function attachSettingsUI() {
+  const $settingsUI = createSettingsUI(state.courses);
+  $settings.innerHTML = '';
+  $settings.appendChild($settingsUI);
+};
+
+
+function attachSchedule() {
+  const $scheduleTitle = document.getElementById('schedule-title');
+  $scheduleTitle.innerHTML = '';
+  $scheduleTitle.appendChild(el('<h2>Schedule</h2>'));
+
+  $schedule.innerHTML = '';
   const $shadowContainer = el('<div>');
-  $output.appendChild($shadowContainer);
-
+  $schedule.appendChild($shadowContainer);
   const $shadowRoot = $shadowContainer.attachShadow({ mode: 'open' });
-  $shadowRoot.appendChild($schedule);
 
+  const $rendered = renderSchedule(state.courses);
+  $shadowRoot.appendChild($rendered);
+}
+
+
+function attachBookmark() {
   $bookmark.innerHTML = '';
   $bookmark.appendChild(el('<h2>Bookmark</h2>'));
   $bookmark.appendChild(el(`<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>`));
 
   // Note that this does not transmit hex color codes properly:
-  const html = '<title>Semester Schedule</title>' + encodeURI($schedule.outerHTML);
+  const html = `<title>Semester Schedule</title> ${encodeURI($schedule.outerHTML)}`;
   $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Semester schedule</a>`));
 }
 
-settings.addObserver(() => renderSchedule_());
+// == Main == //
+
+const state = makeObservable({
+  courses: [],
+});
+
+
+$input.addEventListener('input', () => {
+  state.courses = getCourses();
+});
+
+state.addObserver('courses', () => {
+  prepareSettings(state.courses);
+  attachSettingsUI();
+});
+
+settings.addObserver(() => {
+  attachSchedule();
+  attachBookmark();
+});
 
 
 });
