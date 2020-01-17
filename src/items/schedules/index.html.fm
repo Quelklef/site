@@ -21,6 +21,7 @@ indexed: false
 
 <textarea id="input" style="height: 100px;">
 </textarea>
+<div id="errors" style="color: red;"></div>
 
 <div id="schedule-title"></div>
 <div id="schedule" class="fullwidth"></div>

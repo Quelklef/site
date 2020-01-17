@@ -1,32 +1,62 @@
 document.addEventListener('DOMContentLoaded', function() {
 'use strict';
 
-const { el, tx  } = window.Util;
+const { el, tx, joinAnd  } = window.Util;
+const { parseCourses, courseProperties } = window.Parsing;
 const { makeObservable } = window.DeepObservables;
 const { settings, prepareSettings } = window.Settings;
 const { renderSchedule, createSettingsUI } = window.Display;
 
 
 const $input    = document.getElementById('input');
+const $errors   = document.getElementById('errors');
 const $schedule = document.getElementById('schedule');
 const $settings = document.getElementById('settings');
 const $bookmark = document.getElementById('bookmark');
 
 function getCourses() {
   const text = $input.value;
-  let courses = window.Parsing.parseCourses(text);
 
-  // TODO: If a course is skipped, the user should somehow be notified
-  courses = courses.filter(course => {
-    if (Object.keys(course).some(key => course[key] === null)) {
-      console.warn(`Course '${course.name}' has fields with unknown values, so we are skipping it.`);
-      return false;
-    } else {
-      return true;
-    }
-  });
+  let courses;
+  const errors = [];
 
-  return courses;
+  try {
+    courses = parseCourses(text);
+  } catch (err) {
+    errors.push("Unable to read courses; double-check your input. If you think it's an application error, contact me.");
+    console.error(err);
+  }
+
+  if (courses && courses.length === 0) {
+    errors.push("No courses detected. Please double-check your input.");
+  }
+
+  if (courses && errors.length === 0) {
+    courses = courses.filter(course => {
+      const missingKeys = Object.keys(course).filter(key => course[key] === null);
+      const missingKeysPretty = missingKeys.map(k => courseProperties[k]);
+
+      if (missingKeys.length > 0) {
+        errors.push(`The course '${course.name}' is missing its ${joinAnd(missingKeysPretty)} and will be excluded.`);
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+
+  return [courses, errors];
+}
+
+
+function attachErrors() {
+  const $li = el('<ul>');
+  for (const error of state.errors) {
+    $li.appendChild(el(`<li>${error}</li>`));
+  }
+
+  $errors.innerHTML = '';
+  $errors.appendChild($li);
 }
 
 
@@ -65,12 +95,32 @@ function attachBookmark() {
 // == Main == //
 
 const state = makeObservable({
-  courses: [],
+
+  // Parsed courses
+  courses: null,
+
+  // Errors from parsing
+  errors: null,
+
 });
 
 
 $input.addEventListener('input', () => {
-  state.courses = getCourses();
+  state.atomically(() => {
+    const [newCourses, newErrors] = getCourses();
+
+    if (typeof newCourses !== 'undefined') {
+      state.courses = newCourses;
+    } else {
+      state.courses = [];
+    }
+
+    state.errors = newErrors;
+  });
+});
+
+state.addObserver('errors', () => {
+  attachErrors();
 });
 
 state.addObserver('courses', () => {

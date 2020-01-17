@@ -31,6 +31,17 @@ function parseCourses(pasted) {
   return courses;
 }
 
+
+const courseProperties =
+window.Parsing.courseProperties = {
+  name: 'name',
+  days: 'days',
+  startTime: 'beginning time',
+  endTime: 'ending time',
+  building: 'location',
+}
+
+
 function parseCourse(courseString) {
 
   function indexOf(string, subString) {

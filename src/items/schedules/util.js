@@ -125,4 +125,12 @@ window.Util.daysInWeek = [
 ];
 
 
+const joinAnd =
+window.Util.joinAnd =
+function joinAnd(xs) {
+  const init = xs.slice(0, -1);
+  const last = xs[xs.length - 1]
+  return init.join(", ") + ' and ' + last;
+}
+
 })();
