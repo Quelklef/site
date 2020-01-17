@@ -1,132 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {
-'use scrict';
+(function() {
+'use strict';
 
-const { daysInWeek, shortenName, randomColor, el, tx, minBy, maxBy, hexToRgb } = window.Util;
+const { settings } = window.Settings;
+const { el, tx, minBy, maxBy, hexToRgb, daysInWeek } = window.Util;
 
+window.Render = {};
 
-
-// == Main == //
-
-const $input    = document.getElementById('input');
-const $output   = document.getElementById('output');
-const $settings = document.getElementById('settings');
-const $bookmark = document.getElementById('bookmark');
-
-function main() {
-
-  let sections;
-
-  input.addEventListener('input', () => {
-    getSections();
-    renderSchedule();
-  });
-
-  function getSections() {
-    const text = $input.value;
-    sections = window.Parsing.parseCourses(text);
-
-    // TODO: If a section is skipped, the user should somehow be notified
-    sections = sections.filter(section => {
-      if (Object.keys(section).some(key => section[key] === null)) {
-        console.warn(`Section '${section.name}' has fields with unknown values, so we are skipping it.`);
-        return false;
-      } else {
-        return true;
-      }
-    });
-
-    updateSettings(sections);
-
-    const $settingsUI = createSettingsUI(sections);
-    $settings.innerHTML = '';
-    $settings.appendChild($settingsUI);
-  }
-
-  function renderSchedule() {
-    const $schedule = createSchedule(sections);
-    $output.innerHTML = '';
-
-    document.getElementById('output-title').innerHTML = 'Schedule';
-    const $shadowContainer = el('<div>');
-    $output.appendChild($shadowContainer);
-
-    const $shadowRoot = $shadowContainer.attachShadow({ mode: 'open' });
-    $shadowRoot.appendChild($schedule);
-
-    $bookmark.innerHTML = '';
-    $bookmark.appendChild(el('<h2>Bookmark</h2>'));
-    $bookmark.appendChild(el(`<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>`));
-
-    // Note that this does not transmit hex color codes properly:
-    const html = '<title>Semester Schedule</title>' + encodeURI($schedule.outerHTML);
-    $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Semester schedule</a>`));
-  }
-
-  settings.addObserver(() => renderSchedule());
-
-}
-
-
-
-// == Building Settings == //
-
-const { makeObservable } = window.DeepObservables;
 
 function bindInput(observableObject, observedProperty, inputElement) {
+  // Bind an input two-way to an observable object
   observableObject.addObserver(observedProperty, v => inputElement.value = v);
   inputElement.addEventListener('input', e => observableObject[observedProperty] = e.target.value);
   inputElement.value = observableObject[observedProperty];
 }
 
+
 function bindElement(observableObject, observedProperty, element, mapper = x => x) {
+  // Bind an observable object one-way onto an element's innerHTML
   const update = () => element.innerHTML = mapper(observableObject[observedProperty]);
   observableObject.addObserver(observedProperty, update);
   update();
 }
 
 
-const settings = makeObservable({
+// == Rendering Settings == //
 
-  timeFormat: 'standard',
-
-  cellWidth: 20,
-  cellHeight: 30,
-
-  weekend: 'none',
-
-  sections: {
-    // For each section there will be
-    // [section.name]: {
-    //   shortName: String,
-    //   backgroundColor: String,
-    //   textColor: String,
-    // }
-  },
-
-});
-
-
-
-let id = 0;
-function nextId() { return id++; }
-
-function updateSettings(sections) {
-  settings.atomically(() => {
-    for (const section of sections) {
-      if (!(section.name in settings.sections)) {
-        settings.sections[section.name] = {
-          id              : nextId(),
-          shortName       : shortenName(section.name),
-          backgroundColor : randomColor(),
-          textColor       : '#ffffff',
-        };
-      }
-    }
-  });
-}
-
-
-
+const createSettingsUI =
+window.Render.createSettingsUI =
 function createSettingsUI(sections) {
 
   const $UIcontainer = el('<div>');
@@ -246,8 +146,10 @@ function createSectionSettingsUI(section) {
 
 
 
-// == Building HTML == //
+// == Rendering Schedule == //
 
+const createSchedule =
+window.Render.createSchedule =
 function createSchedule(sections) {
   const $container = el('<div class="schedule-container">');
   $container.style = "display: inline-block;"
@@ -331,7 +233,7 @@ function createScheduleTable(sections) {
 
       previousEndTime += block.length;
     }
-    
+
     $schedule.append($dayRow);
   }
 
@@ -446,7 +348,7 @@ function buildDayTable(sections, startTime, endTime) {
   //   }
   // which breaks the days into blocks, starting at startTime and
   // ending at endTime (inclusive).
-  
+
   const dayTable = {};
 
   for (const day of daysInWeek) {
@@ -539,7 +441,7 @@ function createScheduleKey(sections) {
       margin: 0 7px;
     `;
 
-    const $sectionName = el(`<p>${sectionSettings.shortName}</p>`)
+    const $sectionName = el(`<p>${sectionSettings.shortName}</p>`);
     $sectionName.style = `
       text-align: center;
       padding: 2px 6px;
@@ -565,14 +467,5 @@ function createScheduleKey(sections) {
 
 
 
-// == Call main() == //
 
-main();
-
-
-});
-
-
-
-
-
+})();
