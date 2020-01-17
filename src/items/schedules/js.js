@@ -23,7 +23,7 @@ function main() {
 
   function getSections() {
     const text = $input.value;
-    sections = window.Parsing.parseSections(text);
+    sections = window.Parsing.parseCourses(text);
 
     // TODO: If a section is skipped, the user should somehow be notified
     sections = sections.filter(section => {
@@ -58,8 +58,8 @@ function main() {
     $bookmark.appendChild(el(`<p>When you're happy with your schedule, you can save it by dragging the following link to your bookmark bar:</p>`));
 
     // Note that this does not transmit hex color codes properly:
-    const html = '<title>Class Schedule</title>' + encodeURI($schedule.outerHTML);
-    $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Class schedule</a>`));
+    const html = '<title>Semester Schedule</title>' + encodeURI($schedule.outerHTML);
+    $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Semester schedule</a>`));
   }
 
   settings.addObserver(() => renderSchedule());

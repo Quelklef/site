@@ -6,32 +6,32 @@ const { daysInWeek } = window.Util;
 window.Parsing = {};
 
 
-const parseSections =
-window.Parsing.parseSections =
-function parseSections(pasted) {
-  // Given text pasted from WebAdvisor, parse the text into information about sections
-  // Return value in form
+const parseCourses =
+window.Parsing.parseCourses =
+function parseCourses(pasted) {
+  // Given text pasted from WebAdvisor, parse the text into information about courses
+  // Return array of courses, each in form
   //   { name, days, startTime, endTime, building, room };
   // where
   //   name      : string
-  //   days      : list of strings, or "Unknown" if unknown
+  //   days      : "Unknown" if unknown or list of strings
   //   startTime : in minutes
   //   endTime   : in minutes
   //   building  : string
   //   room      : integer
 
-  const sections = [];
+  const courses = [];
 
   while (pasted !== '') {
-    let section;
-    [section, pasted] = parseSection(pasted);
-    sections.push(section);
+    let course;
+    [course, pasted] = parseCourse(pasted);
+    courses.push(course);
   }
 
-  return sections;
+  return courses;
 }
 
-function parseSection(sectionString) {
+function parseCourse(courseString) {
 
   function indexOf(string, subString) {
     if (!string.includes(subString)) {
@@ -42,17 +42,17 @@ function parseSection(sectionString) {
 
   let name;
   {
-    const chunk = sectionString.slice(indexOf(sectionString, ')') + 2);
+    const chunk = courseString.slice(indexOf(courseString, ')') + 2);
     name = chunk.slice(0, indexOf(chunk, '\n'));
   }
 
   let days;
   {
-    const chunk_ = sectionString.slice(sectionString.indexOf(') '));
+    const chunk_ = courseString.slice(courseString.indexOf(') '));
     const chunk = chunk_.split('\n').slice(0, 2).join('\n');
 
     if (chunk.includes('Days to be Announced')) {
-      console.warn(`Class '${name}' does not have known days.`);
+      console.warn(`Course '${name}' does not have known days.`);
       days = null;
     } else {
       days = daysInWeek.filter(d => chunk.includes(d));
@@ -63,17 +63,17 @@ function parseSection(sectionString) {
   let startTime;
   let endTime;
   {
-    const chunk_ = sectionString.slice(indexOf(sectionString, ') '));
+    const chunk_ = courseString.slice(indexOf(courseString, ') '));
     const chunk = chunk_.split('\n').slice(0, 2).join('\n');
 
     if (chunk.includes('Times to be Announced')) {
-      console.warn(`Class '${name}' does not have known times.`);
+      console.warn(`Course '${name}' does not have known times.`);
       startTime = null;
       endTime = null;
     } else {
       const i = indexOf(chunk, ' - ');
-      startTimeString = chunk.slice(i - "00:00AM".length, i);
-      endTimeString = chunk.slice(i + 3, i + 3 + "00:00AM".length);
+      const startTimeString = chunk.slice(i - "00:00AM".length, i);
+      const endTimeString = chunk.slice(i + 3, i + 3 + "00:00AM".length);
 
       startTime = parseTime(startTimeString);
       endTime = parseTime(endTimeString);
@@ -82,7 +82,7 @@ function parseSection(sectionString) {
 
   let building;
   {
-    const chunk__ = sectionString.slice(indexOf(sectionString, ') '));
+    const chunk__ = courseString.slice(indexOf(courseString, ') '));
     const chunk_ = chunk__.split('\n').slice(0, 2).join('\n');
     if (chunk_.includes('Times to be Announced')) {
       const chunk = chunk_.slice(indexOf(chunk_, 'Times to be Announced') + 'Times to be Announced'.length);
@@ -95,20 +95,20 @@ function parseSection(sectionString) {
 
   let room;
   {
-    const chunk = sectionString.slice(indexOf(sectionString, ', Room '));
+    const chunk = courseString.slice(indexOf(courseString, ', Room '));
     room = chunk.slice(', Room '.length, indexOf(chunk, '\n'));
   }
 
   let leftover;
   {
-    leftover = sectionString.slice(indexOf(sectionString, ', Room ') + ', Room '.length);
+    leftover = courseString.slice(indexOf(courseString, ', Room ') + ', Room '.length);
 
     if (!leftover.includes(')')) {
       // If there are no more sections, set leftover to empty string
       leftover = '';
     }
 
-    if (leftover === sectionString) throw 'Leftover is same :(';
+    if (leftover === courseString) throw 'Leftover is same :(';
   }
 
   const section = { name, days, startTime, endTime, building, room };

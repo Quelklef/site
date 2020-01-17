@@ -68,7 +68,7 @@ function shortenName(name) {
               // Test for !isLowerCase. Don't test for isUpperCase.
               // The reason for this is that unexpected input or other languages
               //   will pass !isLowerCase but will NOT pass isUpperCase.
-              // So, for instance, any class with name in Chinese characters would
+              // So, for instance, any course name with name in Chinese characters would
               //   get entirely stripped if we tested for isUpperCase, but will
               //   be entirely preserved if we use !isLowerCase.
               .filter(word => !isLowerCase(word))
