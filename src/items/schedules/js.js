@@ -153,7 +153,7 @@ function main() {
     $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Class schedule</a>`));
   }
 
-  settings.addDeepObserver(() => renderSchedule());
+  settings.addObserver(() => renderSchedule());
 
 }
 
@@ -682,8 +682,6 @@ function parseSections(pasted) {
 }
 
 function parseSection(sectionString) {
-
-  console.log(sectionString);
 
   function indexOf(string, subString) {
     if (!string.includes(subString)) {
