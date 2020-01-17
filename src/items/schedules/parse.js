@@ -104,15 +104,15 @@ function parseCourse(courseString) {
     leftover = courseString.slice(indexOf(courseString, ', Room ') + ', Room '.length);
 
     if (!leftover.includes(')')) {
-      // If there are no more sections, set leftover to empty string
+      // If there are no more courses, set leftover to empty string
       leftover = '';
     }
 
     if (leftover === courseString) throw 'Leftover is same :(';
   }
 
-  const section = { name, days, startTime, endTime, building, room };
-  return [section, leftover];
+  const course = { name, days, startTime, endTime, building, room };
+  return [course, leftover];
 }
 
 function parseTime(time) {

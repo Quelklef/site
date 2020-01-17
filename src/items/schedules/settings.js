@@ -17,9 +17,9 @@ window.Settings.settings = makeObservable({
 
   weekend: 'none',
 
-  sections: {
-    // For each section there will be
-    // [section.name]: {
+  courses: {
+    // For each course there will be
+    // [course.name]: {
     //   id              : integer,
     //   shortName       : string,
     //   backgroundColor : string,
@@ -32,12 +32,12 @@ window.Settings.settings = makeObservable({
 
 const prepareSettings =
 window.Settings.prepareSettings =
-function prepareSettings(sections) {
-  /* Add default settings for each section that doesn't have them. */
+function prepareSettings(courses) {
+  /* Add default settings for each course that doesn't have them. */
   settings.atomically(() => {
-    for (const section of sections) {
-      if (!(section.name in settings.sections)) {
-        settings.sections[section.name] = defaultSettings(section);
+    for (const course of courses) {
+      if (!(course.name in settings.courses)) {
+        settings.courses[course.name] = defaultSettings(course);
       }
     }
   });
@@ -47,10 +47,10 @@ function prepareSettings(sections) {
 let id = 0;
 const nextId = () => id++;
 
-function defaultSettings(section) {
+function defaultSettings(course) {
   return {
     id              : nextId(),
-    shortName       : shortenName(section.name),
+    shortName       : shortenName(course.name),
     backgroundColor : randomColor(),
     textColor       : '#ffffff',
   }

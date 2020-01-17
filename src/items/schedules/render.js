@@ -27,11 +27,24 @@ function bindElement(observableObject, observedProperty, element, mapper = x => 
 
 const createSettingsUI =
 window.Render.createSettingsUI =
-function createSettingsUI(sections) {
+function createSettingsUI(courses) {
+  /* Create a UI for editing settings */
 
-  const $UIcontainer = el('<div>');
+  const $container = el('<div>');
+  $container.appendChild(el('<h2>Settings</h2>'));
 
-  $UIcontainer.appendChild(el('<h2>Settings</h2>'));
+  const $globalSettings = createGlobalSettingsUI(courses);
+  $container.appendChild($globalSettings);
+
+  const $courseSettings = createCoursesSettingsUI(courses);
+  $container.appendChild($courseSettings);
+
+  return $container;
+}
+
+
+function createGlobalSettingsUI(courses) {
+  /* Create a UI for editing global settings */
 
   const $container = el('<div>');
   $container.style = `
@@ -39,9 +52,8 @@ function createSettingsUI(sections) {
     justify-content: space-around;
     flex-wrap: wrap;
   `;
-  $UIcontainer.appendChild($container)
 
-  // -
+  // == Cell width
 
   const $cellWidthSetting = el('<p>Cell width: </p>')
   const $cellWidthDisplay = el('<span style="font-family: monospace">')
@@ -56,7 +68,7 @@ function createSettingsUI(sections) {
   $cellWidthSetting.appendChild(tx(' '));
   $container.appendChild($cellWidthSetting);
 
-  // -
+  // == Cell height
 
   const $cellHeightSetting = el('<p>Cell height: </p>')
   const $cellHeightDisplay = el('<span style="font-family: monospace">')
@@ -71,7 +83,7 @@ function createSettingsUI(sections) {
   $cellHeightSetting.appendChild(tx(' '));
   $container.appendChild($cellHeightSetting);
 
-  // -
+  // == Time format
 
   const $timeFormatSetting = el('<p>Time format: </p>');
   const $timeFormatField = el(`
@@ -85,7 +97,7 @@ function createSettingsUI(sections) {
   $timeFormatSetting.appendChild($timeFormatField);
   $container.appendChild($timeFormatSetting);
 
-  // -
+  // == Wekkends
 
   const $weekendSetting = el('<p>Weekend: </p>');
   const $weekendField = el(`
@@ -100,44 +112,49 @@ function createSettingsUI(sections) {
   $weekendSetting.appendChild($weekendField);
   $container.appendChild($weekendSetting);
 
-  // -
-
-  for (const section of sections) {
-    // Render new section
-    const $settingsUI = createSectionSettingsUI(section);
-    $UIcontainer.appendChild($settingsUI);
-  }
-
-  return $UIcontainer;
-
+  return $container;
 }
 
 
-function createSectionSettingsUI(section) {
+function createCoursesSettingsUI(courses) {
+  /* Create a UI for editing course settings */
+
   const $container = el('<div>');
-  $container.appendChild(el(`<h3>${section.name}</h3>`));
+  for (const course of courses) {
+    const $courseSettingsUI = createCourseSettingsUI(course);
+    $container.appendChild($courseSettingsUI);
+  }
+  return $container;
+}
+
+
+function createCourseSettingsUI(course) {
+  /* Create UI for editing settings for a particular course */
+
+  const $container = el('<div>');
+  $container.appendChild(el(`<h3>${course.name}</h3>`));
 
   const $settingsContainer = el('<div>');
   $settingsContainer.style = "display: flex; justify-content: space-between;";
   $container.appendChild($settingsContainer);
 
-  const sectionSettings = settings.sections[section.name];
+  const courseSettings = settings.courses[course.name];
 
   const $shortNameSetting = el('<p>Name: </p>');
   const $shortNameField = el('<input type="text">');
-  bindInput(sectionSettings, 'shortName', $shortNameField);
+  bindInput(courseSettings, 'shortName', $shortNameField);
   $shortNameSetting.appendChild($shortNameField);
   $settingsContainer.appendChild($shortNameSetting);
 
   const $backgroundColorSetting = el('<p>Background: </p>')
   const $backgroundColorField = el('<input type="color" />');
-  bindInput(sectionSettings, 'backgroundColor', $backgroundColorField);
+  bindInput(courseSettings, 'backgroundColor', $backgroundColorField);
   $backgroundColorSetting.appendChild($backgroundColorField);
   $settingsContainer.appendChild($backgroundColorSetting);
 
   const $textColorSetting = el('<p>Text: </p>');
   const $textColorField = el('<input type="color" />')
-  bindInput(sectionSettings, 'textColor', $textColorField);
+  bindInput(courseSettings, 'textColor', $textColorField);
   $textColorSetting.appendChild($textColorField);
   $settingsContainer.appendChild($textColorSetting);
 
@@ -148,28 +165,30 @@ function createSectionSettingsUI(section) {
 
 // == Rendering Schedule == //
 
-const createSchedule =
-window.Render.createSchedule =
-function createSchedule(sections) {
+
+const renderSchedule =
+window.Render.renderSchedule =
+function renderSchedule(courses) {
   const $container = el('<div class="schedule-container">');
   $container.style = "display: inline-block;"
 
-  $container.appendChild(createScheduleTable(sections));
-  $container.appendChild(createScheduleKey(sections));
+  $container.appendChild(renderScheduleTable(courses));
+  $container.appendChild(renderScheduleKey(courses));
 
-  const style = createScheduleStyle(sections);
+  const style = renderScheduleStyle(courses);
   $container.appendChild(el(`<style>${style}</style>`));
 
   return $container;
 }
 
-function createScheduleTable(sections) {
 
-  const earliestSection = minBy(sections, sec => sec.startTime);
-  const latestSection = maxBy(sections, sec => sec.endTime);
+function renderScheduleTable(courses) {
 
-  const earliestTime = earliestSection.startTime;
-  const latestTime = latestSection.endTime;
+  const earliestCourse = minBy(courses, c => c.startTime);
+  const latestCourse = maxBy(courses, c => c.endTime);
+
+  const earliestTime = earliestCourse.startTime;
+  const latestTime = latestCourse.endTime;
 
   // The bounds of our graph
   // TODO: bug if you set this to -40 and +40
@@ -198,7 +217,7 @@ function createScheduleTable(sections) {
   }
   $schedule.appendChild($topRow);
 
-  const dayTable = buildDayTable(sections, startTime, endTime);
+  const dayTable = buildDayTable(courses, startTime, endTime);
   for (const day of getChosenDays()) {
     const $dayRow = el('<tr>');
     $dayRow.appendChild(el(`<th>${day}</th>`));
@@ -209,13 +228,13 @@ function createScheduleTable(sections) {
     for (const block of dayTable[day]) {
       const columnSpan = Math.floor(block.length / timeStep);
 
-      if (block.section !== null) {
+      if (block.course !== null) {
 
-        const section = block.section;
-        const shortName = settings.sections[section.name].shortName;
-        const id = settings.sections[section.name].id;
-        const $td = el(`<td class="section-${id}" colspan=${columnSpan}>${shortName}</td>`);
-        $td.style.backgroundColor = section.color;
+        const course = block.course;
+        const shortName = settings.courses[course.name].shortName;
+        const id = settings.courses[course.name].id;
+        const $td = el(`<td class="course-${id}" colspan=${columnSpan}>${shortName}</td>`);
+        $td.style.backgroundColor = course.color;
         $dayRow.appendChild($td);
 
       } else {
@@ -240,6 +259,7 @@ function createScheduleTable(sections) {
   return $container;
 }
 
+
 function getChosenDays() {
   switch(settings.weekend) {
 
@@ -261,7 +281,8 @@ function getChosenDays() {
   }
 }
 
-function createScheduleStyle(sections) {
+
+function renderScheduleStyle(courses) {
 
   let style = `
 .schedule-container {
@@ -309,15 +330,15 @@ td, th {
 }
 `;
 
-  for (const section of sections) {
-    const id = settings.sections[section.name].id;
-    const backgroundColor = settings.sections[section.name].backgroundColor;
-    const textColor = settings.sections[section.name].textColor;
+  for (const course of courses) {
+    const id = settings.courses[course.name].id;
+    const backgroundColor = settings.courses[course.name].backgroundColor;
+    const textColor = settings.courses[course.name].textColor;
 
     // We have to convert the hex color to RGB because hashtags fuck up the bookmark--
     // presumably because in the URL they're interpreted as an ID specifier
     style += `
-.section-${id} {
+.course-${id} {
   background-color: ${hexToRgb(backgroundColor)};
   color: ${hexToRgb(textColor)};
 }
@@ -327,8 +348,9 @@ td, th {
   return style;
 }
 
-function buildDayTable(sections, startTime, endTime) {
-  // From a list of sections, e.g.
+
+function buildDayTable(courses, startTime, endTime) {
+  // From a list of courses, e.g.
   //   [ { name: 'sec1', days: ['Monday']           , startTime: 600, endTime: 660 }
   //     { name: 'sec2', days: ['Monday', 'Tuesday'], startTime: 810, endTime: 870 } ]
   // and a start and end time, say,
@@ -336,14 +358,14 @@ function buildDayTable(sections, startTime, endTime) {
   //   endTime = 900
   // build a table like e.g.
   //   {
-  //     "Monday":  [ { length: 60 , section: { name: 'sec1', ... } },
-  //                  { length: 150, section: null },
-  //                  { length: 60 , section: { name: 'sec2', ... } },
-  //                  { length: 90 , section: null } ],
+  //     "Monday":  [ { length: 60 , course: { name: 'sec1', ... } },
+  //                  { length: 150, course: null },
+  //                  { length: 60 , course: { name: 'sec2', ... } },
+  //                  { length: 90 , course: null } ],
   //
-  //     "Tuesday": [ { length: 210, section: null },
-  //                  { length: 60 , section: { name: 'sec2', ... } },
-  //                  { length: 90 , section: null } ],
+  //     "Tuesday": [ { length: 210, course: null },
+  //                  { length: 60 , course: { name: 'sec2', ... } },
+  //                  { length: 90 , course: null } ],
   //     ...
   //   }
   // which breaks the days into blocks, starting at startTime and
@@ -353,29 +375,30 @@ function buildDayTable(sections, startTime, endTime) {
 
   for (const day of daysInWeek) {
     dayTable[day] = [];
-    const sectionsToday = (sections.filter(sec => sec.days.includes(day))
+    const coursesToday = (courses.filter(sec => sec.days.includes(day))
                                    .sort((a, b) => a.startTime - b.startTime));
 
     let time = startTime;
-    for (const section of sectionsToday) {
-      const delta = section.startTime - time;
+    for (const course of coursesToday) {
+      const delta = course.startTime - time;
       if (delta > 0) {
-        dayTable[day].push({ length: delta, section: null });
+        dayTable[day].push({ length: delta, course: null });
       }
 
-      const range = section.endTime - section.startTime;
-      dayTable[day].push({ length: range, section: section });
+      const range = course.endTime - course.startTime;
+      dayTable[day].push({ length: range, course: course });
 
-      time = section.endTime;
+      time = course.endTime;
     }
 
     if (time !== endTime) {
-      dayTable[day].push({ length: endTime - time, section: null });
+      dayTable[day].push({ length: endTime - time, course: null });
     }
   }
 
   return dayTable;
 }
+
 
 function prettifyTime(time) {
   const hour24 = Math.floor(time / 60);
@@ -424,7 +447,8 @@ function prettifyTime(time) {
 
 }
 
-function createScheduleKey(sections) {
+
+function renderScheduleKey(courses) {
   const $container = el('<div>');
   $container.style = `
     display: flex;
@@ -432,34 +456,33 @@ function createScheduleKey(sections) {
     margin-top: 15px;
   `;
 
-  for (const section of sections) {
-    const sectionSettings = settings.sections[section.name];
+  for (const course of courses) {
+    const courseSettings = settings.courses[course.name];
 
-    const $sectionKey = el(`<div>`);
-    $sectionKey.style = `
-      border: 1px solid ${sectionSettings.backgroundColor};
+    const $courseKey = el(`<div>`);
+    $courseKey.style = `
+      border: 1px solid ${courseSettings.backgroundColor};
       margin: 0 7px;
     `;
+    $container.appendChild($courseKey);
 
-    const $sectionName = el(`<p>${sectionSettings.shortName}</p>`);
-    $sectionName.style = `
+    const $courseName = el(`<p>${courseSettings.shortName}</p>`);
+    $courseName.style = `
       text-align: center;
       padding: 2px 6px;
       margin: 0;
-      background-color: ${sectionSettings.backgroundColor};
-      color: ${sectionSettings.textColor};
+      background-color: ${courseSettings.backgroundColor};
+      color: ${courseSettings.textColor};
     `;
-    $sectionKey.appendChild($sectionName);
+    $courseKey.appendChild($courseName);
 
-    const location = `${section.building} rm ${section.room}`;
-    const $sectionLocation = el(`<p>${location}</p>`);
-    $sectionLocation.style = `
+    const location = `${course.building} rm ${course.room}`;
+    const $courseLocation = el(`<p>${location}</p>`);
+    $courseLocation.style = `
       margin: 0;
       padding: 2px 6px;
     `;
-    $sectionKey.appendChild($sectionLocation);
-
-    $container.appendChild($sectionKey);
+    $courseKey.appendChild($courseLocation);
   }
 
   return $container;

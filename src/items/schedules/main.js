@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const { el, tx  } = window.Util;
 const { settings, prepareSettings } = window.Settings;
-const { createSchedule, createSettingsUI } = window.Render;
+const { renderSchedule, createSettingsUI } = window.Render;
 
 
 const $input    = document.getElementById('input');
@@ -13,36 +13,36 @@ const $bookmark = document.getElementById('bookmark');
 
 function main() {
 
-  let sections;
+  let courses;
 
   input.addEventListener('input', () => {
-    getSections();
-    renderSchedule();
+    getCourses();
+    renderSchedule_();
   });
 
-  function getSections() {
+  function getCourses() {
     const text = $input.value;
-    sections = window.Parsing.parseCourses(text);
+    courses = window.Parsing.parseCourses(text);
 
-    // TODO: If a section is skipped, the user should somehow be notified
-    sections = sections.filter(section => {
-      if (Object.keys(section).some(key => section[key] === null)) {
-        console.warn(`Section '${section.name}' has fields with unknown values, so we are skipping it.`);
+    // TODO: If a course is skipped, the user should somehow be notified
+    courses = courses.filter(course => {
+      if (Object.keys(course).some(key => course[key] === null)) {
+        console.warn(`Course '${course.name}' has fields with unknown values, so we are skipping it.`);
         return false;
       } else {
         return true;
       }
     });
 
-    prepareSettings(sections);
+    prepareSettings(courses);
 
-    const $settingsUI = createSettingsUI(sections);
+    const $settingsUI = createSettingsUI(courses);
     $settings.innerHTML = '';
     $settings.appendChild($settingsUI);
   }
 
-  function renderSchedule() {
-    const $schedule = createSchedule(sections);
+  function renderSchedule_() {
+    const $schedule = renderSchedule(courses);
     $output.innerHTML = '';
 
     document.getElementById('output-title').innerHTML = 'Schedule';
@@ -61,7 +61,7 @@ function main() {
     $bookmark.appendChild(el(`<a href="data:text/html, ${html}">Semester schedule</a>`));
   }
 
-  settings.addObserver(() => renderSchedule());
+  settings.addObserver(() => renderSchedule_());
 
 }
 
