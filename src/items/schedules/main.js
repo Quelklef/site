@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const { el, tx  } = window.Util;
 const { settings, prepareSettings } = window.Settings;
-const { renderSchedule, createSettingsUI } = window.Render;
+const { renderSchedule, createSettingsUI } = window.Display;
 
 
 const $input    = document.getElementById('input');

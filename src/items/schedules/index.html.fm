@@ -11,7 +11,7 @@ indexed: false
 <script type="text/javascript" src="util.js"></script>
 <script type="text/javascript" src="parse.js"></script>
 <script type="text/javascript" src="settings.js"></script>
-<script type="text/javascript" src="render.js"></script>
+<script type="text/javascript" src="display.js"></script>
 
 <script type="text/javascript" src="main.js"></script>
 

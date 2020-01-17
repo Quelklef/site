@@ -4,7 +4,7 @@
 const { settings } = window.Settings;
 const { el, tx, minBy, maxBy, hexToRgb, daysInWeek } = window.Util;
 
-window.Render = {};
+window.Display = {};
 
 
 function bindInput(observableObject, observedProperty, inputElement) {
@@ -23,10 +23,25 @@ function bindElement(observableObject, observedProperty, element, mapper = x => 
 }
 
 
-// == Rendering Settings == //
+/*
+
+A quick note:
+
+In this file, I use the prefix render- for some functions and create- for others.
+It may seem strange--just stick to one. But I'm using them in different situations.
+
+In my mind, to 'render' something is to take an object and display it graphically.
+So the render- prefix is used for transforming data into a visual format.
+The create- prefix is used for functions that still build DOM, but are not
+building this DOM in order to visually represent an existing object.
+
+*/
+
+
+// == Displaying settings UI == //
 
 const createSettingsUI =
-window.Render.createSettingsUI =
+window.Display.createSettingsUI =
 function createSettingsUI(courses) {
   /* Create a UI for editing settings */
 
@@ -163,11 +178,10 @@ function createCourseSettingsUI(course) {
 
 
 
-// == Rendering Schedule == //
-
+// == Rendering schedule == //
 
 const renderSchedule =
-window.Render.renderSchedule =
+window.Display.renderSchedule =
 function renderSchedule(courses) {
   const $container = el('<div class="schedule-container">');
   $container.style = "display: inline-block;"
