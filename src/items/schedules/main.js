@@ -73,7 +73,17 @@ function attachSchedule() {
   $scheduleTitle.appendChild(el('<h2>Schedule</h2>'));
 
   $schedule.innerHTML = '';
+  $schedule.style = `
+    position: sticky;
+    top: 0;
+  `;
+
   const $shadowContainer = el('<div>');
+  $shadowContainer.style = `
+    padding: 10px;
+    background: white;
+    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
+  `;
   $schedule.appendChild($shadowContainer);
   const $shadowRoot = $shadowContainer.attachShadow({ mode: 'open' });
 
