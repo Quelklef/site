@@ -78,7 +78,11 @@ function parseCourse(courseString) {
     const chunk = chunk_.split('\n').slice(0, 2).join('\n');
 
     if (chunk.includes('Times to be Announced')) {
-      console.warn(`Course '${name}' does not have known times.`);
+      console.warn(`Course '${name}' times are TBA.`);
+      startTime = null;
+      endTime = null;
+    } else if (chunk.includes('(more)')) {
+      console.warn(`Course '${name}' times are partial.`);
       startTime = null;
       endTime = null;
     } else {
@@ -114,7 +118,7 @@ function parseCourse(courseString) {
   {
     leftover = courseString.slice(indexOf(courseString, ', Room ') + ', Room '.length);
 
-    if (!leftover.includes(')')) {
+    if (!leftover.includes('Lecture')) {
       // If there are no more courses, set leftover to empty string
       leftover = '';
     }
