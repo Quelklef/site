@@ -1,9 +1,6 @@
 [submodule "src/assets/papers"]
 	path = src/assets/papers
 	url = https://github.com/quelklef/papers
-[submodule "src/items/cultural-collisions/full"]
-	path = src/items/cultural-collisions/full
-	url = https://github.com/quelklef/cultural-collisions
 [submodule "src/items/fitch/full"]
 	path = src/items/fitch/full
 	url = https://github.com/quelklef/fitch

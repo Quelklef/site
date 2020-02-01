@@ -192,9 +192,6 @@ def build_site(*, build_latex):
           o = frontmatter.load(item_loc)
           item = o.metadata
 
-          if not item.get('indexed', True):
-            continue
-
           # Apply defaults
           defaults = {
             'tags': [],

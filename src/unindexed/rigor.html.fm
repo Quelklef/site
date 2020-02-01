@@ -5,8 +5,6 @@ date: 2019-10-24
 desc: "Finding (almost) infinite rigor in programming"
 layout: post
 requires: [mathjax, notes]
-
-indexed: false
 ---
 
 <p>Mathematics has a theme of trying to get more and more rigorous. It started out with the Greeks and, long story short, kept going. Though we have made a language that is certainly more rigorous than natural language, we have slowly come to realize that infinite rigor is not quite possible. Take, for instance, the natural numbers. We may talk about the natural numbers informally&em;0, 1, 2, and the rest. If we want to make it rigorous, we may do so by defining them within some system. For instance, we may use the Peano axioms, a first-order definition of the natural numbers which asserts the existence of a number $0 \in \mathbb N$ as well as the successor function $S : \mathbb N \to \mathbb N$. And this is a perfectly rigorous definition of the natural numbers within first-order logic. But is first-order logic rigorous? It has to be, too. And, indeed, it is, expressed in a kind of meta-language. This meta-language, however, is <em>not</em> perfectly rigorous. Herein lies our issue.</p>

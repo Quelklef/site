@@ -34,8 +34,4 @@ layout: post
 #            - Code syntax highlighting: 'syntax-highlighting'
 requires: [mathjax, notes]
 
-# Indexed: optional, defaults to true.
-#          If false, this item won't show up in the site index.
-indexed: false
-
 ---

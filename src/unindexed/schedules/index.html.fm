@@ -4,7 +4,6 @@ tags: []
 date: 2020-01-14
 layout: post
 requires: []
-indexed: false
 ---
 
 <script type="text/javascript" src="deepObservables.js"></script>
