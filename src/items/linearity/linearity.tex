@@ -1,0 +1,434 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{enumitem}
+\usepackage{wasysym}
+\usepackage{amsthm}
+\usepackage{hyperref}
+
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\linespread{1.5}
+
+\title{Notation}
+\author{piecrust99 }
+\date{December 2019}
+
+\newtheoremstyle{mytheoremstyle}% name of the style to be used
+  {50pt} % measure of space to leave above the theorem. E.g.: 3pt
+  {-2pt} % measure of space to leave below the theorem. E.g.: 3pt
+  {} % name of font to use in the body of the theorem
+  {0pt} % measure of space to indent
+  {\bfseries} % name of head font
+  {.} % punctuation between head and body
+  {.5em} % space after theorem head; " " = normal interword space
+  {} % Manually specify head
+
+\theoremstyle{mytheoremstyle}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\renewenvironment{proof}[1][\proofname]{\noindent{\bfseries #1. }}{\begin{flushright}\smiley\end{flushright}}
+\newcommand{\discussion}{\noindent\textbf{Discussion.} }
+\newcommand{\sketch}{\noindent\textbf{Proof sketch.} }
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\renewcommand{\N}{\mathbb N}
+
+\begin{document}
+
+This document contains an (incorrect) proof that I did recently. It was inspired by my linear algebra class when learning the axioms for linearity, namely that
+$$ f(a + b) = f(a) + f(b) $$
+and that
+$$ f(cx) = cf(x) $$
+
+In class, I noted that the first axiom trivially implies the second as long as $c$ is a natural. I was able to show it for rational $c$, as well, but couldn't seem to prove it for real $c$. I continued to try and do this proof once class ended, and then for days after---in fact, it kind of consumed me.
+
+Finally completing the proof, I wrote it up and sent it to my teacher. I also let myself search online\footnote{If a reader wants to look online for themselves, a useful term to search for is ````Cauchy's functional equation''.} for existing research, which I had been avoiding as to not spoil the fun of doing the proof myself. I discovered that my result was incorrect---the second axiom does \textit{not} follow from the first for real $c$. My teacher replied to my email with guidance as to where the mistake was.
+
+With help from a peer by the name of Sean (who also helped me write part of the proof), we located exactly where the mistake is. At the end of the proof, I have included a discussion of the mistake. I haven't annotated the mistake in the body of the proof in case the reader wants to figure it out for themselves.
+
+I am uploading this proof because, while it is incorrect, I am still proud of it. It was enjoyable to write and educational both to formulate the proof and find the mistake. The proof may be incorrect, but I still did it, and it'd be a shame to let it rot in some server somewhere.
+
+The proof begins on the next page.
+\newpage
+
+% ============================================
+
+\begin{definition}[Additivity]
+We call a function $f$ `additive' if for every $a$ and $b$,
+$$ f(a + b) = f(a) + f(b) $$
+\end{definition}
+
+% ============================================
+
+\begin{definition}[Homogeneity]
+We call a function $f$ `homogeneous' if for every $c$ and $x$,
+$$ f(cx) = cf(x) $$
+\end{definition}
+
+% ============================================
+
+\newcommand{\limx}[3]{ \lim_{\, {#2}\, \underset{#1}{\rightarrow}\,  {#3}} }
+
+\begin{definition}[Bounded limit notation]
+Limits follow the $\varepsilon$-$\delta$ definition. From this we will create the idea of a ``bounded limit'' which is like a limit where the dummy variable has a restricted domain. In particular, for $x_0 \in \R$ and $L \in \R$, let the syntax
+$$ \limx{\mathbb A}{x}{x_0} f(x) = L $$
+denote that
+$$ \forall \varepsilon \in \mathbb R_{> 0} : \exists \delta \in \mathbb R_{> 0} : \underbrace{\forall x \in \mathbb A}_\text{important part} \bigg( x_0 - \delta < x < x_0 + \delta \implies L - \varepsilon < f(x) < L + \varepsilon \bigg) $$
+
+If the domain of the limit is not specified, then it is implied. Note that the \textit{only} variable that this restricts is $x$. All others are allowed to span all of $\R$. This notation can be read ``the limit as $x$ traverses $\mathbb A$ towards $x_0$''.
+
+The definition of bounded limits for $x_0 = \infty$ and $x_0 = -\infty$ will not be written out but are analogous modifications of the definition of normal limits.
+\end{definition}
+
+% ============================================
+
+\begin{lemma}
+\label{lemma:integral-homogeneous}
+Additive real functions are homogeneous over the integers. That is,
+$$ \forall x \in \mathbb R : \forall n \in \mathbb N : f(nx) = nf(x) $$
+\end{lemma}
+\begin{proof} Assume $f : \mathbb R \to \mathbb R$ is an additive function. Then:
+$$ f(nx) = f(\underbrace{x + x + \dots + x}_{n \text{ times}}) = \underbrace{f(x) + f(x) + \dots + f(x)}_{n \text{ times}} = nf(x) $$
+To make this rigorous, one could induce over $n$. I will not.
+\end{proof}
+
+% ============================================
+
+\begin{lemma}
+\label{lemma:rational-homogeonous}
+Additive real functions are homogeneous over the rationals. That is,
+$$ \forall x \in \mathbb R : \forall q \in \mathbb Q : f(qx) = qf(x) $$
+\end{lemma}
+
+\begin{proof}
+Assume $f : \mathbb R \to \mathbb R$ is an additive function. Now consider the value
+$$ q^{-1}f(qx) $$
+for an arbitrary $x$. Writing $q$ in reduced form $r/s$, we can rewrite this as:
+\begin{align*}
+    & s/r\cdot f( r/s \cdot x) \\
+    &= r/r\cdot f( s/s \cdot x ) \text{ by two applications of \cref{lemma:integral-homogeneous}} \\
+    &= f(x)
+\end{align*}
+
+Thus we have shown that $ q^{-1}f(qx) = f(x) $. This may be restated as
+$$ f(qx) = qf(x) $$
+which is to say that $f$ is homogeneous over the rationals.
+\end{proof}
+
+% ============================================
+
+\begin{lemma}
+\label{lemma:additive-zero}
+Additive real functions abide by $f(0) = 0$.
+\end{lemma}
+
+\discussion This theorem is not often used directly. However, it enables the phrasing ``$f$ is continuous at 0'' to mean ``$\lim_{x \to 0} f(x) = 0$'' when $f$ is an additive real function. This terminology is used frequently.
+
+\begin{proof} Take an additive $f : \mathbb R \to \mathbb R$. Then:
+\begin{align*}
+    f(0) &= f(0) \\
+    f(0 + 0) &= f(0) \\
+    f(0) + f(0) &= f(0) \\
+    f(0) &= 0
+\end{align*}
+\end{proof}
+
+% ============================================
+
+\begin{lemma}[Limit of a product with a divergent factor]
+\label{lemma:product-limit}
+For real $f$ and $g$ and $P \subseteq \mathbb R$, if $ \limx{P}{x}{x_0} f(x) g(x) $ converges and $ \limx{P}{x}{x_0} f(x) = \infty $ then $ \limx{P}{x}{x0} g(x) = 0 $.
+\end{lemma}
+
+\begin{proof} (With help from Sean)
+Take real $f$ and $g$ such that
+$$ \limx{P}{x}{x_0} f(x) g(x) = c $$
+for some constant real $c$. WLOG, let $c > 0$. We want to show that
+$$ \limx{P}{x}{x_0} g(x) = 0 $$
+
+Take an arbitrary $\varepsilon > 0$.
+
+Since $fg$ converges to $c$, we know that
+$$ \forall \epsilon > 0 : \exists \delta_1 > 0 : \forall x \in P \bigg( x_0 - \delta_1 < x < x_0 + \delta_1 \implies c - \epsilon < f(x)g(x) < c + \epsilon \bigg) $$
+letting $\epsilon = c$, this gives us:
+\[ \exists \delta_1 > 0: \forall x \in P \bigg( x_0 - \delta_1 < x < x_0 + \delta_1 \implies 0 < f(x)g(x) < 2c \bigg) \tag{A} \]
+
+Similarly, since $f$ diverges to $\infty$, we know that
+$$ \forall N > 0 : \exists \delta_2 > 0 : \forall x \in P \bigg( x_0 - \delta < x < x_0 + \delta \implies f(x) > N \bigg) $$
+letting $N = 2c/\varepsilon$, this gives:
+\[ \exists \delta_2 > 0 : \forall x \in P \bigg( x_0 - \delta_2 < x < x_0 + \delta_2 \implies f(x) > 2c/\varepsilon \bigg) \tag{B} \]
+
+Now let $\delta = \min(\delta_1, \delta_2)$. Take an arbitrary $x \in P$ such that
+$$x_0 - \delta < x < x_0 + \delta$$
+
+Then we also know, since $\delta \leq \delta_1$ and $\delta \leq \delta_2$, that
+$$x_0 - \delta_1 < x < x_0 + \delta_1 \hspace{10pt} \text{ and } \hspace{10pt} x_0 - \delta_2 < x < x_0 + \delta_2$$
+giving, from (A) and (B) respectively, that
+$$ 0 < f(x)g(x) < 2c \hspace{20pt} \text{ and } \hspace{20pt} f(x) > 2c/\varepsilon $$
+
+The left equation gives
+$$ f(x)g(x) < 2c $$
+which yields
+$$ g(x) < \frac{2c}{f(x)} $$
+and since $f(x) > 2c/\varepsilon$ then we also know that
+$$ \frac{2c}{f(x)} < \frac{2c}{2c/\varepsilon} = \varepsilon $$
+thus giving that
+$$ g(x) < \varepsilon $$
+
+The left equation also gives that
+$$ 0 < f(x)g(x) $$
+and since $f(x) > 2c/\varepsilon$ then $f(x) > 0$, allowing us to divide through by $f(x)$, giving
+$$ 0 < g(x) $$
+and, since $-\varepsilon < 0$, then
+$$ -\varepsilon < g(x) $$
+
+Thus we have both that $-\varepsilon < g(x)$ and that $g(x) < \varepsilon$, giving
+$$ -\varepsilon < g(x) < \varepsilon $$
+
+Thus for each given $\varepsilon$, letting $\delta = \min(\delta_1, \delta_2)$ successfully ensures that for each $x \in P$ where $x_0-\delta < x < x_0+\delta$ we know that $g(x)$ bounded by $-\varepsilon < g(x) < \varepsilon$, thus establishing that
+$$ \limx{P}{x}{x_0} g(x) = 0 $$
+
+\end{proof}
+
+% ============================================
+
+\begin{lemma}
+\label{lemma:rational-continuous-0}
+Real additive functions are continuous at 0 over $\mathbb Q$. That is, for real additive $f$,
+$$ \limx{\Q}{q}{0} f(q) = 0 $$
+\end{lemma}
+
+\begin{proof}
+By \cref{lemma:rational-homogeonous}, we know that for each rational $q$,
+\[ q^{-1} f(q) = f(1) \tag{A} \]
+
+Taking the limit of both sides gives
+\begin{align*}
+    \limx{\Q}{q}{0} q^{-1} f(q) &= \limx{\Q}{q}{0} f(1) \\
+    &= f(1)
+\end{align*}
+
+Since $\limx{\Q}{q}{0} q^{-1} = \infty$ then \cref{lemma:product-limit} tells us that
+$$ \limx{\Q}{q}{0} f(q) = 0 $$
+
+And we are done.
+
+Note that we had to take the limit over $\Q$ rather than $\R$ because line (A) only holds for rationals.
+\end{proof}
+
+% ============================================
+
+\begin{lemma}[Special-case limit composition]
+\label{lemma:limit-composition}
+For $S \in \mathbb R^\infty$ and $f : \mathbb R \to \mathbb R$ such that $\limx{\N}{k}{\infty} S_k = x_0$ then
+$$ \limx{\N}{k}{\infty} f(S_k) = \limx{\R}{x}{x_0} f(x) $$
+\end{lemma}
+
+\sketch Easy proof from $\varepsilon$-$\delta$ definition of limits.
+
+\discussion Despite being an easy proof, this is pretty significant. It means roughly that in a limit
+$$ \lim_{x \to x_0} f(x) $$
+we don't care \textit{how} $x$ approaches $x_0$, just that it \textit{does} approach $x_0$. This is not necessarily obvious and turns out to be essential for an upcoming proof.
+
+\begin{proof}
+Since $\limx{\N}{k}{\infty} S_k = x_0$ then we know that
+\[ \forall \varepsilon_1 > 0 : \exists N > 0 : \forall n \in \N > N : x_0 - \varepsilon_1 < S_n < x_0 + \varepsilon_1 \tag{A} \]
+
+We will call
+$$ \limx{\R}{x}{x_0} f(x) = L $$
+giving us that
+\[ \forall \varepsilon_2 > 0 : \exists \delta > 0 : \forall x \bigg(x_0 - \delta < x < x_0 + \delta \implies L - \varepsilon_2 < f(x) < L + \varepsilon_2 \bigg) \tag{B} \]
+
+Now we want to show that
+$$ \limx{\N}{k}{\infty} f(S_k) = L $$
+i.e. that
+$$ \forall \varepsilon > 0 : \exists H > 0 : \forall \eta > H : L - \varepsilon < f(S_\eta) < L + \varepsilon $$
+
+To do this, let us take an arbitrary $\varepsilon$. Let $H = N(\delta(\varepsilon))$. Then we have from (A) that
+$$ \forall \eta > H : x_0 - \delta(\varepsilon) < S_\eta < x_0 + \delta(\varepsilon) $$
+and then from (B) that for these same $\eta$,
+$$ L - \varepsilon < f(S_\eta) < L + \varepsilon $$
+
+And we are done.
+\end{proof}
+
+% ============================================
+
+\begin{lemma}
+\label{lemma:psi}
+For an additive real $f$ and for a $q \in \mathbb Q ^\infty$ such that $\sum_{i=1}^\infty q_i$ converges, then:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \sum_{i=1}^\infty f(q_i) + \psi(f) $$
+where
+$$ \psi(f) = \limx{\R}{x}{0} f(x) $$
+\end{lemma}
+
+\sketch Additivity lets us distribute over an arbitrary finite number of leading terms. This leaves only the tail, which we name $\psi(f)$.
+
+\begin{proof}
+Take an additive real $f$ and sequence $q \in \mathbb Q ^\infty$. First note that using additivity of $f$ we can ``peel off'' as many elements of $q$ as we like, e.g.
+\begin{align*}
+    & f\left( \sum_{i = 1}^\infty q_i \right) \\
+    &= f\left( q_1 + \sum_{i = 2}^\infty q_i \right) \\
+    &= f(q_1) + f\left( \sum_{i = 2}^\infty q_i \right) \\
+    &= f(q_1) + f\left( q_2 + \sum_{i = 3}^\infty q_i \right) \\
+    &= f(q_1) + f(q_2) + f\left( \sum_{i = 3}^\infty q_i \right) \\
+    &\text{etc...}
+\end{align*}
+
+We thus conclude inductively that for each $k \in \mathbb N$, we have
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^k f(q_i) \right] + f\left( \sum_{i = k+1}^\infty q_i \right) $$
+
+If we take the limit as $k \to \infty$ of both sides and distribute over the plus, we get:
+$$ \limx{\N}{k}{\infty} f\left( \sum_{i = 1}^\infty q_i \right) = \limx{\N}{k}{\infty} \left[ \sum_{i=1}^k f(q_i) \right] + \limx{\N}{k}{\infty} f\left( \sum_{i = k+1}^\infty q_i \right) $$
+
+The left-hand side is unchanged by the limit, so we can drop it, and the first sum on the right-hand side becomes an infinite sum:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] + \limx{\N}{k}{\infty} f\left( \sum_{i = k+1}^\infty q_i \right) $$
+
+Now let $S_k \in \mathbb R ^\infty = \sum_{i=k+1}^\infty q_i$ and rewrite this as:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] + \limx{\N}{k}{\infty} f(S_k) $$
+
+Since $S_k$ converges for each $k$, then $\limx{\N}{k}{\infty} S_k = 0$ by [\footnote{\url{proofwiki.org/wiki/Tail_of_Convergent_Series_tends_to_Zero}}]. Thus we can again rewrite our expression by \cref{lemma:limit-composition}:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] + \limx{\R}{x}{0} f(x) $$
+
+This previous step is crucial. What we have done is transformed the limit term from a function of $S$ to a function of $f$. Now the limit term is known to be constant regardless of what $q$ is. Note that the new limit is over $\R$ since each $S_k$ is only known to be in $\R$ and may or may not be in $\Q$ or some other subset.
+
+We will call this limit term
+$$ \psi(f) = \limx{\R}{x}{0} f(x) $$
+which gives
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] + \psi(f) $$
+\end{proof}
+
+% ============================================
+
+\begin{lemma}[Continuity over $\mathbb R$ at 0 of real additive functions]
+\label{lemma:real-continuous-0}
+For each real additive $f$,
+$$ \limx{\R}{x}{0} f(x) = 0 $$
+i.e.
+$$ \psi(f) = 0 $$
+\end{lemma}
+
+\sketch This falls out of \cref{lemma:psi} if we apply it to an expansion of $0$ as $0 + 0 + 0 + 0 + \dots$.
+
+\begin{proof}
+Take any arbitrary additive real $f$. Then consider:
+\begin{align*}
+    & f(0) \\
+    &= f\left(\sum_{i=1}^\infty 0\right) \\
+    &= \left( \sum_{i=1}^\infty f(0) \right) + \psi(f) \text{ by \cref{lemma:psi}} \\
+    &= \left( \sum_{i=1}^\infty 0 \right) + \psi(f) \text{ since $f(0) = 0$ by \cref{lemma:additive-zero}}\\
+    &= 0 + \psi(f) \\
+    &= \psi(f)
+\end{align*}
+
+Thus we have shown that $f(0) = \psi(f)$. But we know by \cref{lemma:additive-zero} that $f(0) = 0$. Thus $\psi(f) = 0$.
+\end{proof}
+
+% ============================================
+
+\begin{lemma}[Distribution of additive functions over convergent series]
+\label{lemma:additive-distribution}
+Additive real functions distribute over convergent series. That is, for an additive real $f$ and $q \in \mathbb Q ^\infty$ such that $\sum_{i=1}^\infty q_i$ converges, then:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \sum_{i=1}^\infty f(q_i) $$
+\end{lemma}
+
+\sketch Immediate corollary of \cref{lemma:real-continuous-0} by applying it to \cref{lemma:psi}.
+
+\begin{proof}
+
+
+Restate \cref{lemma:psi}:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] + \psi(f) $$
+and plug in $\psi(f) = 0$ from \cref{lemma:real-continuous-0}, giving:
+$$ f\left( \sum_{i = 1}^\infty q_i \right) = \left[ \sum_{i=1}^\infty f(q_i) \right] $$
+
+\end{proof}
+
+% ============================================
+
+\begin{proposition}[Homogeneity over $\mathbb R$ of real additive functions]
+\label{lemma:real-homogenous}
+All additive real functions are homogeneous over the reals. That is, for real additive $f$,
+$$ \forall x \in \mathbb R: \forall r \in \mathbb R : f(rx) = rf(x) $$
+\end{proposition}
+
+\sketch Reals may be expressed as series of rationals. Then \cref{lemma:additive-distribution} lets us distribute over those terms.
+
+\begin{proof}
+Take an additive real $f$ and real $r$ and $x$. Begin with the expression
+$$ f(rx) $$
+
+Since all real numbers can be expressed as series of rationals, we may rewrite this as:
+$$ f\left(\left[\sum_{i=1}^\infty q_i\right] x\right) $$
+for some $q \in \mathbb Q ^\infty$ whose partial sums converge to $r$. Distributing in the $x$ gives
+$$ f\left(\sum_{i=1}^\infty q_i x\right) $$
+
+Note that since $\sum q_i$ converged, then $\sum q_ix$ will, as well. This means that we can apply \cref{lemma:additive-distribution} to distribute $f$ over the sum, giving:
+$$ \sum_{i=1}^\infty f(q_i x) $$
+
+We can pull out each $q_i$ term via \cref{lemma:rational-homogeonous}, giving
+$$ \sum_{i=1}^\infty q_if(x) $$
+and then factor out the $f(x)$ from the sum, giving:
+$$ f(x)\sum_{i=1}^\infty q_i $$
+which is just another way of writing
+$$ rf(x) $$
+
+\end{proof}
+
+% ============================================
+
+\begin{proposition}[Continuity over $\mathbb R$ of real additive functions]
+\label{lemma:real-continuous}
+Real additive functions are continuous everywhere over $\mathbb R$. That is, for real additive $f$,
+$$ \forall r_0 \in \mathbb R : \limx{\R}{r}{r_0} f(r) = r_0 $$
+\end{proposition}
+
+\discussion Generalization of continuity at 0 to an arbitrary real.
+
+\begin{proof}
+Take real additive $f$ and rational $r_0$. Then begin with
+$$ \limx{\R}{r}{r_0} f(r) $$
+and rewrite this as
+$$ \limx{\R}{r}{r_0} f(r_0 + r - r_0) $$
+now apply additivity of $f$ and then limits, giving
+$$ \limx{\R}{r}{r_0} f(r_0) + \limx{\R}{r}{r_0} f(r - r_0) $$
+
+The limit from the left term can be removed since $f(r_0)$ is constant with respect to $r$, giving:
+$$ f(r_0) + \limx{\R}{r}{r_0} f(r - r_0) $$
+and, finally, the second term is equal to 0 by \cref{lemma:real-continuous-0}, giving
+$$ f(r_0) + 0 $$
+which is just
+$$ f(r_0) $$
+
+Thus we have shown
+$$ \limx{\R}{r}{r_0} f(r) = f(r_0) $$
+
+\end{proof}
+
+% ============================================
+\newpage
+
+The next page contains a description of the mistake made in this proof.
+
+\newpage
+
+The mistake is made in \cref{lemma:limit-composition}. Between lines (A) and (B), we have the phrase:
+
+\begin{center}
+``We will call $\limx{\R}{x}{x_0} f(x) = L$, giving ...''
+\end{center}
+
+We have assumed that $\limx{\R}{x}{x_0}f(x)$ exists. This limit only exists if every path approaching $x_0$ agrees on the limit. If that were the case, then \textit{of course} our path $S$ would agree (i.e. be equal to this limit). We have very subtly assumed what we set out to prove: we wanted to prove that all paths agree, but assuming the limit exists is assuming that all paths agree. (Thanks to Sean for doing much of the work of figuring this mistake out).
+
+\end{document}
