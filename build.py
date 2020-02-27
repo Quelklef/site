@@ -18,9 +18,9 @@ import watchdog.observers
 from pathlib import Path
 from docopt import docopt
 
-import lib.log
-from lib.log import log_section, log
-from lib.calc_item_tree import calc_item_tree
+import py.log as log_module
+from py.log import log_section, log
+from py.calc_item_tree import calc_item_tree
 
 """
 
@@ -532,7 +532,7 @@ def build_site(*, from_scratch):
   # If we encounter an error in the middle of a build, the depth
   # counter won't reset to 0, so do it at the beginning of
   # every build
-  lib.log.depth = 0
+  log_module.depth = 0
 
   print("\n============== [ BEGIN BUILD ] ==============\n")
 
