@@ -21,6 +21,35 @@ from docopt import docopt
 from lib.log import log_section, log
 from lib.calc_item_tree import calc_item_tree
 
+"""
+
+TODO:
+
+  - small refactor / code qual
+
+  - only rebuild items that were changed since last build
+
+  - implement --from-scratch
+
+  - think about how the design of the 'build' frontmatter attribute.
+    it works fine now and has ok design, but it's perhaps not perfect.
+    might actually be okay, though.
+
+  - normalize urls.
+    in the 'target' frontmatter attribute, they're relative to the item.
+    in e.g. write_to in the build chain or in jinja2("proxy", context={"target": URI}),
+      they're relative to the build target directory.
+    they should all be normalized to be relative to the item.
+
+  - most abstracts are ~1 sentence; switch to 'description' or something.
+    then add an actual 'abstract' attribute for ~1para descriptions.
+
+  - documentation
+    new documentation and also
+    redo some of the documentation for better explanations
+
+"""
+
 __doc__ = """
 
 Site building utility
