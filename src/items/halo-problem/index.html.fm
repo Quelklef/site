@@ -2,6 +2,7 @@
 title: The Halo Problem
 tags: [math, programming]
 abstract: "A strange problem I had when coding"
+files: [.]
 build: jinja2("post", requires=["mathjax", "notes", "syntax-highlighting"]) >> write
 ---
 

@@ -3,6 +3,7 @@ title: Minesweeper
 tags: [interactive]
 abstract: "Keyboard-only minesweeper"
 target: 'index.html'
+files: [.]
 build: 'markdown >> jinja2("proxy", context={"target": "/items/minesweeper/full"}) >> write'
 ---
 

@@ -3,6 +3,7 @@ title: Fitch-Style Proof Helper
 tags: [interactive, math]
 abstract: "Interactive propositional and first-order logic proof helper"
 target: index.html
+files: [.]
 build: 'jinja2("proxy", context={"target": "/items/fitch/full"}) >> write_to("items/fitch/index.html")'
 ---
 

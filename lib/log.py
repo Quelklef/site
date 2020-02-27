@@ -15,6 +15,7 @@ def log_section(text, multiline=True):
     log(text + " ...")
   else:
     log(text + ' ...', end='')
+    sys.stdout.flush()
 
   start = time.time()
   depth += 1
