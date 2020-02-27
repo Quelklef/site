@@ -33,10 +33,10 @@ def calc_item_tree(items):
        │       └── flower: [rose.png]
        ├── txt: []
        │   └── school: [math.txt]
-       └── school
+       └── school: p[
            └── txt: [math.txt]
 
-  Note that since school is not a struct subset of txt, and txt is not
+  Note that since school is not a strict subset of txt, and txt is not
   a strict subset of school, but they are both subsets of each other,
   both appear at the top-level of the tree.
   Also note that math.txt appears in two places in the tree.
