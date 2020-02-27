@@ -82,6 +82,8 @@ Options:
   --from-scratch    Unconditionally rebuild everything
                     Normally, items are skipped if it is detected that
                     they have not changed since the last build.
+                    If used with 'serve', will only rebuild the initial build
+                    from scratch. Subsequent builds will be incremental.
 
 """
 
@@ -486,16 +488,16 @@ def main():
 
   elif args['serve']:
 
-    def try_build():
+    def try_build(*args, **kwargs):
       try:
-        build_site(from_scratch=args['--from-scratch'])
+        build_site(*args, **kwargs)
       except Exception as e:
         print()
         traceback.print_exc()
         print("\n^^ Exception occured while building site ^^\n")
 
     # Build  once
-    try_build()
+    try_build(from_scratch=args['--from-scratch'])
 
     # Start webserver
     process = subprocess.Popen(['python3', '-m', 'http.server'], cwd=build_target)
@@ -514,7 +516,7 @@ def main():
       # if the event is just that the top directory was modified, ignore
       if event.src_path == '.': return
       # otherwise, rebuild
-      try_build()
+      try_build(from_scratch=False)
 
     watch_dir('.', event_handler)
 
