@@ -444,7 +444,7 @@ def build_payloads(items, *, from_scratch):
   }
 
   with log_section("Building payloads"):
-    for item in indexed:
+    for item in items:
       loc = item['location'].relative_to(build_target)
 
       if not from_scratch and not was_modified(item):
