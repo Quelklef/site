@@ -1,7 +1,7 @@
 import jinja2
 from pathlib import Path
 from markdown import markdown as parse_markdown
-from .globals import build_target, last_build_time
+from .globals import build_target, last_build_time, modified
 from .calc_item_tree import calc_item_tree
 from .log import log_section, log
 from .util import shell_exec
@@ -137,17 +137,9 @@ def build_payload(item, jinja2_context):
   clone = {**item}
   built = build_f(clone)
 
-def was_modified(item):
+def item_modified(item):
   """ Was the item modified since last build? """
-
-  if last_build_time is None:
-    # air on the conservative side
-    return True
-
-  files = item['files']
-  modification_times = [ path.stat().st_mtime for path in files ]
-  most_recent_mod_time = max(modification_times)
-  return most_recent_mod_time > last_build_time
+  return any(modified(path) for path in item['files'])
 
 def build_payloads(items, *, from_scratch):
   """ Build the payloads of all items """
@@ -164,7 +156,7 @@ def build_payloads(items, *, from_scratch):
     for item in items:
       loc = item['location'].relative_to(build_target)
 
-      if not from_scratch and not was_modified(item):
+      if not from_scratch and not item_modified(item):
         log(f"- skipping '{loc}' because it has not been modified since the last build")
       else:
         with log_section(f"@ building '{loc}'"):

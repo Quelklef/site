@@ -5,7 +5,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from docopt import docopt
-from py.globals import build_target, build_source, set_build_time
+from py.globals import build_target, build_source, set_build_time, modified
 import py.log as log_module
 from py.log import log_section, log
 from py.util import shell_exec, watch_dir, path_in_eq_dir
@@ -37,7 +37,9 @@ TODO:
 
   - port from jinja2 to unplate
 
-  - clean up imports
+  - probably sass for the site should be handled separately
+    from sass for items. And sass for items should be part of the build
+    chain.
 
 """
 
@@ -92,6 +94,15 @@ def find_items(directory: Path):
   return items
 
 
+def compile_sass():
+  sass_files = build_target.glob('**/*.sass')
+  if all(not modified(path) for path in sass_files):
+    log("Sass not modified since last build")
+  else:
+    with log_section("Compiling sass", multiline=False):
+      shell_exec(f'cd "{build_target}" && sass --quiet --update .:.')
+
+
 def build_site(*, from_scratch):
 
   # If we encounter an error in the middle of a build, the depth
@@ -118,9 +129,7 @@ def build_site(*, from_scratch):
     items = find_items(build_target)
     build_payloads(items, from_scratch=from_scratch)
 
-   # Compile sass
-    with log_section("Compiling sass", multiline=False):
-      shell_exec(f'cd "{build_target}" && sass --quiet --update .:.')
+    compile_sass()
 
     # Record the build time
     # Do it last so that if it was unsuccessful we don't

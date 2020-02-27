@@ -21,3 +21,12 @@ def set_build_time():
   with open(build_time_f, 'w') as f:
     f.write(str(time.time()))
 
+def modified(path: Path):
+  """ Was the file at the given path modified since the last build? """
+
+  if last_build_time is None:
+    # air on the conservative side
+    return True
+
+  mod_time = path.stat().st_mtime
+  return mod_time > last_build_time
