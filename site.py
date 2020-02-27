@@ -1,6 +1,7 @@
 import os
 import time
 import atexit
+import shutil
 import subprocess
 from pathlib import Path
 from docopt import docopt
