@@ -1,8 +1,8 @@
 ---
 title: We Don't Walk on Our Feet
 tags: [prose]
-date: 2019-05-10
-layout: post
+target: 'feet.html'
+build: markdown >> jinja2("post") >> write
 ---
 Today, my morning routine was not quite routine. Sure, I woke up at the same time, and got out of bed, and ate, and brushed my teeth. But today, I didn't put my shoes on. I didn't put my socks on. Instead, I gazed at a pair of shark-shaped slippers that lay on my floor. I pondered the slippers. I enjoyed wearing them around the house on weekends and at night, but that had been the extent of their usage. Some part of me wanted change that and wear them today&mdash;to drive in them, to walk to school in them, and to come home in them&mdash;shark slippers. But my stomach was warning me not to. Twisting into knots of uncertainty and apprehension. Something about it was wrong&mdash;who the hell wears slippers outside? Something about it was disrespectful&mdash;wearing such comfortable clothing to a public area.
 
@@ -12,6 +12,6 @@ As I drove, my feet found themselves intimately familiar with the pedals of the 
 
 I parked where I always do, about a half-mile away from Blair through downright suburbia. I got out of the car and began my trek along the sidewalks, all designed expressly for walking. As I moved, my heel, like everybody's, struck down first, the rest of the step rolling along the sidewalk. But now, each heel-to-ground contact step sent a jolt up my leg, accompanied with shooting pain and shaking my eyesight twice a second. Walking, walking hurt.
 
-I suppose I should have expected it. Concrete it hard, after all, and feet are not. And yet, I was surprised.
+I suppose I should have expected it. Concrete is hard, after all, and feet are not. And yet, I was surprised.
 
 I wasn't surprised that concrete is hard, and I wasn't surprised that feet are soft. And I wasn't surprised that the combination of these facts meant pain. I was surprised, I suppose, in realizing that we don't really walk on our feet. We walk on our shoes.

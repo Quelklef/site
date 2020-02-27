@@ -13,13 +13,13 @@
   <div id="iframe-wrap">
     <div id="iframe-controls">
       <span id="iframe-title">{$ item.title $}</span>
-      <span><a href="{$ item.target $}">View as full page</a></span>
+      <span><a href="{$ target $}">View as full page</a></span>
     </div>
-    <iframe id="iframe" src="{$ item.target $}"></iframe>
+    <iframe id="iframe" src="{$ target $}"></iframe>
   </div>
 </div>
 
 <h2>{$ item.title $}</h2>
-{$ item.content $}
+{$ item.payload $}
 
 {% endblock %}

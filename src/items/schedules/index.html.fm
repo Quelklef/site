@@ -1,9 +1,8 @@
 ---
 title: Webadvisor Sucks
 tags: []
-date: 2020-01-14
-layout: post
-requires: []
+build: jinja2("post") >> write
+indexed: no
 ---
 
 <script type="text/javascript" src="deepObservables.js"></script>

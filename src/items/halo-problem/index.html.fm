@@ -1,10 +1,8 @@
 ---
 title: The Halo Problem
 tags: [math, programming]
-date: 2019-11-23
-desc: "A strange problem I had when coding"
-layout: post
-requires: [mathjax, notes, syntax-highlighting]
+abstract: "A strange problem I had when coding"
+build: jinja2("post", requires=["mathjax", "notes", "syntax-highlighting"]) >> write
 ---
 
 <p>I'd like to share with you an interesting problem I ran across when working a project for my graphics class.</p>

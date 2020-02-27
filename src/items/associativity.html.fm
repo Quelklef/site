@@ -1,10 +1,8 @@
 ---
 title: Associativity is About Composition
 tags: [math]
-date: 2019-03-23
-desc: "Treating numbers as actions (under an operation), associativity speaks about composition"
-layout: post
-requires: [mathjax, notes]
+abstract: "Treating numbers as actions (under an operation), associativity speaks about composition"
+build: jinja2("post", requires=["mathjax", "notes"]) >> write
 ---
 
 <h2>Objects as Actions</h2>

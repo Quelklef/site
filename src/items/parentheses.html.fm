@@ -1,9 +1,7 @@
 ---
 title: Abuse of Parentheses
 tags: [math]
-date: 2019-09-11
-layout: post
-requires: [mathjax]
+build: jinja2("post", requires=["mathjax"]) >> write
 ---
 
 <p>Notationally, parantheses seem to be very popular. Almost too popular. The following is a collection of all the different notations that I've found paranthesis used for. If you would like to add one, <a href="https://github.com/Quelklef/site/blob/master/src/items/parentheses.html.fm">send me a pull request on Github</a>.</p>

@@ -1,9 +1,8 @@
 ---
 title: "What is 'Beauty' With a Capital 'B'?"
 tags: [language, philosophy]
-date: 2019-11-21
-layout: post
-requires: [notes]
+build: jinja2("post", requires=["notes"]) >> write
+indexed: no
 ---
 
 <p>What is Beauty? I claim that this question, and all of its siblings&mdash;What is Art? What is Love?, etc.&mdash;are wrong.</p>

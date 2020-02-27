@@ -1,3 +1,10 @@
+---
+title: Index
+tags: []
+target: ./
+build: jinja2_raw >> write_to("index.html")
+---
+
 {% extends "templates/base.jinja2" %}
 
 {% block content %}
@@ -12,10 +19,9 @@
     <div>
       {% for item in items %}
         <div style="display: flex; justify-content: space-between; margin: 8px 0">
-          <span style="text-align: right; display: inline-block; width: 47%"><a href="{$ item.href $}">{$ item.title $}</a></span>
+          <span style="text-align: right; display: inline-block; width: 47%"><a href="{$ item.computed_href $}">{$ item.title $}</a></span>
           <span style="display: inline-block" class="metadata"><tt>::</tt></span>
           <span style="display: inline-block; width: 47%" class="metadata">
-              <span>@{$ item.date $}</span>
               {% for tag in item.tags -%}
                 <span class="tag">{$ tag $}</span>
               {%- endfor %}

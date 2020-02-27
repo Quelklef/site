@@ -1,11 +1,12 @@
 import os
 import sys
-import glob
 import time
 import jinja2
 import atexit
-import markdown
-import datetime
+import shutil
+import random
+from markdown import markdown as parse_markdown
+import traceback
 import subprocess
 import contextlib
 import frontmatter
@@ -16,34 +17,375 @@ import watchdog.observers
 
 from pathlib import Path
 from docopt import docopt
-from sortedcollections import SortedList
 
-from lib.log import log_section
+from lib.log import log_section, log
 from lib.calc_item_tree import calc_item_tree
-
-# TODO: Port to pathlib
-# TODO: Refactor. This is bad code.
-
-# == CLI == #
 
 __doc__ = """
 
 Site building utility
 
+The website is best thought of as a collection of links to things.
+Each link has an href and a bunch of associated metadata. The href
+and metadata together is referred to as an 'item'. These items are
+organized and displayed on the website's index.
+Items are found by searching src/ for files ending with '.fm'. These
+files may be 'pure links', e.g. pointing to an external website, or
+contain a payload, such as a LaTeX file. The 'fm' denotes the existence
+of frontmatter on the file, which gives the metadata. The payload
+is mostly ignored, and the item denoted from the metadata is added
+to the website index.
+
 Usage:
-  build.py build [--no-latex]
-  build.py serve [--no-latex]
+  build.py build [--from-scratch]
+  build.py serve [--from-scratch]
+  build.py unindexed
 
 Commands:
-  build   Build the website once and exit.
-  serve   Build the website once and rebuild when files change. Additionally,
-          serve the website on localhost. Given arguments are passed onto
-          the resulting `built.py build` calls.
+  build       Build the website once and exit.
+  serve       Build the website once and rebuild when files change. Additionally,
+              serve the website on localhost. Given arguments are passed onto
+              the resulting `build.py build` calls.
+  unindexed   List all the unindexed items
 
 Options:
-  --no-latex   Do not build latex files.
+  --from-scratch    Unconditionally rebuild everything
+                    Normally, items are skipped if it is detected that
+                    they have not changed since the last build.
+                    (TODO)
 
 """
+
+def shell_exec(command):
+  status = os.system(command)
+  if os.WIFEXITED(status) and os.WEXITSTATUS(status) != 0:
+    raise ChildProcessError(f"Shell command exited with status {os.WEXITSTATUS(status)}. Command was:\n    {command}")
+
+def path_in_eq_dir(path, dir):
+  """ Return true iff `path` is `dir` or within `dir` """
+  # https://stackoverflow.com/a/47347518/4608364
+  rpath = os.path.realpath(path)
+  rdir = os.path.realpath(dir)
+  return rpath == rdir or rpath.startswith(rdir + os.sep)
+
+
+build_source = Path('src/').resolve()
+build_target = Path('build/').resolve()
+
+jinja_env = jinja2.Environment(
+  loader=jinja2.FileSystemLoader(build_target),
+  variable_start_string='{$',
+  variable_end_string='$}',
+)
+
+# parser combinators
+
+class ParseError(ValueError):
+  pass
+
+def instance(expected_type):
+  def parser(val):
+    if not isinstance(val, expected_type):
+      if isinstance(val, NoneType):
+        raise ParseError(f"This key is required.")
+      else:
+        raise ParseError(f"Required '{expected_type}', not '{type(val)}'.")
+    return val
+  return parser
+
+def reserved(val):
+  if val is not None:
+    raise ParseError("This key may not be specified.")
+  return None
+
+def list_of(parser):
+  def composite_parser(val):
+    instance(list)(val)
+    return map(parser, val)
+  return composite_parser
+
+def optionally(parser, default=None):
+  def composite_parser(val):
+    if val is None:
+      return default
+    return parser(val)
+  return composite_parser
+
+def required(parser):
+  def composite_parser(val):
+    if val is None:
+      raise ParseError("This key is required.")
+    return parser(val)
+  return composite_parser
+
+def one_of(*options):
+  def parser(val):
+    if val not in options:
+      raise ParseError(f"Expected one of {', '.join(options)}, not 'val'")
+    return val
+  return parser
+
+def parse_item(fileloc: Path):
+  """
+  Parse an item from a file, expecting some frontmatter followed by
+  a payload. The payload may or may not be empty. The frontmatter
+  is expeected to adhere to a particular format which I will not
+  mention in this docstring--read the function.
+  """
+
+  with open(fileloc) as f:
+    metadata, payload = frontmatter.parse(f.read())
+    if metadata == {}:
+      raise ParseError(f"Item at '{fileloc}' has no metadata!")
+
+  def parse_target(path):
+    # default to file location with '.fm' removed
+    if path is None:
+      return Path(str(fileloc)[:-len('.fm')])
+
+    # preserve e.g. http:// links
+    # TODO: technically, colons can be in directory names.
+    if ':' in path:
+      return path
+
+    # make absolute
+    return (fileloc.parent / path).resolve()
+
+  # All possible keys
+  accepted_keys = {
+    # Title of the post
+    'title': instance(str),
+
+    # A list of tags (strings)
+    'tags': instance(list),
+
+    # A ~paragraph description of the item
+    'abstract': optionally(instance(str)),
+
+    # The url of the target
+    # If not specified, defaults to the filename with '.fm' removed from the end
+    'target': parse_target,
+
+    # The build chain of the item.
+    # Should be one or more item separated by " -> "
+    # Designates the build process for the item.
+    # For instance, `markdown -> jinja2` will parse
+    # the payload as markdown and feed the resultant
+    # HTML into the jinja2 template, which will
+    # give the result.
+    # Default: standalone
+    # Accepted values:
+    # - noop: ignore the payload; output nothing
+    # - plaintext: output payload as-is
+    # - markdown: parse payload as markdown and
+    #             output result HTML
+    # - jinja2: wrap payload in a Jinja2 template
+    #           (also see the 'layout' property)
+    'build': optionally(instance(str), default='noop'),
+
+    # Should the item be included in the index?
+    # (default: True)
+    'indexed': optionally(instance(bool), default=True),
+
+    # The content that the frontmatter is annotation
+    # i.e., the 'actual' content of the file
+    'payload': reserved,
+
+    # The file location
+    'location': reserved,
+
+    # The value that should go into an <a> tag
+    'computed_href': reserved,
+  }
+
+  superfluous_keys = metadata.keys() - accepted_keys.keys()
+  if superfluous_keys:
+    raise ParseError(f"Unaccpetable key(s): {', '.join(superfluous_keys)}")
+
+  item = {}
+  for key, parser in accepted_keys.items():
+    value = metadata.get(key)
+    try:
+      parsed = parser(value)
+    except ParseError as err:
+      err.args = (f"There was an error with key '{key}' in file '{fileloc}': {str(err)}",)
+      raise err
+    item[key] = parsed
+
+  item['payload'] = payload
+  item['location'] = fileloc
+
+  if isinstance(item['target'], Path):
+    # make relative if it's a target to a file (as opposed to e.g. an http:// link)
+    rel_target = item['target'].relative_to(build_target)
+    # prepend a '/' to make it an absolute html link
+    computed_href = '/' + str(rel_target)
+    item['computed_href'] = computed_href
+  else:
+    item['computed_href'] = item['target']
+
+  return item
+
+
+def find_items(directory: Path):
+  """
+  Find all files in a directory that
+  end in '.fm'; parse them and return the
+  parsed items.
+  """
+  items = []
+  with log_section("Looking for items"):
+    for file_loc in directory.glob('**/*.fm'):
+      rel_loc = file_loc.relative_to(directory)
+      log(f"found '{rel_loc}'")
+      items.append(parse_item(Path(file_loc)))
+    log(f"found {len(items)} items")
+  return items
+
+
+def render_jinja2(text, **context):
+  template = jinja_env.from_string(text)
+  return template.render(**context)
+
+
+class composable:
+  """
+  Allow a function to be composed with >> such that
+  (f >> g)(x) = g(f(x))
+  """
+  def __init__(self, f):
+    self.f = f
+
+  def __call__(self, *args, **kwargs):
+    return self.f(*args, **kwargs)
+
+  def __rshift__(self, other):
+    def composed(*args, **kwargs):
+      return other.f(self.f(*args, **kwargs))
+    return composable(composed)
+
+
+def build_payload(item, jinja2_context):
+  """
+  Build the underling payload of the item
+  according to the given metadata.
+  Output the built file to the appropriate location.
+  """
+
+  @composable
+  def markdown(item):
+    item['payload'] = parse_markdown(item['payload'])
+    return item
+
+  @composable
+  def jinja2_raw(item):
+    """ Jinja2 with no template """
+    rendered = render_jinja2(item['payload'], **jinja2_context)
+    item['payload'] = rendered
+    return item
+
+  def jinja2(layout_name, requires=[], context={}):
+    """ Jinja2 with a template. Context goes to the template. """
+    # TODO: this function is kina sus
+
+    layout_loc = build_target / f"layouts/{layout_name}.jinja2"
+
+    @composable
+    def build(item):
+      # TODO: find a better solution than tacking onto item
+      #       it's done this way because it's how the jinja2
+      #       thing that handles the requirements expects
+      #       the requires to be a key in the given context
+      item['requires'] = requires
+
+      # render as jinja2
+      rendered = render_jinja2(item['payload'], **jinja2_context)
+
+      # wrap in layout
+      with open(layout_loc, 'r') as layout_f:
+        layout = layout_f.read()
+        rendered = render_jinja2(layout, **jinja2_context, item=item, **context)
+
+      item['payload'] = rendered
+      return item
+
+    return build
+
+  @composable
+  def write(item):
+    with open(item['target'], 'w') as out:
+      out.write(item['payload'])
+    return item
+
+  def write_to(location):
+    location = build_target / location
+
+    @composable
+    def builder(item):
+      with open(location, 'w') as out:
+        out.write(item['payload'])
+      return item
+    return builder
+
+  def shell(shell_cmd):
+    @composable
+    def builder(item):
+      shell_exec(shell_cmd)
+      return item
+    return builder
+
+  @composable
+  def noop(item):
+    # Do nothing
+    return item
+
+  def latex(rel_loc, *, tex_args="", bib_args=""):
+    """ Compile a .tex file at the given location, either absolute or relative to the item """
+    rel_loc = Path(rel_loc)
+
+    @composable
+    def builder(item):
+      abs_loc = (item['location'].parent / rel_loc).resolve()
+      abs_dir = abs_loc.parent
+      tex_name = rel_loc.stem  # name of the file without .tex
+
+      # pdflatex command modified from https://tex.stackexchange.com/a/459470
+      do_pdflatex = lambda: shell_exec(f"cd \"{abs_dir}\" && ! : | pdflatex {tex_args} -halt-on-error {abs_loc} | grep '^!.*' -A200 --color=always")
+      do_bibtex = lambda: shell_exec(f"cd \"{abs_dir}\" && bibtex -terse {bib_args} {tex_name} | grep '.' --color=always")
+
+      do_pdflatex()
+      do_bibtex()
+      for _ in range(3):  # Do compilation a bunch of times for e.g. table-of-contents to work
+        do_pdflatex()
+
+    return builder
+
+
+  build_f = eval(item['build'])
+  clone = {**item}
+  built = build_f(clone)
+
+
+def build_payloads(items):
+  """
+  Build the payloads of all items
+  """
+
+  indexed = [item for item in items if item['indexed']]
+  random.shuffle(indexed)
+  index_tree = calc_item_tree(indexed)
+  jinja2_context = {
+    'items': indexed,
+    'top_level_items': index_tree[0]['items'],
+    'item_tree': index_tree[0]['children'],
+  }
+
+  with log_section("Building payloads"):
+    for item in indexed:
+      loc = item['location'].relative_to(build_target)
+      with log_section(f"building '{loc}'", multiline=False):
+        build_payload(item, jinja2_context)
+    log(f"{len(indexed)} payloads built")
 
 
 def watch_dir(target, callback):
@@ -53,272 +395,90 @@ def watch_dir(target, callback):
     def on_any_event(self, event):
       callback(event)
 
+  # Create observer
   event_handler = EventHandler()
   observer = watchdog.observers.Observer()
   file_observer = watchdog.observers.Observer()
   observer.schedule(event_handler, target, recursive=True)
 
+  # Kill observer on program exit
   atexit.register(observer.stop)
 
+  # Start and block
   observer.start()
   observer.join()
 
 
 def main():
 
-  print(f"Command: {' '.join(sys.argv)}")  # Naive
   args = docopt(__doc__)
 
   if args['build']:
-    build_site(build_latex=not args['--no-latex'])
+    build_site()
 
   elif args['serve']:
 
+    def try_build():
+      try:
+        build_site()
+      except Exception as e:
+        print()
+        traceback.print_exc()
+        print("\n^^ Exception occured while building site ^^\n")
+
+    # Build  once
+    try_build()
+
     # Start webserver
-    process = subprocess.Popen(['python3', '-m', 'http.server'], cwd='./site')
+    process = subprocess.Popen(['python3', '-m', 'http.server'], cwd=build_target)
 
     # Kill webserver on program exit
     atexit.register(lambda: process.kill())
 
-    # Build once and rebuild on change
-    build_latex = not args['--no-latex']
-    build_site(build_latex=build_latex)
+    # Rebuild on change
 
-    def build_on_change(change_event):
-      build_site(build_latex=build_latex)
+    def event_handler(event):
+      # if the event was in the build target directory, ignore
+      if path_in_eq_dir(event.src_path, build_target): return
+      # if the event was us modifying /this/ file, ignore
+      # since building again wouldn't be using the updated code
+      if Path(event.src_path) == Path(__file__): return
+      # if the event is just that the top directory was modified, ignore
+      if event.src_path == '.': return
+      # otherwise, rebuild
+      try_build()
 
-    watch_dir('src/', build_on_change)
+    watch_dir('.', event_handler)
 
-@contextlib.contextmanager
-def temp_chdir(target):
-  cwd = os.getcwd()
-  os.chdir(target)
-  yield
-  os.chdir(cwd)
-
-def build_site(*, build_latex):
-
-  print("\n= = = = = = = = = = = = = = = = = = = = = = = =")
-  with log_section("Building website", multiline=True):
-    # == Renderers == #
-
-    def render_markdown(text):
-      return markdown.markdown(text)
-
-    def render_jinja2(text, context={}):
-      template = jinja_env.from_string(text)
-      return template.render(**context)
-
-    # == Preprocessing and Frontmatter Handling == #
-
-    # Bash it up
-    with log_section("Clearing/creating site/"):
-      os.system("""
-      # Clone src/ to site/
-      [ ! -d site/ ] && mkdir site
-      rm -rf site/*
-      cp -r src/* site
-      """)
-
-    with temp_chdir('site/'):
-
-      # Compile LaTeX
-      if not build_latex:
-        print("Skipping LaTeX due to '--no-latex'")
-      else:
-        with log_section(f"Compiling LaTeX") as printer:
-          compiled_count = 0
-
-          for file_loc in glob.iglob('**', recursive=True):
-            if os.path.isfile(file_loc) and file_loc.endswith('.tex'):
-              printer.flash(f"Compiling {file_loc}")
-              compiled_count += 1
-
-              dir = os.path.dirname(file_loc)
-              rel_file_loc = os.path.basename(file_loc)
-              assert '.' in rel_file_loc
-              file_name = rel_file_loc[:rel_file_loc.index('.')]
-
-              # https://tex.stackexchange.com/a/459470
-              # FIXME: don't make -shell-escape baked-in
-              pdflatex = lambda: os.system(f"cd \"{dir}\" && : | pdflatex -shell-escape -halt-on-error {rel_file_loc} | grep '^!.*' -A200 --color=always")
-              bibtex = lambda: os.system(f"cd \"{dir}\" && bibtex -terse {file_name}")
-
-              pdflatex()
-              bibtex()
-              for _ in range(3):  # Do compilation a bunch of times for e.g. table-of-contents to work
-                pdflatex()
-
-          printer.print(f"compiled {compiled_count} files")
-
-      jinja_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('./'),
-        variable_start_string='{$',
-        variable_end_string='$}',
-      )
-
-      def get_full_extension(file_loc):
-        """ Get the full extension, e.g. `.zip.bz2` rather than just `.bz2` """
-        exts = []
-
-        while True:
-          init, last = os.path.splitext(file_loc)
-          file_loc = init
-          exts.append(last)
-          if not last:
-            break
-
-        return ''.join(reversed(exts))
-
-      # Create a dict of all items, { source_loc => item }
-      # An 'item', effectively, is a link with metadata
-      # Each item will be repesented by a dictionary of metadata
-      # If the metadata does not have an 'href' attribute, it will be
-      # assigned one
-
-      # As we create this dict, we actually strip the frontmatter off of
-      # the files.
-
-      # Sort by reverse chronological, breaking ties alphabetically
-      items = SortedList([], key=lambda item: (datetime.date.today() - item['date'], item['title']))
-
-      # Default values for item frontmatter
-      item_defaults = {
-        'tags': [],
-      }
-
-      for item_loc in glob.iglob('items/**', recursive=True):
-        if os.path.isfile(item_loc) and item_loc.endswith('.fm'):
-          o = frontmatter.load(item_loc)
-          item = o.metadata
-
-          # Apply defaults
-          defaults = {
-            'tags': [],
-            #       make link absolute
-            'href': os.path.join('/' + item_loc[:-len(get_full_extension(item_loc))] + '.html'),
-          }
-          item = {**defaults, **item}
-
-          # Strip `/index.html` because it's prettier without it
-          if item['href'].endswith('/index.html'):
-            item['href'] = item['href'][:-len('index.html')]
-
-          items.add(item)
-
-      # == Main Execution == #
-
-      # Create item tree for Jinja2 rendering
-      item_tree = calc_item_tree(items)
-      jinja2_context = {
-        'items': items,
-        'top_level_items': item_tree[0]['items'],
-        'item_tree': item_tree[0]['children'],
-      }
-
-      def render_file(file_loc):
-        """ Render a file to HTML """
-        ext = get_full_extension(file_loc)
-
-        if (not ext.startswith('.md')
-            and not ext.startswith('.jinja2')
-            and not ext.startswith('.html')):
-          raise ValueError("Unrenderable file")
-
-        dest = file_loc[:-len(ext)] + '.html'
-
-        if file_loc.endswith('.fm'):
-          o = frontmatter.load(file_loc)
-          content = o.content
-          metadata = o.metadata
-        else:
-          with open(file_loc, 'r') as f:
-            content = f.read()
-          metadata = None
-
-        if ext.startswith('.md'):
-          rendered = render_markdown(content)
-        elif ext.startswith('.jinja2'):
-          rendered = render_jinja2(content, jinja2_context)
-        elif ext.startswith('.html'):
-          rendered = content
-
-        # Wrap in a layout if had metadata with 'layout' attr
-        if metadata and 'layout' in metadata:
-          layout_loc = os.path.join('layouts/', metadata['layout'] + '.jinja2')
-          with open(layout_loc, 'r') as l:
-            rendered = render_jinja2(
-              l.read(),
-              {
-                **jinja2_context,
-                'item': {**metadata, 'content': rendered}
-              },
-            )
-
-        with open(dest, 'w') as f:
-          f.write(rendered)
-
-      with log_section("Rendering") as printer:
-        rendered_count = 0
-
-        for file_loc in glob.iglob('./**', recursive=True):
-          if (os.path.isfile(file_loc)
-              and './templates' not in file_loc
-              and './layouts' not in file_loc
-              and './includes' not in file_loc):
-
-            printer.flash(f"rendering {file_loc}")
-
-            try:
-              render_file(file_loc)
-            except ValueError:
-              pass
-            else:
-              rendered_count += 1
-
-        printer.print(f"rendered {rendered_count} files")
-
-      # Compile sass
-      with log_section("Compiling css"):
-        os.system("sass --quiet --update .:.")
-
-      # == Cleanup == #
-
-      # Only a partial cleanup, but it's better than nothing
-
-      delete_exts = [
-        ".sass",
-        ".sassc",
-        ".css.map",
-        ".log",
-        ".tex",
-        ".aux",
-        ".out",
-        ".toc",
-        ".jinja2",
-        ".jinja2.fm",
-        ".md",
-        ".md.fm",
-        ".txt.fm",
-        ".html.fm",
-        ".bib",
-        ".gitignore",
-        ".git",
-        ".py",
-      ]
-
-      with log_section("Cleaning") as printer:
-        removed_count = 0
-
-        for file_loc in glob.iglob('**', recursive=True):
-          if os.path.isfile(file_loc) and any(file_loc.endswith(suffix) for suffix in delete_exts):
-            printer.flash(f"removing {file_loc}")
-            removed_count += 1
-
-            os.system(f"rm {file_loc}")
-
-        printer.print(f"removed {removed_count} files")
+  elif args['unindexed']:
+    items = find_items(build_target)
+    unindexed = [item for item in items if not item['indexed']]
+    locations = [str(item['location']) for item in items]
+    print('\n'.join(locations))
 
 
-if __name__ == '__main__':
+def build_site():
+
+  print("\n============== [ BEGIN BUILD ] ==============\n")
+
+  with log_section('Building site'):
+
+    # clone source folder to build folder
+    with log_section(f"Clearing/creating {build_target}", multiline=False):
+      # clear if exists
+      if os.path.isdir(build_target):
+        shutil.rmtree(build_target)
+      shutil.copytree(build_source, build_target)
+
+    # build items
+    items = find_items(build_target)
+    build_payloads(items)
+
+   # Compile sass
+    with log_section("Compiling sass", multiline=False):
+      os.system("sass --quiet --update .:.")
+
+  print("\n============== [ BUILD COMPLETE ] ==============\n")
+
+if __name__ =='__main__':
   main()

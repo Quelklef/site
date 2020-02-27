@@ -1,10 +1,9 @@
 ---
 title: Intuitively Deriving the Y Combinator
 tags: [math]
-date: 2019-01-07
-desc: "Derivation of the Y combinator from the goal of writing recursive functions"
-layout: post
-requires: [mathjax, notes]
+abstract: "Derivation of the Y combinator from the goal of writing recursive functions"
+build: jinja2("post", requires=["mathjax", "notes"]) >> write
+indexed: no
 ---
 
 $$

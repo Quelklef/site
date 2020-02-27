@@ -1,9 +1,7 @@
 ---
 title: "Mailing List"
 tags: [more me]
-date: 2019-11-25
-layout: post
-requires: []
+build: jinja2("post") >> write
 ---
 
 <div>

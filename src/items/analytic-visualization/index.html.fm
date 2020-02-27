@@ -1,10 +1,7 @@
 ---
 title: Analytic Function Visualization
 tags: [interactive, math]
-date: 2019-05-11
-layout: proxy
-target: /items/analytic-visualization/full/
-requires: [mathjax, notes]
+build: 'jinja2("proxy", requires=["mathjax", "notes"], context={"target": "/items/analytic-visualization/full/"}) >> write'
 ---
 
 <p>This webapp is a somewhat-naive tool to visualize complex, and, in particular, complex-analytic functions. You can enter a function in the very top left; the left half shows $\mathbb C$ and the right half shows the image of $\mathbb C$ under the given function.</p>

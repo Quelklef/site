@@ -1,10 +1,9 @@
 ---
 title: Minesweeper
 tags: [interactive]
-date: 2018-09-28
-desc: "Keyboard-only minesweeper"
-layout: proxy
-target: /items/minesweeper/full/
+abstract: "Keyboard-only minesweeper"
+target: 'index.html'
+build: 'markdown >> jinja2("proxy", context={"target": "/items/minesweeper/full"}) >> write'
 ---
 
 I scoured the web looking for a keyboard-only minesweeper, but, much to my dismay, could find none. So I did what any self-respecting computer nerd would, and made it myself. Controls are listed on the bottom; options, such as board size, are stored in cookies.

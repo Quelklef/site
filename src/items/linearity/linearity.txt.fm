@@ -1,7 +1,6 @@
 ---
 title: Linearity
 tags: [math, .pdf]
-date: 2020-02-19
-href: "/items/linearity/linearity.pdf"
-requires: []
+target: linearity.pdf
+build: latex("linearity.tex")
 ---

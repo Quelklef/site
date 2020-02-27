@@ -1,10 +1,9 @@
 ---
 title: An Alternative Construction of Equivalence Classes
 tags: [math]
-date: 2019-11-25
-desc: "Creating equivalence classes via shared 'attributes' rather than equivalence relations"
-layout: post
-requires: [mathjax, notes]
+abstract: "Creating equivalence classes via shared 'attributes' rather than equivalence relations"
+build: jinja2("post", requires=["mathjax", "notes"]) >> write
+indexed: no
 ---
 
 <p>Equivalence classes are undoubtedly a useful tool for mathematics. However, I've recently begun to feel that equivalence relations, the primary and canonical method of creating equivalence classes, is an awkward way of creating equivalence classes. I have an alternative method which seems to me to be more straightforward and perhaps (at least in some situations) superior.</p>
