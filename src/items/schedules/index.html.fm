@@ -2,6 +2,7 @@
 title: Webadvisor Sucks
 tags: []
 build: jinja2("post") >> write
+files: [.]
 indexed: no
 ---
 

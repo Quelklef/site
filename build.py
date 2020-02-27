@@ -18,6 +18,7 @@ import watchdog.observers
 from pathlib import Path
 from docopt import docopt
 
+import lib.log
 from lib.log import log_section, log
 from lib.calc_item_tree import calc_item_tree
 
@@ -47,6 +48,10 @@ TODO:
   - documentation
     new documentation and also
     redo some of the documentation for better explanations
+
+  - port from jinja2 to unplate
+
+  - clean up imports
 
 """
 
@@ -81,7 +86,6 @@ Options:
   --from-scratch    Unconditionally rebuild everything
                     Normally, items are skipped if it is detected that
                     they have not changed since the last build.
-                    (TODO)
 
 """
 
@@ -100,6 +104,19 @@ def path_in_eq_dir(path, dir):
 
 build_source = Path('src/').resolve()
 build_target = Path('build/').resolve()
+
+# File containing the last build time
+build_time_f = build_target / '_build_time.txt'
+
+if build_time_f.is_file():
+  with open(build_time_f, 'r') as f:
+    last_build_time = float(f.read())
+else:
+  last_build_time = None
+
+def set_build_time():
+  with open(build_time_f, 'w') as f:
+    f.write(str(time.time()))
 
 jinja_env = jinja2.Environment(
   loader=jinja2.FileSystemLoader(build_target),
@@ -154,23 +171,30 @@ def one_of(*options):
     return val
   return parser
 
-def parse_item(fileloc: Path):
+def list_of(parser):
+  def composite_parser(val):
+    instance(list)(val)
+    return list(map(parser, val))
+  return composite_parser
+
+def parse_item(item_path: Path):
   """
   Parse an item from a file, expecting some frontmatter followed by
   a payload. The payload may or may not be empty. The frontmatter
   is expeected to adhere to a particular format which I will not
   mention in this docstring--read the function.
   """
+  abs_item_path = item_path.resolve()
 
-  with open(fileloc) as f:
+  with open(abs_item_path) as f:
     metadata, payload = frontmatter.parse(f.read())
     if metadata == {}:
-      raise ParseError(f"Item at '{fileloc}' has no metadata!")
+      raise ParseError(f"Item at '{item_path}' has no metadata!")
 
   def parse_target(path):
     # default to file location with '.fm' removed
     if path is None:
-      return Path(str(fileloc)[:-len('.fm')])
+      return Path(str(item_path)[:-len('.fm')]).resolve()
 
     # preserve e.g. http:// links
     # TODO: technically, colons can be in directory names.
@@ -178,7 +202,7 @@ def parse_item(fileloc: Path):
       return path
 
     # make absolute
-    return (fileloc.parent / path).resolve()
+    return (item_path.parent / path).resolve()
 
   # All possible keys
   accepted_keys = {
@@ -191,9 +215,19 @@ def parse_item(fileloc: Path):
     # A ~paragraph description of the item
     'abstract': optionally(instance(str)),
 
-    # The url of the target
+    # The URI of the target
     # If not specified, defaults to the filename with '.fm' removed from the end
     'target': parse_target,
+
+    # A list of paths to files or directories
+    # Documents all the files that 'belong' to this item
+    # On site rebuild, an item will only be rebuilt if any
+    # of the files in its 'files' attribute has changed.
+    # Defaults to a list containing only the item file itself.
+    'files': optionally(
+      list_of(lambda path: (item_path / path).resolve()),
+      default=[abs_item_path],
+    ),
 
     # The build chain of the item.
     # Should be one or more item separated by " -> "
@@ -237,12 +271,12 @@ def parse_item(fileloc: Path):
     try:
       parsed = parser(value)
     except ParseError as err:
-      err.args = (f"There was an error with key '{key}' in file '{fileloc}': {str(err)}",)
+      err.args = (f"There was an error with key '{key}' in file '{item_path}': {str(err)}",)
       raise err
     item[key] = parsed
 
   item['payload'] = payload
-  item['location'] = fileloc
+  item['location'] = item_path
 
   if isinstance(item['target'], Path):
     # make relative if it's a target to a file (as opposed to e.g. an http:// link)
@@ -265,8 +299,7 @@ def find_items(directory: Path):
   items = []
   with log_section("Looking for items"):
     for file_loc in directory.glob('**/*.fm'):
-      rel_loc = file_loc.relative_to(directory)
-      log(f"found '{rel_loc}'")
+      log(f"found '{file_loc}'")
       items.append(parse_item(Path(file_loc)))
     log(f"found {len(items)} items")
   return items
@@ -394,12 +427,17 @@ def build_payload(item, jinja2_context):
   clone = {**item}
   built = build_f(clone)
 
+def was_modified(item):
+  """ Was the item modified since last build? """
+  files = item['files']
+  modification_times = [ path.stat().st_mtime for path in files ]
+  most_recent_mod_time = max(modification_times)
+  return most_recent_mod_time > last_build_time
 
-def build_payloads(items):
+def build_payloads(items, *, from_scratch):
   """
   Build the payloads of all items
   """
-
   indexed = [item for item in items if item['indexed']]
   random.shuffle(indexed)
   index_tree = calc_item_tree(indexed)
@@ -412,8 +450,13 @@ def build_payloads(items):
   with log_section("Building payloads"):
     for item in indexed:
       loc = item['location'].relative_to(build_target)
-      with log_section(f"building '{loc}'", multiline=False):
-        build_payload(item, jinja2_context)
+
+      if not from_scratch and not was_modified(item):
+        log(f"- skipping '{loc}' because it has not been modified since the last build")
+      else:
+        with log_section(f"@ building '{loc}'"):
+          build_payload(item, jinja2_context)
+
     log(f"{len(indexed)} payloads built")
 
 
@@ -443,13 +486,13 @@ def main():
   args = docopt(__doc__)
 
   if args['build']:
-    build_site()
+    build_site(from_scratch=args['--from-scratch'])
 
   elif args['serve']:
 
     def try_build():
       try:
-        build_site()
+        build_site(from_scratch=args['--from-scratch'])
       except Exception as e:
         print()
         traceback.print_exc()
@@ -480,13 +523,18 @@ def main():
     watch_dir('.', event_handler)
 
   elif args['unindexed']:
-    items = find_items(build_target)
+    items = find_items(build_source)
     unindexed = [item for item in items if not item['indexed']]
     locations = [str(item['location']) for item in items]
     print('\n'.join(locations))
 
 
-def build_site():
+def build_site(*, from_scratch):
+
+  # If we encounter an error in the middle of a build, the depth
+  # counter won't reset to 0, so do it at the beginning of
+  # every build
+  lib.log.depth = 0
 
   print("\n============== [ BEGIN BUILD ] ==============\n")
 
@@ -495,17 +543,28 @@ def build_site():
     # clone source folder to build folder
     with log_section(f"Clearing/creating {build_target}", multiline=False):
       # clear if exists
-      if os.path.isdir(build_target):
+      if os.path.isdir(build_target) and from_scratch:
         shutil.rmtree(build_target)
-      shutil.copytree(build_source, build_target)
+
+      # the '/.' ensures that we don't move the source folder into the target folder
+      # preserve timestampts so that skipping unmodified stuff works properly
+      # from https://unix.stackexchange.com/a/180987/126342
+      shell_exec(f'cp -r --preserve=timestamps "{build_source}/." "{build_target}"')
 
     # build items
     items = find_items(build_target)
-    build_payloads(items)
+    build_payloads(items, from_scratch=from_scratch)
 
    # Compile sass
     with log_section("Compiling sass", multiline=False):
-      os.system("sass --quiet --update .:.")
+      shell_exec(f'cd "{build_target}" && sass --quiet --update .:.')
+
+    # Record the build time
+    # Do it last so that if it was unsuccessful we don't
+    # reach this line.
+    # If we recorded the time of a failed build, then
+    # we may mistakenly skip building an item in a following build
+    set_build_time()
 
   print("\n============== [ BUILD COMPLETE ] ==============\n")
 
