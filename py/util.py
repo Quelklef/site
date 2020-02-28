@@ -1,5 +1,6 @@
 import os
 import atexit
+from pathlib import Path
 import watchdog.events
 import watchdog.observers
 
@@ -37,3 +38,16 @@ def path_in_eq_dir(path, dir):
   rdir = os.path.realpath(dir)
   return rpath == rdir or rpath.startswith(rdir + os.sep)
 
+
+def was_modified(path: Path, *, since):
+  """
+  Was the file at the given path modified since the given time?
+  e.g. `if modified(path, since=yesterday):`
+  """
+
+  if since is None:
+    # air on the conservative side
+    return True
+
+  mod_time = path.stat().st_mtime
+  return mod_time > since

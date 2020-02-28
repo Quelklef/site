@@ -5,10 +5,10 @@ import shutil
 import subprocess
 from pathlib import Path
 from docopt import docopt
-from py.globals import build_target, build_source, set_build_time, modified
+from py.globals import build_target, build_source, build_time_f
 import py.log as log_module
 from py.log import log_section, log
-from py.util import shell_exec, watch_dir, path_in_eq_dir
+from py.util import shell_exec, watch_dir, path_in_eq_dir, was_modified
 from py.parse import parse_item
 from py.build import build_payloads
 
@@ -79,6 +79,25 @@ Options:
 
 """
 
+
+def calc_last_build_time():
+  # get the last build time
+
+  if not build_time_f.is_file():
+    return None
+
+  with open(build_time_f, 'r') as f:
+    try:
+      return float(f.read())
+    except ValueError:
+      return None
+
+
+def set_build_time(time):
+  with open(build_time_f, 'w') as f:
+    f.write(str(time))
+
+
 def find_items(directory: Path):
   """
   Find all files in a directory that
@@ -94,9 +113,9 @@ def find_items(directory: Path):
   return items
 
 
-def compile_sass():
+def compile_sass(*, last_build_time):
   sass_files = build_target.glob('**/*.sass')
-  if all(not modified(path) for path in sass_files):
+  if all(not was_modified(path, since=last_build_time) for path in sass_files):
     log("Sass not modified since last build")
   else:
     with log_section("Compiling sass", multiline=False):
@@ -125,18 +144,20 @@ def build_site(*, from_scratch):
       # from https://unix.stackexchange.com/a/180987/126342
       shell_exec(f'cp -r --preserve=timestamps "{build_source}/." "{build_target}"')
 
+    last_build_time = calc_last_build_time()
+
     # build items
     items = find_items(build_target)
-    build_payloads(items, from_scratch=from_scratch)
+    build_payloads(items, last_build_time=last_build_time)
 
-    compile_sass()
+    compile_sass(last_build_time=last_build_time)
 
     # Record the build time
     # Do it last so that if it was unsuccessful we don't
     # reach this line.
     # If we recorded the time of a failed build, then
     # we may mistakenly skip building an item in a following build
-    set_build_time()
+    set_build_time(time.time())
 
   print("\n============== [ BUILD COMPLETE ] ==============\n")
 
