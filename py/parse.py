@@ -104,25 +104,10 @@ def parse_item(item_path: Path):
     # of the files in its 'files' attribute has changed.
     # Defaults to a list containing only the item file itself.
     'files': optionally(
-      list_of(lambda path: (item_path / path).resolve()),
+      list_of(lambda path: (item_path.parent / path).resolve()),
       default=[abs_item_path],
     ),
 
-    # The build chain of the item.
-    # Should be one or more item separated by " -> "
-    # Designates the build process for the item.
-    # For instance, `markdown -> jinja2` will parse
-    # the payload as markdown and feed the resultant
-    # HTML into the jinja2 template, which will
-    # give the result.
-    # Default: standalone
-    # Accepted values:
-    # - noop: ignore the payload; output nothing
-    # - plaintext: output payload as-is
-    # - markdown: parse payload as markdown and
-    #             output result HTML
-    # - jinja2: wrap payload in a Jinja2 template
-    #           (also see the 'layout' property)
     'build': optionally(instance(str), default='noop'),
 
     # Should the item be included in the index?

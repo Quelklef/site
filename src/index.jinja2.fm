@@ -2,6 +2,7 @@
 title: Index
 tags: []
 target: ./
+files: [index.jinja2.fm, items/]
 build: jinja2_raw >> write_to("index.html")
 ---
 
