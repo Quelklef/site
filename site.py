@@ -2,6 +2,7 @@ import os
 import time
 import atexit
 import shutil
+import traceback
 import subprocess
 from pathlib import Path
 from docopt import docopt
@@ -134,15 +135,16 @@ def build_site(*, from_scratch):
   with log_section('Building site'):
 
     # clone source folder to build folder
-    with log_section(f"Clearing/creating {build_target}", multiline=False):
+    with log_section(f"Clearing/creating/updating {build_target}", multiline=False):
       # clear if exists
       if os.path.isdir(build_target) and from_scratch:
         shutil.rmtree(build_target)
 
-      # the '/.' ensures that we don't move the source folder into the target folder
-      # preserve timestampts so that skipping unmodified stuff works properly
-      # from https://unix.stackexchange.com/a/180987/126342
-      shell_exec(f'cp -r --preserve=timestamps "{build_source}/." "{build_target}"')
+      # The '/.' ensures that we don't move the source folder into the target folder.
+      # Preserve timestampts so that skipping unmodified stuff works properly.
+      # From https://unix.stackexchange.com/a/180987/126342
+      # The -f flag is needed to handle readonly files in .git folders
+      shell_exec(f'cp -f -r --preserve=timestamps "{build_source}/." "{build_target}"')
 
     last_build_time = calc_last_build_time()
 
