@@ -32,7 +32,7 @@ $$ \frac {10 \text{ nerves} } {1 \text{ quarter moon} } \times \frac {4 \text{ q
 (Quick aside: the attentive reader may be worried about error propogation in the calculations that we are doing. Rest assured that while values are being *displayed* with only a few decimal places, all calculations were done without rounding.)
 
 With this figure, we can find the approximate number of nerves that are dedicated to any-sized region of our vision. Let's apply this to the following photo:
-<img id="pic" src="popo.jpg" class="columnwidth" />
+<p><img id="pic" src="popo.jpg" class="columnwidth" /></p>
 
 >>> major_fov = (57.716 + 58.632) / 2
 >>> minor_fov = major_fov * (3 / 4)
