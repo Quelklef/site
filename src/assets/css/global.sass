@@ -13,6 +13,14 @@ body
 
   min-height: 100vh
 
+.columnwidth
+  width: $column-width
+
+blockquote
+  font-style: italic
+  border-left: 1px solid $dark
+  padding-left: 2em
+
 #content
   display: flex
   flex-direction: column
@@ -20,17 +28,16 @@ body
   align-content: center
   align-items: center
   padding-bottom: 200px
+  padding-left: $column-padding
+  padding-right: $column-padding
 
   > *:not(.fullwidth):not(img):not(.figure)
     max-width: $column-width
     box-sizing: border-box
     width: 100%
 
-    &:not(ol):not(li)
-      padding: 0 $column-padding
-
   > ol, > li
-    padding: 0 $column-padding 0 ($column-padding + 30px)
+    padding-left: 30px
 
 #content, note-def
   // Images are supported in two ways: a plain <img> tag, or
@@ -99,7 +106,7 @@ header
 #header
   height: 26px
   width: 100%
-  padding: 0 calc(50% - #{$column-width / 2} + #{$column-padding})
+  padding: 0 calc(50% - #{$column-width / 2})
   font-size: 0.8em
 
   display: flex

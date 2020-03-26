@@ -1,0 +1,193 @@
+---
+title: The Resolution of the Retina
+tags: [visualization]
+target: 'index.html'
+build: unplate >> markdown >> jinja2("post", requires=["mathjax", "notes"]) >> write
+indexed: no
+---
+
+>>> from math import pi
+
+[A Quanta Magazine article](https://www.quantamagazine.org/a-mathematical-model-unlocks-the-secrets-of-vision-20190821/) states:
+
+> For a visual area roughly one-quarter the size of a full moon, there are only about 10 nerve cells connecting the retina to the visual cortex.
+
+Woah. To me, that seems like a surprisingly small number. As I look at the things around me, I see a *lot* of detail. Seemingly more than could be encoded by so few neurons.
+
+The article goes on to explain how this works: essentially, input from the retina doesn't go away after just a moment; instead, it sticks around, forming feedback loops and affecting our future perception as well as our current perception.
+
+Which is super interesting! But it's not what I'm focused on right now. I want to visualize *just* how small "10 nerves per quarter-moon" is. Every moment of our existence, just exactly how much information *is* our visual cortex recieving, and how does it compare to what we perceive?
+
+## A Short Quest
+
+The first thing I'm interested in is making that "10 nerves per quarter-moon" figure a bit more useful. We can use it to find the density of nerve cells in our visual field, i.e. the number of nerve cells for a single $1^\circ$-by-$1^\circ$ region of our vision.
+
+>>> theta = 1.90065
+>>> angular_area = pi * theta ** 2
+>>> nerve_density = 10 * 4 / angular_area
+To find this value, note that [the angular diameter of the moon is about ${{ f'{theta:.2f}' }}^\circ$](https://astronomy.stackexchange.com/a/7737). Thus the moon's angular area is $\pi \cdot ({{ f'{theta:.2f}' }}^\circ)^2 \approx {{ f'{angular_area:.2f}' }} \text{ degrees squared}$. This lets us find the density of nerve cells in our visual field:
+
+$$ \frac {10 \text{ nerves} } {1 \text{ quarter moon} } \times \frac {4 \text{ quarter moons} } { \text{full moon} } \times \frac { \text{full moon} } { {{ f'{angular_area:.2f}' }} \text{ degrees squared} } \approx \frac { {{ f'{nerve_density:.2f}' }} \text{ nerves} } { 1 \text{ degree squared} } $$
+
+(Quick aside: the attentive reader may be worried about error propogation in the calculations that we are doing. Rest assured that while values are being *displayed* with only a few decimal places, all calculations were done without rounding.)
+
+With this figure, we can find the approximate number of nerves that are dedicated to any-sized region of our vision. Let's apply this to the following photo:
+<img id="pic" src="popo.jpg" class="columnwidth" />
+
+>>> major_fov = (57.716 + 58.632) / 2
+>>> minor_fov = major_fov * (3 / 4)
+I took this photo with an iPhone 6s, <note-ref to="iphone-fov">which spans about ${{ round(major_fov) }}^\circ$ along the major axis and ${{ round(minor_fov) }}^\circ$ along the minor axis</note-ref>. This les us find the number of nerves that this scene would get:
+
+<div><note-def id="iphone-fov">
+  <p>Accoring to table 4-13 on <a href="https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html">this page</a>, an iPhone 6s has an FOV of either $57.716^\circ$ or $58.632^\circ$. We'll average that and say its FOV is ${{ major_fov }}^\circ$.</p>
+  <p>I'll assume that this value is the FOV along the major axis. Since iPhone pictures are taken at a 4:3 ratio, then the FOV along the minor axis is $3/4$ of that along the major axis, giving ${{ minor_fov }}^\circ$.</p>
+</note-def></div>
+
+>>> pic_nerve_count = major_fov * minor_fov * nerve_density
+$$ \frac { {{ round(major_fov) }} ^\circ \times {{ round(minor_fov) }}^\circ } { \text{this picture} } \times \frac { {{ f'{nerve_density:.2f}' }} \text{ nerves} } { \text{1 degree squared} } \approx \frac { {{ round(pic_nerve_count) }} \text{ nerves} } { \text{this picture} } $$
+
+Since a nerve transmits a one-dimensional signal, but colors are three-dimensional (e.g. rgb, hsv), we'll model a single point of color as being encoded by three nerves. Thus, a rough way to visualize "what our visual cortex is seeing" is to split the picture up into ${{ round(pic_nerve_count) }} / 3 \approx {{ round(pic_nerve_count / 3) }}$ equally-sized boxes.
+
+This looks like the following:
+
+<canvas id="canv"></canvas>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+'use strict';
+
+function imageToMatrix(image_element) {
+  /* Transform an image into a matrix of [ r, g, b, a ] quadruplets
+   * The matrix's major axis is the y-axis
+   */
+
+  // https://stackoverflow.com/a/14911181/4608364
+
+  const width = image_element.naturalWidth;
+  const height = image_element.naturalHeight;
+
+  const canv = document.createElement('canvas');
+  canv.width = width;
+  canv.height = height;
+
+  const ctx = canv.getContext('2d');
+  ctx.drawImage(image_element, 0, 0);
+
+  const image_data = ctx.getImageData(0, 0, width, height).data;
+
+  const matrix = Array(height).fill(0).map(() => Array(width).fill(0));
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = 4 * (y * width + x);
+
+      const r = image_data[idx + 0];
+      const g = image_data[idx + 1];
+      const b = image_data[idx + 2];
+      const a = image_data[idx + 3];
+
+      matrix[y][x] = [ r, g, b, a ];
+    }
+  }
+
+  return matrix;
+}
+
+function drawMatrix(ctx, matrix) {
+  /* Draw a matrix of [ r, g, b, a ] pixels to a canvas 2d context */
+
+  const h = matrix.length;
+  const w = matrix[0].length;
+
+  const values = [];
+
+  for (const row of matrix) {
+    for (const [ r, g, b, a ] of row) {
+      values.push(r);
+      values.push(g);
+      values.push(b);
+      values.push(a);
+    }
+  }
+
+  const image_data = new ImageData(Uint8ClampedArray.from(values), w, h);
+  ctx.putImageData(image_data, 0, 0);
+}
+
+
+const picture_el = document.getElementById('pic');
+const width = picture_el.naturalWidth;
+const height = picture_el.naturalHeight;
+
+const canv = document.getElementById('canv');
+canv.width = width;
+canv.height = height;
+const ctx = canv.getContext('2d');
+
+const pixels = imageToMatrix(picture_el);
+
+
+function pixel_average(pixels) {
+  let sum_r = 0;
+  let sum_g = 0;
+  let sum_b = 0;
+  let sum_a = 0;
+
+  for (const [ r, g, b, a ] of pixels) {
+    sum_r += r;
+    sum_g += g;
+    sum_b += b;
+    sum_a += a;
+  }
+
+  const len = pixels.length;
+  return [ sum_r / len, sum_g / len, sum_b / len, sum_a / len ];
+}
+
+
+// Each 'nerve' is a neural nerve
+// We'll split the image into square 'blocks', one for each nerve
+const block_count = {{ round(pic_nerve_count / 3) }};
+const block_area = (width * height) / block_count;
+const block_length = Math.floor(Math.sqrt(block_area));
+
+function* block_idxs(y, x) {
+  for (let block_y = y; block_y < y + block_length; block_y++) {
+    if (block_y >= height) break;
+    for (let block_x = x; block_x < x + block_length; block_x++) {
+      if (block_x >= width) break;
+      yield [ block_y, block_x ];
+    }
+  }
+}
+
+for (let y = 0; y < height; y += block_length) {
+  for (let x = 0; x < width; x += block_length) {
+
+    // Get all the colors in the block
+    const block_colors = [];
+    for (const [block_y, block_x] of block_idxs(y, x)) {
+      block_colors.push(pixels[block_y][block_x]);
+    }
+
+    // Average them
+    const avg_pixel = pixel_average(block_colors);
+
+    // Set all the pixels in the block to this greyscaled average color
+    for (const [block_y, block_x] of block_idxs(y, x)) {
+      pixels[block_y][block_x] = avg_pixel;
+    }
+
+  }
+}
+
+drawMatrix(ctx, pixels);
+
+});
+
+</script>
+
+Wow. That is a *huge* difference! Imagine if this was the resolution you saw the world at.
+
+To conclude, I have only to say: thank you, visual cortex.
