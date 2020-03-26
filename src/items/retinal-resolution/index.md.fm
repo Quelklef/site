@@ -137,7 +137,7 @@ function when(object, event_name, test_fired, callback) {
 
   Add an event listener to an object, unless the event has
   already been fired, in which case immediately invoke the callback.
-  The event listener will be attached with { when: true }, meaning
+  The event listener will be attached with { once: true }, meaning
   that it will only be called when.
 
   Takes 4 arguments:
@@ -156,7 +156,7 @@ function when(object, event_name, test_fired, callback) {
     if (test_fired()) {
       callback();
     } else {
-      object.addEventListener(event_name, callback, { when: true });
+      object.addEventListener(event_name, callback, { once: true });
     }
 
   The issue with this is that it is subject to a
@@ -174,7 +174,7 @@ function when(object, event_name, test_fired, callback) {
     if (already_fired) return;
     callback();
     listener_ran = true;
-  }, { when: true });
+  }, { once: true });
 
   already_fired = test_fired();
   if (already_fired && !listener_ran) {
