@@ -1,6 +1,6 @@
 ---
 title: Compression Algorithms
-tags: [math, .pdf]
-abstract: Personal and unresearched thougths and ruminations on compression algorithms, especially lossless ones
+tags: [math, .pdf, visualization]
+abstract: Personal and unresearched thoughts and ruminations on compression algorithms, especially lossless ones
 target: ../assets/papers/compression-algorithms.pdf
 ---

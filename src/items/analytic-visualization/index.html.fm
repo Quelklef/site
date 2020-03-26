@@ -1,6 +1,6 @@
 ---
 title: Analytic Function Visualization
-tags: [interactive, math]
+tags: [interactive, math, visualization]
 files: [.]
 build: 'jinja2("proxy", requires=["mathjax", "notes"], context={"target": "/items/analytic-visualization/full/"}) >> write'
 ---
