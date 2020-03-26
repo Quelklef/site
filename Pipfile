@@ -11,6 +11,7 @@ python-frontmatter = "*"
 markdown = "*"
 watchdog = "*"
 docopt = "*"
+unplate = "*"
 
 [requires]
 python_version = "3.8"

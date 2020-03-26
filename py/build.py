@@ -1,4 +1,5 @@
 import jinja2
+import unplate as unplate_module
 from pathlib import Path
 from markdown import markdown as parse_markdown
 from .globals import build_target
@@ -100,6 +101,28 @@ def shell(shell_cmd):
 @composable
 def noop(item):
   # Do nothing
+  return item
+
+@composable
+def unplate(item):
+
+  # because unplate requires the exact tokens '[unplate.template(' in
+  # order to work, we can't write '[unplate_module.template(', so
+  # we need to make the following assignment
+  # TODO: this is gonna act funny if the payload contains a triple-quote
+  unplate = unplate_module
+  # add three underscores after 'template' to reduce change of namespace
+  # conflict with the payload code
+  code = f"""
+[unplate.begin(template___)] @ '''
+{ item['payload'] }
+''' [unplate.end]
+  """
+
+  ctx = {}
+  exec(unplate_module.compile_anon(code), ctx)
+
+  item['payload'] = ctx['template___']
   return item
 
 def latex(rel_loc, *, tex_args="", bib_args=""):
