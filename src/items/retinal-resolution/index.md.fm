@@ -117,6 +117,9 @@ function drawMatrix(ctx, matrix) {
 
 
 const picture_el = document.getElementById('pic');
+
+picture_el.addEventListener('load', () => {
+
 const width = picture_el.naturalWidth;
 const height = picture_el.naturalHeight;
 
@@ -183,6 +186,8 @@ for (let y = 0; y < height; y += block_length) {
 }
 
 drawMatrix(ctx, pixels);
+
+});
 
 });
 
