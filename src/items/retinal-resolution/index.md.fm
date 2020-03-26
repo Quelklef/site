@@ -54,7 +54,6 @@ This looks like the following:
 
 <script>
 
-document.addEventListener('DOMContentLoaded', () => {
 'use strict';
 
 function imageToMatrix(image_element) {
@@ -115,22 +114,6 @@ function drawMatrix(ctx, matrix) {
   ctx.putImageData(image_data, 0, 0);
 }
 
-
-const picture_el = document.getElementById('pic');
-
-picture_el.addEventListener('load', () => {
-
-const width = picture_el.naturalWidth;
-const height = picture_el.naturalHeight;
-
-const canv = document.getElementById('canv');
-canv.width = width;
-canv.height = height;
-const ctx = canv.getContext('2d');
-
-const pixels = imageToMatrix(picture_el);
-
-
 function pixel_average(pixels) {
   let sum_r = 0;
   let sum_g = 0;
@@ -148,48 +131,137 @@ function pixel_average(pixels) {
   return [ sum_r / len, sum_g / len, sum_b / len, sum_a / len ];
 }
 
+function when(object, event_name, test_fired, callback) {
 
-// Each 'nerve' is a neural nerve
-// We'll split the image into square 'blocks', one for each nerve
-const block_count = {{ round(pic_nerve_count / 3) }};
-const block_area = (width * height) / block_count;
-const block_length = Math.floor(Math.sqrt(block_area));
+  /*
 
-function* block_idxs(y, x) {
-  for (let block_y = y; block_y < y + block_length; block_y++) {
-    if (block_y >= height) break;
-    for (let block_x = x; block_x < x + block_length; block_x++) {
-      if (block_x >= width) break;
-      yield [ block_y, block_x ];
+  Add an event listener to an object, unless the event has
+  already been fired, in which case immediately invoke the callback.
+  The event listener will be attached with { when: true }, meaning
+  that it will only be called when.
+
+  Takes 4 arguments:
+    1. object: the object on which to add the event listener
+    2. event_name: the name of the event
+    3: test_fired: a function which must return a boolean when
+       called indicating whether or not the event has been fired
+    4: callback: the event callback
+
+  */
+
+  /*
+
+  The naive implementation of this is a simple
+
+    if (test_fired()) {
+      callback();
+    } else {
+      object.addEventListener(event_name, callback, { when: true });
     }
+
+  The issue with this is that it is subject to a
+  race condition. Perhaps the event fires BETWEEN
+  the call `test_fired()` and the invokation
+  of `object.addEventListener`. In this case,
+  the callback will never be run.
+
+  */
+
+  let already_fired = false;
+  let listener_ran = false;
+
+  object.addEventListener(event_name, () => {
+    if (already_fired) return;
+    callback();
+    listener_ran = true;
+  }, { when: true });
+
+  already_fired = test_fired();
+  if (already_fired && !listener_ran) {
+    callback();
+    return;
   }
+
+  /*
+
+  I'm not actually 100% sure if the above is perfectly
+  suited against race conditions, but I think it'll
+  do a pretty good job...
+
+  */
+
 }
 
-for (let y = 0; y < height; y += block_length) {
-  for (let x = 0; x < width; x += block_length) {
+when(
+  document,
+  'DOMContentLoaded',
+  // test from https://stackoverflow.com/a/35996985/4608364
+  () => /complete|interactive|loaded/.test(document.readyState),
+  () =>
+{
 
-    // Get all the colors in the block
-    const block_colors = [];
-    for (const [block_y, block_x] of block_idxs(y, x)) {
-      block_colors.push(pixels[block_y][block_x]);
+  const picture_el = document.getElementById('pic');
+
+  when(
+    picture_el,
+    'load',
+    () => picture_el.complete,
+    () =>
+  {
+
+    const width = picture_el.naturalWidth;
+    const height = picture_el.naturalHeight;
+
+    const canv = document.getElementById('canv');
+    canv.width = width;
+    canv.height = height;
+    const ctx = canv.getContext('2d');
+
+    const pixels = imageToMatrix(picture_el);
+
+
+    // Each 'nerve' is a neural nerve
+    // We'll split the image into square 'blocks', one for each nerve
+    const block_count = {{ round(pic_nerve_count / 3) }};
+    const block_area = (width * height) / block_count;
+    const block_length = Math.floor(Math.sqrt(block_area));
+
+    function* block_idxs(y, x) {
+      for (let block_y = y; block_y < y + block_length; block_y++) {
+        if (block_y >= height) break;
+        for (let block_x = x; block_x < x + block_length; block_x++) {
+          if (block_x >= width) break;
+          yield [ block_y, block_x ];
+        }
+      }
     }
 
-    // Average them
-    const avg_pixel = pixel_average(block_colors);
+    for (let y = 0; y < height; y += block_length) {
+      for (let x = 0; x < width; x += block_length) {
 
-    // Set all the pixels in the block to this greyscaled average color
-    for (const [block_y, block_x] of block_idxs(y, x)) {
-      pixels[block_y][block_x] = avg_pixel;
+        // Get all the colors in the block
+        const block_colors = [];
+        for (const [block_y, block_x] of block_idxs(y, x)) {
+          block_colors.push(pixels[block_y][block_x]);
+        }
+
+        // Average them
+        const avg_pixel = pixel_average(block_colors);
+
+        // Set all the pixels in the block to this greyscaled average color
+        for (const [block_y, block_x] of block_idxs(y, x)) {
+          pixels[block_y][block_x] = avg_pixel;
+        }
+
+      }
     }
 
-  }
-}
+    drawMatrix(ctx, pixels);
 
-drawMatrix(ctx, pixels);
+  });
 
 });
 
-});
 
 </script>
 
