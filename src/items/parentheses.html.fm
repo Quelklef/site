@@ -13,7 +13,7 @@ tr td:nth-child(2) {
 </style>
 
 <div class="fullwidth">
-<table class="sticky-headers">
+<table class="--sticky-headers">
   <tr> <th>Name</th> <th>Usage</th> <th>Locations (non-exhaustive)</th> </tr>
   <tr> <td>Function application</td> <td>The value $f(2)$ is, oddly, ...</td> <td>Mathematics, programming</td> </tr>
   <tr> <td>Precedence</td> <td>$2+(3\cdot5) \neq (2 + 3) \cdot 5$</td> <td>Mathematics, programming</td> </tr>

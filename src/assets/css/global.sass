@@ -1,6 +1,38 @@
-@import "_params.sass"
 
 @import url('https://fonts.googleapis.com/css?family=Lato|Merriweather')
+
+
+// ==== Parameters ==== //
+
+$dark: black
+$offdark: #555
+$grey: #ccc
+
+// The majority of the website is confined
+// to a column in the middle of the page
+$column-width: 650px
+
+
+// ==== Ingredients ==== //
+
+// These classes are not meant to be used on their
+// own but rather meant to be @extend-ed
+// To mark them, they must begin with an underscore
+
+._slab
+  // Add a subtle border, shadow, and border-radius
+  border: 1px solid $grey
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1), inset 0 0 4px rgba(0, 0, 0, 0.05)
+  border-radius: 3px
+
+
+
+
+// ==== Initial Styles ==== //
+
+// This section is for styling that
+// has little to no interaction between elements
+// and little to no use of classes or ids
 
 *
   box-sizing: border-box
@@ -13,13 +45,94 @@ body
 
   min-height: 100vh
 
-.columnwidth
-  width: $column-width
+h1, h2, h3, h4, h5, h6
+  font-family: Lato, sans-serif
+  margin-top: 1.75em
+  margin-bottom: 1em
+
+h1
+  font-size: 2.2em
 
 blockquote
   font-style: italic
   border-left: 1px solid $dark
   padding-left: 2em
+
+a
+  text-decoration: none
+  color: inherit
+
+code
+  background-color: rgb(20, 20, 20)
+  color: white
+  padding: 2px 4px
+  font-size: .9em
+  border-radius: 2px
+  line-height: 1.5
+
+
+// -- Tables -- //
+
+table
+  border-collapse: collapse
+  border: 1px solid $grey
+
+  &.--sticky-headers th
+    position: sticky
+    top: -1px  // Because 1px border
+    z-index: 1  // work properly with MathJax
+
+th
+  background-color: rgb(240, 240, 240)
+  border-bottom: 1px solid $grey
+
+td, th
+  padding: 8px 16px
+  border-left: 1px solid $grey
+
+tr
+  border-bottom: 1px solid $grey
+
+
+// -- Inputs -- //
+
+input, button, textarea
+  padding: 5px 7px
+  border-radius: 2px
+  border: 1px solid $grey
+  color: $dark
+  background: white
+  &:focus, &:hover
+    outline: none
+    border-color: $offdark
+
+input, button
+  &:hover
+    cursor: pointer
+
+button
+  border: none
+  background: $dark
+  color: white
+
+input[type=color]
+  padding: 0px
+
+input[type=range]
+  padding: 0px
+  height: 1em
+
+
+
+
+// ==== Components ==== //
+
+// This sections is for components,
+// which are either styles which include interaction,
+// or particular elements or ids or classes
+
+
+// -- #content -- //
 
 #content
   display: flex
@@ -28,8 +141,6 @@ blockquote
   align-content: center
   align-items: center
   padding-bottom: 200px
-  padding-left: $column-padding
-  padding-right: $column-padding
 
   > *:not(.fullwidth):not(img):not(.figure)
     max-width: $column-width
@@ -45,7 +156,7 @@ blockquote
 
   img
     padding: 0
-    @extend .border-and-shadow
+    @extend ._slab
 
     &.--small
       height: 225px
@@ -65,7 +176,7 @@ blockquote
       font-size: 0.9em
       display: block
       width: $column-width
-      padding: 0 $column-padding
+      padding: 0
 
   > .fullwidth
     max-width: 100%
@@ -76,17 +187,8 @@ blockquote
     &:hover
       border-bottom-style: solid
 
-a
-  text-decoration: none
-  color: inherit
 
-h1, h2, h3, h4, h5, h6
-  font-family: Lato, sans-serif
-  margin-top: 1.75em
-  margin-bottom: 1em
-
-h1
-  font-size: 2.2em
+// -- <header> -- //
 
 header
   margin-bottom: 30px
@@ -98,10 +200,8 @@ header
     font-style: italic
     font-size: 15px
 
-.vert-center
-  display: flex
-  align-content: center
-  align-items: center
+
+// -- #header -- //
 
 #header
   height: 26px
@@ -127,21 +227,26 @@ header
   &:after
     content: ']'
 
-// Dropdowns //
+
+// -- dropdowns -- //
+
 .dropdown, .nested-dropdown
   display: block
   position: relative
+
   > .contents
     position: absolute
     display: flex
     flex-direction: column
     z-index: 1
+
   &:not(:hover):not(:active) > .contents
     display: none
 
   cursor: pointer
   border: 1px solid transparent
   margin: 0
+
   > .contents
     line-height: 1.25em
     border: 1px solid $grey
@@ -179,76 +284,24 @@ header
 
 
 
+// ==== Misc ==== //
+
+.columnwidth
+  width: $column-width
+
+.vert-center
+  display: flex
+  align-content: center
+  align-items: center
 
 .metadata
   color: $offdark
   font-size: 0.8em
 
-code
-  background-color: rgb(20, 20, 20)
-  color: white
-  padding: 2px 4px
-  font-size: .9em
-  border-radius: 2px
-  line-height: 1.5
-
-table
-  border-collapse: collapse
-  border: 1px solid $grey
-  &.sticky-headers th
-    position: sticky
-    top: -1px  // Because 1px border
-    z-index: 1  // work properly with MathJax
-  th
-    background-color: rgb(240, 240, 240)
-    border-bottom: 1px solid $grey
-  td, th
-    padding: 8px 16px
-    border-left: 1px solid $grey
-  tr
-    border-bottom: 1px solid $grey
-
 // Highlighted code
 pre > code
   padding: 15px 25px !important
-  @extend .border-and-shadow
-
-
-
-
-input, button, textarea
-  padding: 5px 7px
-  border-radius: 2px
-
-input
-
-  &[type=color]
-    padding: 0px
-    &:hover
-      cursor: pointer
-
-  &[type=range]
-    padding: 0px
-    height: 1em
-    &:hover
-      cursor: pointer
-
-button
-  border: none
-  background: $dark
-  color: white
-
-  &:hover
-    cursor: pointer
-
-input, textarea
-  border: 1px solid $grey
-  color: $dark
-  background: white
-
-  &:focus, &:hover
-    outline: none
-    border-color: $offdark
+  @extend ._slab
 
 #mailing-list-succ
   color: green
@@ -257,3 +310,36 @@ input, textarea
 #mailing-list-fail
   color: red
   font-style: italic
+
+
+
+
+// ==== Proxies ==== //
+
+#iframe-wrap
+  @extend ._slab
+  box-sizing: border-box
+  margin: 15px 0
+  width: $column-width * 2
+
+#iframe
+  border: none
+  height: 80vh
+  width: 100%
+
+#iframe-title
+  font-weight: bold
+
+#iframe-controls
+  display: flex
+  justify-content: center
+  border-bottom: 1px solid $grey
+
+  > *
+    padding: 5px 20px
+    display: inline-block
+    &:not(:last-child)
+      border-right: 1px solid $grey
+
+  a:hover
+    border-bottom: 1px solid $dark
