@@ -2,6 +2,7 @@
 title: "Mailing List"
 tags: [more me]
 build: jinja2("post") >> write
+description: A mailing list sign up.
 ---
 
 <div>

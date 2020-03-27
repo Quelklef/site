@@ -4,9 +4,14 @@ tags: []
 target: ./
 files: [index.jinja2.fm, items/]
 build: jinja2_raw >> write_to("index.html")
+description: The website index.
 ---
 
 {% extends "templates/base.jinja2" %}
+
+{% block head %}
+  {% with item={'requires': ['mathjax']} %} {% include 'includes/requires.jinja2' %} {% endwith %}
+{% endblock %}
 
 {% block content %}
   {$ super() $}
@@ -17,19 +22,133 @@ build: jinja2_raw >> write_to("index.html")
       <p>Maynard's math and stuff</p>
     </header>
 
+    {% macro render_item(item) -%}
+      <a href="{$ item.computed_href $}" class="item plain-link">
+        <div class="item_title-and-tags">
+          <h3 class="item_title">{$ item.title $}</h3>
+          {% for tag in item.tags %}
+            <span class="item_tag tag">{$ tag $}</span>
+          {% endfor %}
+        </div>
+
+        <p class="item_description">{$ item.description $}</p>
+      </a>
+    {%- endmacro %}
+
+    <p class="tag-selector_tag-list">
+      <span>Filter by tag:</span>
+      {% for tag in tags %}
+        <span class="tag-selector_tag-button">{$ tag $}</span>
+      {% endfor %}
+    </p>
+
+    <br />
+
     <div>
       {% for item in items %}
-        <div style="display: flex; justify-content: space-between; margin: 8px 0">
-          <span style="text-align: right; display: inline-block; width: 47%"><a href="{$ item.computed_href $}">{$ item.title $}</a></span>
-          <span style="display: inline-block" class="metadata"><tt>::</tt></span>
-          <span style="display: inline-block; width: 47%" class="metadata">
-              {% for tag in item.tags -%}
-                <span class="tag">{$ tag $}</span>
-              {%- endfor %}
-          </span>
-        </div>
+       {$ render_item(item) $}
       {% endfor %}
     </div>
+
+<script>
+'use strict';
+
+const chosen_tags = new Set();
+
+function selectTag(tag_name) {
+  chosen_tags.add(tag_name);
+  updateDisplay();
+}
+
+function deselectTag(tag_name) {
+  chosen_tags.delete(tag_name);
+  updateDisplay();
+}
+
+
+function getTags(item_el) {
+  const tag_els = Array.from(item_el.getElementsByClassName('item_tag'));
+  return new Set(tag_els.map(tag_el => tag_el.innerText));
+}
+
+const all_tags = (
+  Array.from(document.getElementsByClassName('item'))
+  .map(item => getTags(item))
+  .reduce((a, b) => new Set([...b, ...a]), new Set())
+);
+
+function isSupersetEq(set0, set1) {
+  /* set0 >= set1 */
+  for (const x of set1) {
+    if (!set0.has(x)) return false;
+  }
+  return true;
+}
+
+function filterItems(tag_names) {
+  const item_els = Array.from(document.getElementsByClassName('item'));
+  return new Set(item_els.filter(item_el => isSupersetEq(getTags(item_el), tag_names)));
+}
+
+function updateDisplay() {
+  enableDisableTags();
+  showHideItems();
+}
+
+function enableDisableTags() {
+  const tag_els = document.getElementsByClassName('tag-selector_tag-button');
+  for (const tag_el of tag_els) {
+ 
+    const tag_name = tag_el.innerText; 
+    const with_this_tag = new Set([...chosen_tags, tag_name]);
+    const should_be_enabled = filterItems(with_this_tag).size > 0;
+
+    if (should_be_enabled) {
+      tag_el.classList.remove('disabled');
+    } else {
+      tag_el.classList.add('disabled');
+    }
+
+  }
+}
+
+function showHideItems() {
+  const item_els = document.getElementsByClassName('item');
+
+  const shown = filterItems(chosen_tags);
+  for (const item_el of item_els) {
+    if (shown.has(item_el)) {
+      item_el.classList.remove('hidden');      
+    } else {
+      item_el.classList.add('hidden');
+    }
+  }
+}
+
+
+
+const buttons = document.getElementsByClassName('tag-selector_tag-button');
+
+for (const button of buttons) {
+  button.addEventListener('click', () => {
+
+    if (button.classList.contains('disabled')) return;
+
+    const tag_name = button.innerText;
+    
+    if (!button.classList.contains('active')) {
+      selectTag(tag_name);
+      button.classList.add('active');
+    } else {
+      deselectTag(tag_name);
+      button.classList.remove('active');
+    }
+
+  });
+}
+
+</script>
+
   </div>
 {% endblock %}
 

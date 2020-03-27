@@ -3,6 +3,7 @@ title: Mailroom
 tags: [prose]
 build: markdown >> jinja2("post") >> write
 indexed: false
+description: A man loses his mind.
 ---
 
 He walked through the hallway, peering out of habit but not curiosity into the windows of the rooms he passed. The overhead lights were on, illuminating his footsteps against the carpet. He reached a T. To his left was an exit, two sets of double-doors leading back outside. To his right was a staircase to an upper floor and a hallway passing underneath the staircase.

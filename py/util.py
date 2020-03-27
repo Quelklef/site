@@ -45,9 +45,26 @@ def was_modified(path: Path, *, since):
   e.g. `if modified(path, since=yesterday):`
   """
 
+  # TODO
+  # Hack to get the index to rebuild every time
+  # since detecting changes to files/ doesn't seem to
+  # be working
+  if 'index' in str(path):
+    return True
+
   if since is None:
     # air on the conservative side
     return True
 
   mod_time = path.stat().st_mtime
   return mod_time > since
+
+
+def flatten(xss):
+  """
+  Flatten a list one level
+  """
+  result = []
+  for xs in xss:
+    result.extend(xs)
+  return result

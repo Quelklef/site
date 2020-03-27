@@ -70,6 +70,12 @@ code
   border-radius: 2px
   line-height: 1.5
 
+hr
+  margin: 2em 0
+  border: 0
+  height: 1px
+  background-color: $grey
+
 
 // -- Tables -- //
 
@@ -181,7 +187,7 @@ input[type=range]
   > .fullwidth
     max-width: 100%
 
-  a
+  a:not(.plain-link)
     border-bottom: 1px dotted $offdark
     cursor: pointer
     &:hover
@@ -221,67 +227,83 @@ header
   > a  // uglee
     padding: 0 5px
 
-.tag
-  &:before
-    content: '['
-  &:after
-    content: ']'
-
 
 // -- dropdowns -- //
 
-.dropdown, .nested-dropdown
+.tag
+  display: inline-block
+  font-size: 0.8em
+  padding: 0 0.7em
+  border: 1px solid $grey
+
+
+
+.tag-selector_tag-list
+  display: flex
+  justify-content: left
+  flex-wrap: wrap
+  align-items: center
+  align-content: center
+
+  > *:not(:last-child)
+    margin-right: 1em
+  > *
+    margin-top: 5px
+    margin-bottom: 5px
+
+.tag-selector_tag-button
+  @extend .tag
+
+  border-radius: 3px
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.2)
+
+  &:not(.disabled)
+    cursor: pointer
+  &.disabled
+    background-color: rgb(230, 230, 230)
+
+  &:before
+    font-family: monospace
+  &:not(.active):before
+    content: '+ '
+  &.active:before
+    content: '- '
+  &:not(.disabled):hover
+    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4)
+  &.active
+    border-color: black
+
+
+.item
+  padding: 0 2em
+  @extend ._slab
   display: block
-  position: relative
 
-  > .contents
-    position: absolute
-    display: flex
-    flex-direction: column
-    z-index: 1
-
-  &:not(:hover):not(:active) > .contents
+  &.hidden
     display: none
 
-  cursor: pointer
-  border: 1px solid transparent
-  margin: 0
-
-  > .contents
-    line-height: 1.25em
-    border: 1px solid $grey
-    background: white
-    min-width: 250px
-    > *
-      padding: 6px 8px
-      &:hover:not(.nested-dropdown)
-        font-weight: bold
-
-.dropdown
-  padding: 2px 8px
-
   &:hover
-    border-left-color: $grey
-    border-right-color: $grey
-    border-top-color: $grey
-  > .contents
-    left: -1px // Not 100% sure why this is needed. I think it's because the borders.
-    top: calc(100% - 1px)  // Same here
+    border-color: black
 
-.nested-dropdown
-  > .contents
-    top: -1px
-    left: calc(100% + 1px)
+  margin: 1em 0
+  padding: .5em 2em
 
-  &:hover
-    border-top-color: $grey
-    border-bottom-color: $grey
-  &:first-child
-    border-top: none
-  &:last-child
-    border-bottom: none
+  .item_title-and-tags
+    display: flex
+    justify-content: left
+    flex-wrap: wrap
+    align-content: center
+    align-items: center
+    margin: 1em 0
 
+  .item_tag
+    &:not(:last-child)
+      margin-right: 1em
 
+  .item_title
+    margin: 0 1em 0 0
+
+  .item_description
 
 
 // ==== Misc ==== //
@@ -293,10 +315,6 @@ header
   display: flex
   align-content: center
   align-items: center
-
-.metadata
-  color: $offdark
-  font-size: 0.8em
 
 // Highlighted code
 pre > code

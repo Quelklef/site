@@ -1,10 +1,10 @@
 ---
 title: Fitch-Style Proof Helper
 tags: [interactive, math]
-abstract: "Interactive propositional and first-order logic proof helper"
 target: index.html
 files: [.]
 build: 'jinja2("proxy", context={"target": "/items/fitch/full"}) >> write_to("items/fitch/index.html")'
+description: "Interactive propositional and first-order logic proof helper"
 ---
 
 In my highschool Logic class, we learned about Fitch-style proofs. Being the rigor-obsessed student I was at the time, this excited me greatly. There was just one problem: doing them could be such a _pain_ sometimes! We wrote our proofs with pencil and paper, which involved manually drawing the organizational lines, as well as writing out the line number and justification for each line of the proof. And god forbid you wanted to add a new line in-between two existing lines: that involved squeezing it in somehow, and then re-numbering every following line of the proof.

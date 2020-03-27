@@ -3,6 +3,7 @@ title: Webadvisor Sucks
 tags: []
 build: jinja2("post") >> write
 files: [.]
+description: A tool to visualize my school's schedules.
 indexed: no
 ---
 

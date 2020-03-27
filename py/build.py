@@ -5,7 +5,7 @@ from markdown import markdown as parse_markdown
 from .globals import build_target
 from .calc_item_tree import calc_item_tree
 from .log import log_section, log
-from .util import shell_exec, was_modified
+from .util import shell_exec, was_modified, flatten
 
 jinja_env = jinja2.Environment(
   loader=jinja2.FileSystemLoader(build_target),
@@ -173,6 +173,7 @@ def build_payloads(items, *, last_build_time):
     'items': indexed,
     'top_level_items': index_tree[0]['items'],
     'item_tree': index_tree[0]['children'],
+    'tags': set(flatten([item['tags'] for item in indexed])),
   }
 
   with log_section("Building payloads"):

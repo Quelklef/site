@@ -1,7 +1,7 @@
 ---
 title: That a Line Splits a Plane
 tags: [math, .pdf]
-abstract: "High-level proof that a line splits a plane"
 target: ../assets/papers/plane-splitting/plane-splitting.pdf
 build: latex("../assets/papers/plane-splitting/plane-splitting.tex")
+description: Vector-based proof that a line splits a plane into two parts.
 ---

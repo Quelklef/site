@@ -1,8 +1,8 @@
 ---
 title: Infinite Rigor
 tags: [math]
-abstract: "Finding (almost) infinite rigor in programming"
 build: jinja2("post", requires=["mathjax", "notes"]) >> write
+description: "Finding (almost) infinite rigor in programming"
 indexed: no
 ---
 

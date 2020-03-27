@@ -1,6 +1,6 @@
 ---
 title: Compression Algorithms
 tags: [math, .pdf, visualization]
-abstract: Personal and unresearched thoughts and ruminations on compression algorithms, especially lossless ones
 target: ../assets/papers/compression-algorithms.pdf
+description: "A compression algorithm can be thought of simply as a function $: F \\to F$ over the set of files $F$. Under this interpretation, lossless algorihms are bijective functions. Though a lossless algorithm cannot compress every file, we usually don't actually care about compressing every file; because of this, there are clever ways to reach desired behaviour."
 ---

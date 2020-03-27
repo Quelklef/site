@@ -4,4 +4,5 @@ tags: [math, .pdf]
 target: linearity.pdf
 files: [.]
 build: latex("linearity.tex")
+description: "Proving that $f(a + b) = f(a) + f(b) \\implies f(cx) = cf(x)$ is pretty easy when $c$ is an integer or a rational. But does it generalize to real $c$? As it turns out, no, but it comes close. This is a mistaken proof of generalization to real $c$ with a discussion of the subtle error made."
 ---

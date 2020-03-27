@@ -1,6 +1,7 @@
 ---
-title: A Lower Bound and Approximation for the Van der Waerden Number Function W(c, k)
+title: Van der Waerden
 tags: [math, .pdf]
 target: ../assets/papers/van-der-waerden/vdw.pdf
 build: latex("../assets/papers/van-der-waerden/vdw.tex")
+description: "A Lower Bound and Approximation for the Van der Waerden Number Function $W(c, k)$"
 ---

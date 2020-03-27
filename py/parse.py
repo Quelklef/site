@@ -11,7 +11,7 @@ class ParseError(ValueError):
 def instance(expected_type):
   def parser(val):
     if not isinstance(val, expected_type):
-      if isinstance(val, NoneType):
+      if val is None:
         raise ParseError(f"This key is required.")
       else:
         raise ParseError(f"Required '{expected_type}', not '{type(val)}'.")
@@ -46,7 +46,7 @@ def required(parser):
 def one_of(*options):
   def parser(val):
     if val not in options:
-      raise ParseError(f"Expected one of {', '.join(options)}, not 'val'")
+      raise ParseError(f"Expected one of {', '.join(options)}, not '{val}'")
     return val
   return parser
 
@@ -91,8 +91,8 @@ def parse_item(item_path: Path):
     # A list of tags (strings)
     'tags': instance(list),
 
-    # A ~paragraph description of the item
-    'abstract': optionally(instance(str)),
+    # A brief description of the item
+    'description': instance(str),
 
     # The URI of the target
     # If not specified, defaults to the filename with '.fm' removed from the end

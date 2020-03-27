@@ -2,6 +2,7 @@
 title: Abuse of Parentheses
 tags: [math]
 build: jinja2("post", requires=["mathjax"]) >> write
+description: "Parentheses are used a lot: for functions, e.g. $f(x)$, tuples, e.g. $(0, 2)$, ideals, e.g. $\\mathbb Z / (4)$, and a bunch more. This is a collection of these different uses."
 ---
 
 <p>Notationally, parantheses seem to be very popular. Almost too popular. The following is a collection of all the different notations that I've found paranthesis used for. If you would like to add one, <a href="https://github.com/Quelklef/site/blob/master/src/items/parentheses.html.fm">send me a pull request on Github</a>.</p>

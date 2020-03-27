@@ -19,21 +19,6 @@
         <img src="/assets/favicon.ico">
         &nbsp;
       </a>
-      {# TODO: The following render code is moist #}
-      {%- for item in top_level_items -%}
-        <a href="{$ item.computed_href $}">{$ item.title $}</a>
-      {%- endfor -%}
-      {%- for node in item_tree recursive -%}
-        <div class="{$ 'nested-dropdown' if loop.depth0 != 0 else 'dropdown' $}">
-          <span class="tag label">{$ node.tag $}</span>
-          <div class="contents">
-            {%- for item in node['items'] -%} {# `node.items` causes a crash for some reason #}
-              <a href="{$ item.computed_href $}">{$ item.title $}</a>
-            {%- endfor -%}
-            {$ loop(node.children) $}
-          </div>
-        </div>
-      {%- endfor -%}
     </div>
     <div id="content">
       {%- block content -%} {%- endblock -%}

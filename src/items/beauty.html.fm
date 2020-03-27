@@ -2,6 +2,7 @@
 title: "What is 'Beauty' With a Capital 'B'?"
 tags: [language, philosophy]
 build: jinja2("post", requires=["notes"]) >> write
+description: Perhaps the question is wrong.
 indexed: no
 ---
 
