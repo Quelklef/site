@@ -13,7 +13,7 @@ tr td:nth-child(2) {
 }
 </style>
 
-<div class="fullwidth">
+<div class="--fullwidth">
 <table class="--sticky-headers">
   <tr> <th>Name</th> <th>Usage</th> <th>Locations (non-exhaustive)</th> </tr>
   <tr> <td>Function application</td> <td>The value $f(2)$ is, oddly, ...</td> <td>Mathematics, programming</td> </tr>

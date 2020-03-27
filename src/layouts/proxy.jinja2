@@ -8,13 +8,13 @@
 
 {% block content %}
 
-<div class="fullwidth">
-  <div id="iframe-wrap">
-    <div id="iframe-controls">
-      <span id="iframe-title">{$ item.title $}</span>
+<div class="--fullwidth">
+  <div class="\proxy-window">
+    <div class="\proxy-window\controls">
+      <span class="\proxy-window\title">{$ item.title $}</span>
       <span><a href="{$ target $}">View as full page</a></span>
     </div>
-    <iframe id="iframe" src="{$ target $}"></iframe>
+    <iframe class="\proxy-window\iframe" src="{$ target $}"></iframe>
   </div>
 </div>
 

@@ -1,6 +1,85 @@
 
 @import url('https://fonts.googleapis.com/css?family=Lato|Merriweather')
 
+//
+// About components.
+//
+// I use the following convention for components:
+//
+//   1) Components may use IDs, but classes are preferred
+//
+//   2) The class name of a component must begin with a
+//      backslash. CSS requires escaping backslashes, so
+//      this is spelled '\\'
+//
+//   3) Subcomponents are namespaced by their supercomponent
+//      and separated by another backslash. For example, say
+//      I have a 'figure' component which is comprised of
+//      an image and a caption. Then the figure component
+//      would get the class name '\figure', the image would
+//      get the class name '\figure\image', and the caption
+//      would get the class name '\figure\caption'. The
+//      markup would look something like:
+//
+//        <div class="\figure">
+//          <img class="\figure\image" src="..." />
+//          <p class="\figure\caption"> ... </p>
+//        </div>
+//
+//   4) Customization/extensibility is done with classes
+//      that begin with two hyphens. So if there's a concept
+//      of a 'big figure' and a 'small figure', this would
+//      be achieved with the use of the classes '--big'
+//      and '--small', respectively. So a 'big figure'
+//      would be:
+//
+//        <div class="\figure --big"> ... </div>
+//
+
+//
+// TODO:
+// This is a good starting CSS convention. Current issues:
+//
+// 1) It's not quite clear /exactly/ what a component is.
+//    I think it should be defined as either (1) a custom class
+//    or (2) a custom ID or (3) a semantic HTML element such
+//    that it has specially-defined interactions (with e.g.
+//    a subcomponent). So the fact that .\figure interacts
+//    with both .\figure\image and .\figure\caption is what
+//    makes it a component. And the fact that <li> and <ol>
+//    interact specially with <li> is what makes them
+//    components.
+//
+// 2) I think the rule should be added that ONLY components
+//    are allowed to have special interaction.
+//
+// 3) There's a certain case here where it's unclear how to
+//    proceed. Say I have a component .\column which is the
+//    full width of the page, but limits all of its children
+//    to a prescribed width in order to mimic being a column.
+//    But it wants to allow some chldren to 'opt out' and
+//    take up the full width of the page.
+//    We could include e.g. a class .--fullwidth that would
+//    be placed on said children. The issue with this is that
+//    it's not clear that .--fullwidth is interacting with
+//    the .\column. In fact, if I read:
+//
+//      <div class="\column">
+//        <div class="\figure --fullwidth"> ... </div>
+//      </div>
+//
+//    then it's far more natural to expect that the .--fullwidth
+//    is interacting with the \figure.
+//    One solution is to require that all non-full-width childrne
+//    be a subcomponent, e.g. .\column\child. But it's a pain to
+//    mark every single component. Alternatively, the opting out
+//    could be via the subcomponent .\column\fullwidth. But the
+//    issue is that the childrn aren't /really/ subcomponents,
+//    so treating them as so would be misleading. I think something
+//    along the lines of a .\column\--fullwidth class is in order,
+//    but the semantics need to be ironed out.
+//
+
 
 // ==== Parameters ==== //
 
@@ -133,14 +212,10 @@ input[type=range]
 
 // ==== Components ==== //
 
-// This sections is for components,
-// which are either styles which include interaction,
-// or particular elements or ids or classes
 
+// -- #\content -- //
 
-// -- #content -- //
-
-#content
+#\\content
   display: flex
   flex-direction: column
   justify-content: center
@@ -148,7 +223,7 @@ input[type=range]
   align-items: center
   padding-bottom: 200px
 
-  > *:not(.fullwidth):not(img):not(.figure)
+  > *:not(.--fullwidth):not(img):not(.\figure)
     max-width: $column-width
     box-sizing: border-box
     width: 100%
@@ -156,7 +231,7 @@ input[type=range]
   > ol, > li
     padding-left: 30px
 
-#content, note-def
+#\\content, note-def
   // Images are supported in two ways: a plain <img> tag, or
   // A <.figure> <img> <.caption> </.figure>
 
@@ -168,13 +243,13 @@ input[type=range]
       height: 225px
       width: auto
 
-  > img, > .figure
+  > img, > .\figure
     margin: 15px 0
 
-  > .figure
+  > .\figure
     text-align: center
 
-    .caption
+    .\figure\caption
       margin: 0 auto
       margin-bottom: 5px
       opacity: 0.7
@@ -184,10 +259,10 @@ input[type=range]
       width: $column-width
       padding: 0
 
-  > .fullwidth
+  > .--fullwidth
     max-width: 100%
 
-  a:not(.plain-link)
+  a:not(.--plain-link)
     border-bottom: 1px dotted $offdark
     cursor: pointer
     &:hover
@@ -207,9 +282,9 @@ header
     font-size: 15px
 
 
-// -- #header -- //
+// -- #\header -- //
 
-#header
+#\\header
   height: 26px
   width: 100%
   padding: 0 calc(50% - #{$column-width / 2})
@@ -230,15 +305,7 @@ header
       font-weight: bold
 
 
-// -- dropdowns -- //
-
-.tag
-  display: inline-block
-  font-size: 0.8em
-  padding: 0 0.7em
-  border: 1px solid $grey
-
-
+// -- .\tag-selector -- //
 
 .\\tag-selector\\tag-list
   display: flex
@@ -310,6 +377,12 @@ header
 
 // ==== Misc ==== //
 
+.tag
+  display: inline-block
+  font-size: 0.8em
+  padding: 0 0.7em
+  border: 1px solid $grey
+
 .columnwidth
   width: $column-width
 
@@ -336,21 +409,21 @@ pre > code
 
 // ==== Proxies ==== //
 
-#iframe-wrap
+.\\proxy-window
   @extend ._slab
   box-sizing: border-box
   margin: 15px 0
   width: $column-width * 2
 
-#iframe
+.\\proxy-window\\iframe
   border: none
   height: 80vh
   width: 100%
 
-#iframe-title
+.\\proxy-window\\title
   font-weight: bold
 
-#iframe-controls
+.\\proxy-window\\controls
   display: flex
   justify-content: center
   border-bottom: 1px solid $grey

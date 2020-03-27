@@ -23,7 +23,7 @@ description: The website index.
     </header>
 
     {% macro render_item(item) -%}
-      <a href="{$ item.computed_href $}" class="\item plain-link">
+      <a href="{$ item.computed_href $}" class="\item --plain-link">
         <div class="\item\title-and-tags">
           <h3 class="\item\title">{$ item.title $}</h3>
           {% for tag in item.tags %}

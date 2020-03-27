@@ -24,7 +24,7 @@ indexed: no
 <div id="errors" style="color: red;"></div>
 
 <div id="schedule-title"></div>
-<div id="schedule" class="fullwidth"></div>
+<div id="schedule" class="--fullwidth"></div>
 
 <div id="settings"></div>
 
