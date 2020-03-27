@@ -23,22 +23,22 @@ description: The website index.
     </header>
 
     {% macro render_item(item) -%}
-      <a href="{$ item.computed_href $}" class="item plain-link">
-        <div class="item_title-and-tags">
-          <h3 class="item_title">{$ item.title $}</h3>
+      <a href="{$ item.computed_href $}" class="\item plain-link">
+        <div class="\item\title-and-tags">
+          <h3 class="\item\title">{$ item.title $}</h3>
           {% for tag in item.tags %}
-            <span class="item_tag tag">{$ tag $}</span>
+            <span class="\item\tag tag">{$ tag $}</span>
           {% endfor %}
         </div>
 
-        <p class="item_description">{$ item.description $}</p>
+        <p class="\item\description">{$ item.description $}</p>
       </a>
     {%- endmacro %}
 
-    <p class="tag-selector_tag-list">
+    <p class="\tag-selector\tag-list">
       <span>Filter by tag:</span>
       {% for tag in tags %}
-        <span class="tag-selector_tag-button">{$ tag $}</span>
+        <span class="\tag-selector\tag-button">{$ tag $}</span>
       {% endfor %}
     </p>
 
@@ -67,12 +67,12 @@ function deselectTag(tag_name) {
 
 
 function getTags(item_el) {
-  const tag_els = Array.from(item_el.getElementsByClassName('item_tag'));
+  const tag_els = Array.from(item_el.getElementsByClassName('\\item\\tag'));
   return new Set(tag_els.map(tag_el => tag_el.innerText));
 }
 
 const all_tags = (
-  Array.from(document.getElementsByClassName('item'))
+  Array.from(document.getElementsByClassName('\\item'))
   .map(item => getTags(item))
   .reduce((a, b) => new Set([...b, ...a]), new Set())
 );
@@ -86,7 +86,7 @@ function isSupersetEq(set0, set1) {
 }
 
 function filterItems(tag_names) {
-  const item_els = Array.from(document.getElementsByClassName('item'));
+  const item_els = Array.from(document.getElementsByClassName('\\item'));
   return new Set(item_els.filter(item_el => isSupersetEq(getTags(item_el), tag_names)));
 }
 
@@ -96,7 +96,7 @@ function updateDisplay() {
 }
 
 function enableDisableTags() {
-  const tag_els = document.getElementsByClassName('tag-selector_tag-button');
+  const tag_els = document.getElementsByClassName('\\tag-selector\\tag-button');
   for (const tag_el of tag_els) {
  
     const tag_name = tag_el.innerText; 
@@ -104,44 +104,44 @@ function enableDisableTags() {
     const should_be_enabled = filterItems(with_this_tag).size > 0;
 
     if (should_be_enabled) {
-      tag_el.classList.remove('disabled');
+      tag_el.classList.remove('--disabled');
     } else {
-      tag_el.classList.add('disabled');
+      tag_el.classList.add('--disabled');
     }
 
   }
 }
 
 function showHideItems() {
-  const item_els = document.getElementsByClassName('item');
+  const item_els = document.getElementsByClassName('\\item');
 
   const shown = filterItems(chosen_tags);
   for (const item_el of item_els) {
     if (shown.has(item_el)) {
-      item_el.classList.remove('hidden');      
+      item_el.classList.remove('--hidden');
     } else {
-      item_el.classList.add('hidden');
+      item_el.classList.add('--hidden');
     }
   }
 }
 
 
 
-const buttons = document.getElementsByClassName('tag-selector_tag-button');
+const buttons = document.getElementsByClassName('\\tag-selector\\tag-button');
 
 for (const button of buttons) {
   button.addEventListener('click', () => {
 
-    if (button.classList.contains('disabled')) return;
+    if (button.classList.contains('--disabled')) return;
 
     const tag_name = button.innerText;
     
-    if (!button.classList.contains('active')) {
+    if (!button.classList.contains('--active')) {
       selectTag(tag_name);
-      button.classList.add('active');
+      button.classList.add('--active');
     } else {
       deselectTag(tag_name);
-      button.classList.remove('active');
+      button.classList.remove('--active');
     }
 
   });

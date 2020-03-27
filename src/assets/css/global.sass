@@ -220,12 +220,14 @@ header
 
   margin-top: 10px
   border-bottom: 1px solid $grey
-  color: $offdark
-  *:hover
-    color: $dark
+
+  img
+    margin-right: 10px
 
   > a  // uglee
-    padding: 0 5px
+    padding: 0 10px
+    &:hover
+      font-weight: bold
 
 
 // -- dropdowns -- //
@@ -238,7 +240,7 @@ header
 
 
 
-.tag-selector_tag-list
+.\\tag-selector\\tag-list
   display: flex
   justify-content: left
   flex-wrap: wrap
@@ -251,35 +253,35 @@ header
     margin-top: 5px
     margin-bottom: 5px
 
-.tag-selector_tag-button
+.\\tag-selector\\tag-button
   @extend .tag
 
   border-radius: 3px
   box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.2)
 
-  &:not(.disabled)
+  &:not(.--disabled)
     cursor: pointer
-  &.disabled
+  &.--disabled
     background-color: rgb(230, 230, 230)
 
   &:before
     font-family: monospace
-  &:not(.active):before
+  &:not(.--active):before
     content: '+ '
-  &.active:before
+  &.--active:before
     content: '- '
-  &:not(.disabled):hover
+  &:not(.--disabled):hover
     box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4)
-  &.active
+  &.--active
     border-color: black
 
 
-.item
+.\\item
   padding: 0 2em
   @extend ._slab
   display: block
 
-  &.hidden
+  &.--hidden
     display: none
 
   &:hover
@@ -288,7 +290,7 @@ header
   margin: 1em 0
   padding: .5em 2em
 
-  .item_title-and-tags
+  .\\item\\title-and-tags
     display: flex
     justify-content: left
     flex-wrap: wrap
@@ -296,14 +298,14 @@ header
     align-items: center
     margin: 1em 0
 
-  .item_tag
+  .\\item\\tag
     &:not(:last-child)
       margin-right: 1em
 
-  .item_title
+  .\\item\\title
     margin: 0 1em 0 0
 
-  .item_description
+  .\\item\\description
 
 
 // ==== Misc ==== //
