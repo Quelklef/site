@@ -26,9 +26,9 @@ The first thing I'm interested in is making that "10 nerves per quarter-moon" fi
 >>> theta = 1.90065
 >>> angular_area = pi * theta ** 2
 >>> nerve_density = 10 * 4 / angular_area
-To find this value, note that [the angular diameter of the moon is about ${{ f'{theta:.2f}' }}^\circ$](https://astronomy.stackexchange.com/a/7737). Thus the moon's angular area is $\pi \cdot ({{ f'{theta:.2f}' }}^\circ)^2 \approx {{ f'{angular_area:.2f}' }} \text{ degrees squared}$. This lets us find the density of nerve cells in our visual field:
+To find this value, note that [the angular diameter of the moon is about $[| f'{theta:.2f}' |]^\circ$](https://astronomy.stackexchange.com/a/7737). Thus the moon's angular area is $\pi \cdot ([| f'{theta:.2f}' |]^\circ)^2 \approx [| f'{angular_area:.2f}' |] \text{ degrees squared}$. This lets us find the density of nerve cells in our visual field:
 
-$$ \frac {10 \text{ nerves} } {1 \text{ quarter moon} } \times \frac {4 \text{ quarter moons} } { \text{full moon} } \times \frac { \text{full moon} } { {{ f'{angular_area:.2f}' }} \text{ degrees squared} } \approx \frac { {{ f'{nerve_density:.2f}' }} \text{ nerves} } { 1 \text{ degree squared} } $$
+$$ \frac{10 \text{ nerves}}{1 \text{ quarter moon}} \times \frac{4 \text{ quarter moons}}{\text{full moon}} \times \frac{\text{full moon}}{[| f'{angular_area:.2f}' |] \text{ degrees squared}} \approx \frac{[| f'{nerve_density:.2f}' |] \text{ nerves}}{1 \text{ degree squared}} $$
 
 (Quick aside: the attentive reader may be worried about error propogation in the calculations that we are doing. Rest assured that while values are being *displayed* with only a few decimal places, all calculations were done without rounding.)
 
@@ -37,17 +37,17 @@ With this figure, we can find the approximate number of nerves that are dedicate
 
 >>> major_fov = (57.716 + 58.632) / 2
 >>> minor_fov = major_fov * (3 / 4)
-I took this photo with an iPhone 6s, <note-ref to="iphone-fov">which spans about ${{ round(major_fov) }}^\circ$ along the major axis and ${{ round(minor_fov) }}^\circ$ along the minor axis</note-ref>. This les us find the number of nerves that this scene would get:
+I took this photo with an iPhone 6s, <note-ref to="iphone-fov">which spans about $[| round(major_fov) |]^\circ$ along the major axis and $[| round(minor_fov) |]^\circ$ along the minor axis</note-ref>. This les us find the number of nerves that this scene would get:
 
 <div><note-def id="iphone-fov">
-  <p>Accoring to table 4-13 on <a href="https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html">this page</a>, an iPhone 6s has an FOV of either $57.716^\circ$ or $58.632^\circ$. We'll average that and say its FOV is ${{ major_fov }}^\circ$.</p>
-  <p>I'll assume that this value is the FOV along the major axis. Since iPhone pictures are taken at a 4:3 ratio, then the FOV along the minor axis is $3/4$ of that along the major axis, giving ${{ minor_fov }}^\circ$.</p>
+  <p>Accoring to table 4-13 on <a href="https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html">this page</a>, an iPhone 6s has an FOV of either $57.716^\circ$ or $58.632^\circ$. We'll average that and say its FOV is $[| major_fov |]^\circ$.</p>
+  <p>I'll assume that this value is the FOV along the major axis. Since iPhone pictures are taken at a 4:3 ratio, then the FOV along the minor axis is $3/4$ of that along the major axis, giving $[| minor_fov |]^\circ$.</p>
 </note-def></div>
 
 >>> pic_nerve_count = major_fov * minor_fov * nerve_density
-$$ \frac { {{ round(major_fov) }} ^\circ \times {{ round(minor_fov) }}^\circ } { \text{this picture} } \times \frac { {{ f'{nerve_density:.2f}' }} \text{ nerves} } { \text{1 degree squared} } \approx \frac { {{ round(pic_nerve_count) }} \text{ nerves} } { \text{this picture} } $$
+$$ \frac{[| round(major_fov) |]^\circ \times [| round(minor_fov) |]^\circ}{\text{this picture}} \times \frac{[| f'{nerve_density:.2f}' |] \text{ nerves}}{\text{1 degree squared}} \approx \frac{[| round(pic_nerve_count) |] \text{ nerves}}{\text{this picture}} $$
 
-Since a nerve transmits a one-dimensional signal, but colors are three-dimensional (e.g. rgb, hsv), we'll model a single point of color as being encoded by three nerves. Thus, a rough way to visualize "what our visual cortex is seeing" is to split the picture up into ${{ round(pic_nerve_count) }} / 3 \approx {{ round(pic_nerve_count / 3) }}$ equally-sized boxes.
+Since a nerve transmits a one-dimensional signal, but colors are three-dimensional (e.g. rgb, hsv), we'll model a single point of color as being encoded by three nerves. Thus, a rough way to visualize "what our visual cortex is seeing" is to split the picture up into $[| round(pic_nerve_count) |] / 3 \approx [| round(pic_nerve_count / 3) |]$ equally-sized boxes.
 
 This looks like the following:
 
@@ -223,7 +223,7 @@ when(
 
     // Each 'nerve' is a neural nerve
     // We'll split the image into square 'blocks', one for each nerve
-    const block_count = {{ round(pic_nerve_count / 3) }};
+    const block_count = [| round(pic_nerve_count / 3) |];
     const block_area = (width * height) / block_count;
     const block_length = Math.floor(Math.sqrt(block_area));
 

@@ -103,6 +103,11 @@ def noop(item):
   # Do nothing
   return item
 
+
+unplate_options = unplate_module.options.Options()
+unplate_options.interpolation_open = '[|'
+unplate_options.interpolation_close = '|]'
+
 @composable
 def unplate(item):
 
@@ -120,7 +125,7 @@ def unplate(item):
   """
 
   ctx = {}
-  exec(unplate_module.compile_anon(code), ctx)
+  exec(unplate_module.compile_anon(code, options=unplate_options), ctx)
 
   item['payload'] = ctx['template___']
   return item
