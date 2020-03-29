@@ -116,11 +116,11 @@
         },
         "unplate": {
             "hashes": [
-                "sha256:7acdae87d2c8067acacac2aad166ce18bbbd55e5318aebe692683bb82c8bf98f",
-                "sha256:85803037dc84569244122bb76d58433fef96fb03dbb2682a4a5008491b32c3d8"
+                "sha256:335814386fcc9196ebbab002d64c0dc96ebf0a86c3f337d43e819f93b644a31b",
+                "sha256:c3dfd277a45a1c9e36454f4ba7e5389a95d8c424ba00d77027867c06dcc16acd"
             ],
             "index": "pypi",
-            "version": "==0.2.6"
+            "version": "==0.2.7"
         },
         "watchdog": {
             "hashes": [
