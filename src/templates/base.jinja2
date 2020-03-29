@@ -12,15 +12,17 @@
     {%- block head -%} {%- endblock -%}
   </head>
   <body>
-    <div id="\header" class="vert-center">
-      <p href="/" class="vert-center">
-        Maynard's Site
-        &nbsp;
-        <img src="/assets/favicon.ico">
-        &nbsp;
-      </p>
-      <a href="/">Index</a>
-      <a href="/items/mailing-list.html">Mailing list</a>
+    <div class="\header">
+      <div class="\header\middle">
+        <p class="\header\title">
+          Maynard's Site
+          &nbsp;
+          <img src="/assets/favicon.ico" />
+          &nbsp;
+        </p>
+        <a href="/">Index</a>
+        <a href="/items/mailing-list.html">Mailing list</a>
+      </div>
     </div>
     <div id="\content">
       {%- block content -%} {%- endblock -%}

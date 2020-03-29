@@ -90,6 +90,7 @@ $grey: #ccc
 // The majority of the website is confined
 // to a column in the middle of the page
 $column-width: 650px
+$column-padding: 25px // padding on the sides
 
 
 // ==== Ingredients ==== //
@@ -221,7 +222,7 @@ input[type=range]
   justify-content: center
   align-content: center
   align-items: center
-  padding-bottom: 200px
+  padding: 0 $column-padding 200px $column-padding
 
   > *:not(.--fullwidth):not(img):not(.\figure)
     max-width: $column-width
@@ -282,16 +283,16 @@ header
     font-size: 15px
 
 
-// -- #\header -- //
+// -- .\header -- //
 
-#\\header
+.\\header
   height: 26px
   width: 100%
-  padding: 0 calc(50% - #{$column-width / 2})
+  padding: 0 $column-padding
   font-size: 0.8em
 
   display: flex
-  justify-content: start
+  justify-content: center
 
   margin-top: 10px
   border-bottom: 1px solid $grey
@@ -299,10 +300,25 @@ header
   img
     margin-right: 10px
 
-  > a  // uglee
+  p
+    margin: 0
+
+  a
     padding: 0 10px
     &:hover
       font-weight: bold
+
+.\\header\\middle
+  width: $column-width
+  display: flex
+  justify-content: flex-start
+  align-content: center
+  align-items: center
+
+.\\header\\title
+  display: flex
+  align-content: center
+  align-items: center
 
 
 // -- .\tag-selector -- //
