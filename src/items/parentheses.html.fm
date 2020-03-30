@@ -1,7 +1,7 @@
 ---
 title: Abuse of Parentheses
 tags: [math]
-build: jinja2("post", requires=["mathjax"]) >> write
+build: template("post", requires=["mathjax"]) >> write
 description: "Parentheses are used a lot: for functions, e.g. $f(x)$, tuples, e.g. $(0, 2)$, ideals, e.g. $\\mathbb Z / (4)$, and a bunch more. This is a collection of these different uses."
 ---
 

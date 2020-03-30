@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-jinja2 = "*"
 python-frontmatter = "*"
 markdown = "*"
 watchdog = "*"

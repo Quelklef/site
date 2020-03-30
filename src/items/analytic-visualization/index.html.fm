@@ -2,7 +2,7 @@
 title: Analytic Function Visualization
 tags: [interactive, math, visualization]
 files: [.]
-build: 'jinja2("proxy", requires=["mathjax", "notes"], context={"target": "/items/analytic-visualization/full/"}) >> write'
+build: 'template("proxy", requires=["mathjax", "notes"], target="/items/analytic-visualization/full/") >> write'
 description: Interactively visualize the $\varepsilon$-neighborhoods of complex-analytic functions.
 ---
 

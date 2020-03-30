@@ -2,7 +2,7 @@
 title: The Resolution of the Retina
 tags: [visualization]
 target: 'index.html'
-build: unplate >> markdown >> jinja2("post", requires=["mathjax", "notes"]) >> write
+build: unplate >> markdown >> template("post", requires=["mathjax", "notes"]) >> write
 description: "According to Quanta Magazine, the retina only has about 10 nerve cells 'for a visual area roughly one-quarter the size of a full moon'. This number seems surpringly small to me, so I created a visualization of it."
 indexed: no
 ---

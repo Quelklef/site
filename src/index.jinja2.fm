@@ -3,52 +3,39 @@ title: Index
 tags: []
 target: ./
 files: [index.jinja2.fm, items/]
-build: jinja2_raw >> write_to("index.html")
+build: unplate >> template('simple', requires=['mathjax'])  >> write_to("index.html")
 description: The website index.
 ---
 
-{% extends "templates/base.jinja2" %}
+<div>
+  <header>
+    <h1>Maynard's Site</h1>
+    <p>Maynard's math and stuff</p>
+  </header>
 
-{% block head %}
-  {% with item={'requires': ['mathjax']} %} {% include 'includes/requires.jinja2' %} {% endwith %}
-{% endblock %}
+  <p class="\tag-selector\tag-list">
+    <span>Filter by tag:</span>
+    >>> for tag in tags:
+      <span class="\tag-selector\tag-button">[| tag |]</span>
+    <<<
+  </p>
 
-{% block content %}
-  {$ super() $}
+  <br />
 
   <div>
-    <header>
-      <h1>Maynard's Site</h1>
-      <p>Maynard's math and stuff</p>
-    </header>
-
-    {% macro render_item(item) -%}
-      <a href="{$ item.computed_href $}" class="\item --plain-link">
+    >>> for item in items:
+      <a href="[| item['computed_href'] |]" class="\item --plain-link">
         <div class="\item\title-and-tags">
-          <h3 class="\item\title">{$ item.title $}</h3>
-          {% for tag in item.tags %}
-            <span class="\item\tag tag">{$ tag $}</span>
-          {% endfor %}
+          <h3 class="\item\title">[| item['title'] |]</h3>
+          >>> for tag in item['tags']:
+            <span class="\item\tag tag">[| tag |]</span>
+          <<<
         </div>
 
-        <p class="\item\description">{$ item.description $}</p>
+        <p class="\item\description">[| item['description'] |]</p>
       </a>
-    {%- endmacro %}
-
-    <p class="\tag-selector\tag-list">
-      <span>Filter by tag:</span>
-      {% for tag in tags %}
-        <span class="\tag-selector\tag-button">{$ tag $}</span>
-      {% endfor %}
-    </p>
-
-    <br />
-
-    <div>
-      {% for item in items %}
-       {$ render_item(item) $}
-      {% endfor %}
-    </div>
+    <<<
+  </div>
 
 <script>
 'use strict';
@@ -149,6 +136,4 @@ for (const button of buttons) {
 
 </script>
 
-  </div>
-{% endblock %}
-
+</div>

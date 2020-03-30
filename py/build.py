@@ -1,4 +1,3 @@
-import jinja2
 import unplate as unplate_module
 from pathlib import Path
 from markdown import markdown as parse_markdown
@@ -6,16 +5,6 @@ from .globals import build_target
 from .calc_item_tree import calc_item_tree
 from .log import log_section, log
 from .util import shell_exec, was_modified, flatten
-
-jinja_env = jinja2.Environment(
-  loader=jinja2.FileSystemLoader(build_target),
-  variable_start_string='{$',
-  variable_end_string='$}',
-)
-
-def render_jinja2(text, **context):
-  template = jinja_env.from_string(text)
-  return template.render(**context)
 
 class composable:
   """
@@ -29,54 +18,17 @@ class composable:
     return self.f(*args, **kwargs)
 
   def __rshift__(self, other):
-    def composed(*args, **kwargs):
-      return other.f(self.f(*args, **kwargs))
+    def composed(item, ctx):
+      return other.f(self.f(item, ctx), ctx)
     return composable(composed)
 
 @composable
-def markdown(item):
+def markdown(item, ctx):
   item['payload'] = parse_markdown(item['payload'])
   return item
 
-def make_jinja2_raw(jinja2_context):
-  @composable
-  def jinja2_raw(item):
-    """ Jinja2 with no template """
-    rendered = render_jinja2(item['payload'], **jinja2_context)
-    item['payload'] = rendered
-    return item
-  return jinja2_raw
-
-def make_jinja2(jinja2_context):
-  def jinja2(layout_name, requires=[], context={}):
-    """ Jinja2 with a template. Context goes to the template. """
-    # TODO: this function is kina sus
-
-    layout_loc = build_target / f"layouts/{layout_name}.jinja2"
-
-    @composable
-    def build(item):
-      # TODO: find a better solution than tacking onto item
-      #       it's done this way because it's how the jinja2
-      #       thing that handles the requirements expects
-      #       the requires to be a key in the given context
-      item['requires'] = requires
-
-      # render as jinja2
-      rendered = render_jinja2(item['payload'], **jinja2_context)
-
-      # wrap in layout
-      with open(layout_loc, 'r') as layout_f:
-        layout = layout_f.read()
-        rendered = render_jinja2(layout, **jinja2_context, item=item, **context)
-
-      item['payload'] = rendered
-      return item
-    return build
-  return jinja2
-
 @composable
-def write(item):
+def write(item, ctx):
   with open(item['target'], 'w') as out:
     out.write(item['payload'])
   return item
@@ -85,7 +37,7 @@ def write_to(location):
   location = build_target / location
 
   @composable
-  def builder(item):
+  def builder(item, ctx):
     with open(location, 'w') as out:
       out.write(item['payload'])
     return item
@@ -93,13 +45,13 @@ def write_to(location):
 
 def shell(shell_cmd):
   @composable
-  def builder(item):
+  def builder(item, ctx):
     shell_exec(shell_cmd)
     return item
   return builder
 
 @composable
-def noop(item):
+def noop(item, ctx):
   # Do nothing
   return item
 
@@ -109,7 +61,7 @@ unplate_options.interpolation_open = '[|'
 unplate_options.interpolation_close = '|]'
 
 @composable
-def unplate(item):
+def unplate(item, ctx):
 
   # because unplate requires the exact tokens '[unplate.template(' in
   # order to work, we can't write '[unplate_module.template(', so
@@ -124,7 +76,7 @@ def unplate(item):
 ''' [unplate.end]
   """
 
-  ctx = {}
+  ctx = {**ctx}
   exec(unplate_module.compile_anon(code, options=unplate_options), ctx)
 
   item['payload'] = ctx['template___']
@@ -135,7 +87,7 @@ def latex(rel_loc, *, tex_args="", bib_args=""):
   rel_loc = Path(rel_loc)
 
   @composable
-  def builder(item):
+  def builder(item, ctx):
     abs_loc = (item['location'].parent / rel_loc).resolve()
     abs_dir = abs_loc.parent
     tex_name = rel_loc.stem  # name of the file without .tex
@@ -151,19 +103,32 @@ def latex(rel_loc, *, tex_args="", bib_args=""):
 
   return builder
 
-def build_payload(item, jinja2_context):
+
+# TODO: code smell
+import sys
+sys.path.append('src/')
+import templates
+
+def template(template_name, *args, **kwargs):
+  template = templates.templates[template_name]
+
+  @composable
+  def builder(item, ctx):
+    result = template(item=item, *args, **kwargs)
+    item['payload'] = result
+    return item
+  return builder
+
+def build_payload(item, build_ctx):
   """
   Build the underling payload of the item
   according to the given metadata.
   Output the built file to the appropriate location.
   """
 
-  jinja2 = make_jinja2(jinja2_context)
-  jinja2_raw = make_jinja2_raw(jinja2_context)
-
   build_f = eval(item['build'])
   clone = {**item}
-  built = build_f(clone)
+  built = build_f(clone, ctx=build_ctx)
 
 def item_was_modified(item, *, since):
   """ Was the item modified since last build? """
@@ -174,7 +139,7 @@ def build_payloads(items, *, last_build_time):
 
   indexed = [item for item in items if item['indexed']]
   index_tree = calc_item_tree(indexed)
-  jinja2_context = {
+  build_ctx = {
     'items': indexed,
     'top_level_items': index_tree[0]['items'],
     'item_tree': index_tree[0]['children'],
@@ -189,7 +154,7 @@ def build_payloads(items, *, last_build_time):
         log(f"- skipping '{loc}' because it has not been modified since the last build")
       else:
         with log_section(f"@ building '{loc}'"):
-          build_payload(item, jinja2_context)
+          build_payload(item, build_ctx)
 
     log(f"{len(indexed)} payloads built")
 

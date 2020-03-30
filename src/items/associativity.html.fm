@@ -1,7 +1,7 @@
 ---
 title: Associativity is About Composition
 tags: [math]
-build: jinja2("post", requires=["mathjax", "notes"]) >> write
+build: template("post", requires=["mathjax", "notes"]) >> write
 description: "The definition of associativity of an operator $\\cdot$ is that $a \\cdot (b \\cdot c) = (a \\cdot b) \\cdot c$. Let view $a$ and $b$ as actions, and $c$ as an object. This can be more easily done by making the variable replacements $f = a$, $g = b$, $x = c$ to produce $f \\cdot (g \\cdot x) = (f \\cdot g) \\cdot x$. Now associativity reads as a statement about composition, and indeed looks very close to the definition of composition, $f(g(x)) = (f \\circ g)(x)$."
 ---
 

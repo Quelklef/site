@@ -1,7 +1,7 @@
 ---
 title: An Alternative Construction of Equivalence Classes
 tags: [math]
-build: jinja2("post", requires=["mathjax", "notes"]) >> write
+build: template("post", requires=["mathjax", "notes"]) >> write
 description: "Creating equivalence classes via shared 'attributes' rather than equivalence relations"
 indexed: no
 ---
