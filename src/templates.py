@@ -75,8 +75,6 @@ else:
       <script>
       document.addEventListener("DOMContentLoaded", function() {
         hljs.initHighlightingOnLoad();
-        >>> # TODO: remove the following
-        console.log('c');
       });
       </script>
     <<<
