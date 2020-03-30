@@ -13,44 +13,44 @@ description: "A strange problem I had when coding."
 <note-def id="skipping">
   <p>In the class, we've been coding simple object rendering. We started with 2D, drawing simple colored polygons:</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/2d-unclipped.png" />
-    <p class="caption">A colored polygon</p>
+    <p class="\figure\caption">A colored polygon</p>
   </div>
 
   <p>and then we allowed the user to clip said polygons:</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/2d-clipped.png" />
-    <p class="caption">A clipped polygon</p>
+    <p class="\figure\caption">A clipped polygon</p>
   </div>
 
   <p>And then we moved onto 3D! This started out with rendering simple wireframes, for instance of this torus:</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-wireframe.png" />
-    <p class="caption">A torus displayed as a 3d wireframe</p>
+    <p class="\figure\caption">A torus displayed as a 3d wireframe</p>
   </div>
 
   <p>We then implemented an improvement called "backface elimination" which improves rendering of some shapes, including this torus ...</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-backface.png" />
-    <p class="caption">Backface elimination removes the 'back' of the torus</p>
+    <p class="\figure\caption">Backface elimination removes the 'back' of the torus</p>
   </div>
 
   <p>... but only from certain angles ...</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-backface-turned.png" />
-    <p class="caption">Backface elimination does not work perfectly on a torus</p>
+    <p class="\figure\caption">Backface elimination does not work perfectly on a torus</p>
   </div>
 
   <p>Then we actually filled in the polygons instead of just painting their wireframes:</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-painted.png" />
-    <p class="caption">A painted torus</p>
+    <p class="\figure\caption">A painted torus</p>
   </div>
 
   <p><note-ref to="multiple-timing">And allowed multiple objects at once:</note-ref></p>
@@ -59,17 +59,17 @@ description: "A strange problem I had when coding."
     <p>Actually, I'm not sure where exactly this came in the timeline. It's not important.</p>
   </note-def>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-painted-multiple.png" />
-    <p class="caption">A painted torus next to a painted sphere</p>
+    <p class="\figure\caption">A painted torus next to a painted sphere</p>
   </div>
 
   <p>Then we added lighting!</p>
 
-  <div class="figure">
+  <div class="\figure">
     <img class="--small" src="pics/3d-lit.png" />
     <img class="--small" src="pics/3d-lit-multiple.png" />
-    <p class="caption">A torus next to a sphere, both lit</p>
+    <p class="\figure\caption">A torus next to a sphere, both lit</p>
   </div>
 
   <p><note-ref to="intersecting-timing">Most recently, we accounted for objects intersecting, which I will discuss after this footnote...</note-ref></p>
@@ -79,9 +79,9 @@ description: "A strange problem I had when coding."
   </note-def>
 </note-def>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-correct_intersection.png" />
-  <p class="caption">A torus and sphere intersecting</p>
+  <p class="\figure\caption">A torus and sphere intersecting</p>
 </div>
 
 <p>The problem of how to allow for intersections like this is actually a bit subtle.</p>
@@ -122,18 +122,18 @@ description: "A strange problem I had when coding."
 
 <p>Now is where things start getting funky. See, the user was able to manipulate one object at a time with the keyboard. I visually cued which object was selected by changing the color of its wireframe:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-wireframe-selection-1.png" />
   <img class="--small" src="pics/3d-wireframe-selection-2.png" />
-  <p class="caption">Selection was cued by a change of wireframe color</p>
+  <p class="\figure\caption">Selection was cued by a change of wireframe color</p>
 </div>
 
 <p>but I wasn't happy with this (for a few reasons). Instead, I wanted to do something cooler: I wanted to draw a halo around whichever object was selected:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-correct_halo-1.png" />
   <img class="--small" src="pics/3d-correct_halo-2.png" />
-  <p class="caption">Cuing selection with a halo instead</p>
+  <p class="\figure\caption">Cuing selection with a halo instead</p>
 </div>
 
 <p>Looking at the above images, you may think I succeeded in doing so. And I did! Kind of. With those specific objects in those specific positions with those specific angles, the halos render correctly. In general, however, they don't. As it turns out, the problem of how to render these halos is quite tricky...</p>
@@ -187,9 +187,9 @@ description: "A strange problem I had when coding."
 
 <p>...unfortunately, this doesn't work so well:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-naive_comparator.png" />
-  <p class="caption">The naive comparator algorithm does not work well</p>
+  <p class="\figure\caption">The naive comparator algorithm does not work well</p>
 </div>
 
 <p>The issue is that since each red polygon is enlarged, it obscures all the purple polygons behind it. Thus, the only purple polygon you're able to see is the one in the very front.</p>
@@ -223,43 +223,43 @@ description: "A strange problem I had when coding."
 
 <p>For instance, sometimes polygons render out-of-order or don't render at all, causing glitchy holes and red blotches on the torus:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-weird_rendering-1.png" />
   <img class="--small" src="pics/3d-weird_rendering-2.png" />
   <img class="--small" src="pics/3d-weird_rendering-3.png" />
   <img class="--small" src="pics/3d-weird_rendering-4.png" />
-  <p class="caption">With this comparator, some polygons are rendered out of order or not at all</p>
+  <p class="\figure\caption">With this comparator, some polygons are rendered out of order or not at all</p>
 </div>
 
 <p>Even weirder, I found a setup with a torus and a sphere in which the torus would render differently based on how the sphere was rotated:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-incorrect_intersection-weird-1.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-weird-2.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-weird-3.png" />
-  <p class="caption">As the sphere is rotated, polygons on the top of the torus begin to render incorrectly</p>
+  <p class="\figure\caption">As the sphere is rotated, polygons on the top of the torus begin to render incorrectly</p>
 </div>
 
 <p>So what the hell is going on?</p>
 
 <p>Consider more weird behavior in which the apparent overlapping of two objects will depend on which object is selected:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-1.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-2.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-3.png" />
-  <p class="caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
+  <p class="\figure\caption">The object that appears 'on top' depends on which object is selected (either way, the halo appears 'behind')</p>
 </div>
 
 <p>In actuality, the sphere is clipping into the torus (as can be seen by the third image, where nothing is selected). However, when the torus is selected, the way <code>comparator</code> is defined allows us to prove that it should be drawn entirely on top of the sphere.</p>
 
 <p>To show you why, let's label some points:</p>
 
-<div class="figure">
+<div class="\figure">
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-1-labeled.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-2-labeled.png" />
   <img class="--small" src="pics/3d-incorrect_intersection-overlapping-3-labeled.png" />
-  <p class="caption">Labelings of three choice points. Labels are always shown, but dots are only visible when the points they represent are visible. $A$ is on the sphere, $B$ is on the torus, and $C$ is on the torus' halo. Since $B$ is behind the sphere (see image 3), we know that $A$ is closer to the observer than $B$.</div>
+  <p class="\figure\caption">Labelings of three choice points. Labels are always shown, but dots are only visible when the points they represent are visible. $A$ is on the sphere, $B$ is on the torus, and $C$ is on the torus' halo. Since $B$ is behind the sphere (see image 3), we know that $A$ is closer to the observer than $B$.</div>
 
 <p>I will use the notation $X \rightharpoonup Y$ to mean that <code>comparator</code> tells us to paint $Y$ after $X$. The arrow points from painted first to painted last, from painted on the bottom to painted on the top. It may be pronounced "before" or "and then" or "under".</p>
 
