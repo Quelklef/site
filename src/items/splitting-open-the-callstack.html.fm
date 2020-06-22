@@ -1,0 +1,258 @@
+---
+title: Stealing Utensils and Splitting Open the Callstack
+tags: [programming]
+target: 'splitting-open-the-callstack.html'
+build: template("post", requires=["notes", "syntax-highlighting"]) >> write
+description: "Using Promises to break out of callbacks, told through a story about utensils."
+indexed: no
+---
+
+<p>If you asked my university friends to tell you something strange about me, I think a good amount of them would talk about the cafeteria. See, <note-ref to="truth">I <em>love</em> our university's cafeteria. Back when the semester was in session, I could spend upwards of four hours a day (or more!) in the cafeteria</note-ref>. Besides the food, it was a place where I could be sure that I'd see all my friends.</p>
+
+<note-def id="truth">
+  <p>Much of this story is fabricated, but this is actually true.</p>
+</note-def>
+
+<p>Our cafeteria was pretty simple. You'd check in with your student id, and go grab your food. To get your utensils, you'd just</p>
+
+<pre><code class="js">const utensils = grabUtensils();</code></pre>
+
+<p>and then go ahead and</p>
+
+<pre><code class="js">eatMealWith(utensils).while(talkingToFriends);</code></pre>
+
+<p>and when you were done, you'd just</p>
+
+<pre><code class="js">returnUtensils(utensils);</code></pre>
+
+<p>This was great.</p>
+
+<p>Mostly.</p>
+
+<p>See, there was some trouble. <em>Some</em> people, for some reason, didn't return their utensils when they were done with them. <note-ref to="forks-gone">There began to be a shortage of utensils</note-ref>. You could feel it in the air when you walked in, invariably spotting out of the corner of your eye  a group of four or five students around the empty fork holders, waiting for a refill.</p>
+
+<note-def id="forks-gone">
+  <p>This is also true, at least for forks. Though I've dramatized it some for this blog post.</p>
+</note-def>
+
+<p>Tensions began to rise. Students were annoyed at staff because they wanted forks, and staff were annoyed at students because <em>they</em> were the reason there were no utensils to begin with!</p>
+
+<p>Finally, a change was made.</p>
+
+<p>Students were no longer allowed to simply</p>
+
+<pre><code class="ts">grabUtensils: () => Utensils</code></pre>
+
+<p>Instead, they had to</p>
+
+<pre><code class="ts">withUtensils: (callback: (utensils: Utensils) => void) => void</code></pre>
+
+<p>For the most part, this was a huge success! Students would now</p>
+
+<pre><code class="ts">withUtensils(utensils => {
+  eatMealWith(utensils).while(talkingToFriends);
+});  // utensils automatically returned
+</code></pre>
+
+<p>and <note-ref to="throw">their utensils would be automatically returned at the end of the inner function</note-ref>! No more tricky theivery.</p>
+
+<note-def id="throw">
+  <p>... assuming the student doesn't <code>throw</code>.</p>
+</note-def>
+
+<p>However.</p>
+
+<p>One group of students was absolutely <em>outraged</em> at this change. And, no, it wasn't the group that had been stealing the forks&mdash;mostly, those kids were just doing so for shits and giggles. Instead, it was a tight-knit group of deviant thinkers known as the <i>silly forking kids</i>. The thing that bound these kids together is that their utensil habits weren't so simple as grab-use-return. Most silly forkers liked to eat outside of the cafeteria, and would return the forks long after they were done eating. Some would wait until the end of the week and return them in-bulk, and some would return their forks once a day. The most common, however, was to return their forks the next meal. Their dinner routine looked like</p>
+
+<pre><code class="ts">goToCafeteria();
+const utensils = grabUtensils();
+goHome();
+eatMealWith(utensils).while(talkingToFriends);
+goAboutDay();
+sleep();
+// breakfast time!
+goToCafeteria();
+returnUtensils(utensils);
+const freshUtensils = grabUtensils();
+// ...
+</code></pre>
+
+<p>But with these new policy changes, they couldn't do this anymore! Instead, they had to</p>
+
+<pre><code class="ts">goToCafeteria();
+withUtensils(utensils => {
+  goHome();
+  eatMealWith(utensils).while(talkingToFriends);
+  goAboutDay();
+  sleep();
+  // breakfast time!
+  goToCafeteria();
+});  // utensils automatically returned
+
+// breakfast
+withUtensils(freshUtensils => {
+  // ...
+});
+</code></pre>
+
+<p>Certainly their outrage seems justified! Why should anything regarding <em>utensils</em> be in the callstack for <code>sleep()</code>? So of course these silly forkers were angry.</p>
+
+<p>Alas, the campus officials were unwilling to rollback the policy for the sake of such a small portion of students. For a long time, the silly forkers simply had to live with it.</p>
+
+<p>Fast forward a semester.</p>
+
+<p>The campus begins rolling out changes to modernize policies, including such things as increasing the number of in-library cats, replacing Linux with an OS written in JavaScript, and... <code>Promise</code>s!</p>
+
+<p>The entire campus API was slowly becoming asynchronous. In regards to the cafeteria, this meant that students would now</p>
+
+<pre><code class="ts">withUtensils: (func: (ut: Utensils) => Promise&lt;void&gt;) => Promise&lt;void&gt;</code></pre>
+
+<p>For the most part, this was not an impactful change; the majority of the student population simply had to</p>
+
+<pre><code class="ts">await withUtensils(async utensils => {
+  await eatMealWith(utensils).while(talkingToFriends);
+});</pre></code>
+
+<p>However, for our silly forking friends, this semingly-innocuous change would go down in history.</p>
+
+<p>One day, <note-ref to="me">one silly forker</note-ref> decided to do an experiment. He wanted to see if he could go a week without sleeping in his own dowm room. As a result of this, he found himself one night at the library with a backpack, preparing to try and doze under the 24/7 flourescant lights. As he danced in and out of slumber, his mind wandering to and returning from foreign, mystical places, he was suddenly struck with a realization.</p>
+
+<note-def id="me">
+  <p>It's me. I did this experiment. Though I'm not a silly forker.</p>
+</note-def>
+
+<p>With this new <code>Promise</code>-based policy, the campus had really forked up.</p>
+
+<p>He jumped up with excitement. Ignoring that it was 4:30 in the morning, he went and rounded up his silly forking friends. He sat them down and showed them how they could finally return to their former glory, their days of free forking, unrestrainted by the callstack.</p>
+
+<p>The next morning, all the silly forkers arrived to breakfast before the doors had even opened. They chattered excitedly, somewhat to the annoyance of the tired students around them. When the doors finally opened, they all rushed in before anyone else, and, one after another, they</p>
+
+<pre><code class="ts">let doneWithUtensils: () => Promise&lt;void&gt;;
+const utensils = await new Promise(resolveUtensils => {
+  withUtensils(utensils => {
+    resolveUtensils(utensils);
+    return new Promise(resolve => doneWithUtensils = resolve);
+  });
+});
+</code></pre>
+
+<p>They filed back out of the cafeteria, smiling at the people around them with a mix of giddiness, pride, and perhaps a bit too much smugness. Each of them went and</p>
+
+<pre><code class="ts">await goHome();
+await eatMealWith(utensils).while(talkingToFriends);
+await goAboutDay();
+await sleep();
+</code></pre>
+
+<p>And enjoyed a delightfully empty callstack, free of any call to <code>withUtensils</code>. And the next morning they simply</p>
+
+<pre><code class="ts">await goToCafeteria();
+doneWithUtensils();
+</code></pre>
+
+<p>and repeated the process, just as they had in the years before the original policy change.</p>
+
+<p>And for the rest of their eduation at the university, each silly forker enjoyed the freedom to take their fork where they pleased without being followed by the callstack. They passed this secret trick down to new generations of students, but never to the general student population; they feared that fork theives would return, another policy would come to be, and once again their ability to freely fork would be compromised.</p>
+
+<p>But now, I tell this secret to you.</p>
+
+<hr />
+
+<p>I call this kind of code <i>splitting open the callstack</i>. It regards resource management.</p>
+
+<p>It's not uncommon to have a resource that needs some setup and some teardown around when it's used. For instance, a file needs to be opened before it's used, and closed when it's done being used. Same with a database connection. Or perhaps you want to track resource usage for debugging purposes.</p>
+
+<p>Regardless, you end up with a pair of operations, which I'll call acquire and release. Then, you</p>
+
+<pre><code class="js">const resource = acquire();
+doWhateverWith(resource);
+release(resource);
+</code></pre>
+
+<p>The issue with this is that it's easy to forget to <code>release</code> the resource. To mitigate this, you need some way to find out when the code is done with the resource, and then you automatically clean it up. In Python, this is done with context managers. In JavaScript, an idiomatic way to do this is to have a function <code>wrap: (callback: (resource: Resource) => void) => void</code>, which is defined as follows</p>
+
+<pre><code class="js">function wrap(callback) {
+  const resource = acquire();
+  callback(resource);
+  release(resource);
+}
+</code></pre>
+
+<p>and then you use it like</p>
+
+<pre><code class="js">wrap(resource => {
+  doWhateverWith(resource);
+});  // automatic cleanup
+</code></pre>
+
+<p>This is mostly pretty awesome. However, it can become a problem because it demands that <em>all</em> usage of the <code>resource</code> be contained in the callback. Sometimes this isn't a problem, <note-ref to="problem-example">but sometimes it is</note-ref>.</p>
+
+<note-def id="problem-example">
+  <p>A theoretical example of when this can be an issue:</p>
+  <p>If, for instance, you use the resource in several places of the codebase, then you'll have to raise the call to <code>wrap</code> up higher and higher in your code until all uses are enclosed by the callback, and then pass the acquired resource back down the callstack.</p>
+  <p>Sometimes this is appropriate, but sometimes it's just ugly and in-the-way.</p>
+  <hr />
+  <p>A real example of when this can be an issue (in fact, the example that lead me to discover splitting the callstack):</p>
+  <p>I had class which I wanted to make iterable. Instances were to iterate over some resource that was only available through a <code>wrap</code> function.</p>
+  <p>Of course, there's a conflict there. The iterator must call <code>wrap</code> to get the resource, for starters. But then the iterator must keep the resource open between calls to <code>.next()</code>. However, the resource will close as soon as <code>wrap</code> returns, which will be when the first call to <code>.next()</code> returns.</p>
+  <p>I'm not sure if it's even possible to write such an iterator. I would have instead had to have the caller invoke <code>wrap</code> and pass in the resource, or something like that. Which can be a somehwat undesirable solution, depending on context.</p>
+  <p>Luckily for me, I didn't have to do something so horrid. I happened to be in an async context, which, as the rest of the post explores, means I <em>could</em> write an iterator that does this.</p>
+</note-def>
+
+<p>Now, I'm not sure if there's a solution for this problem when in a synchronous context. However, interestingly, when you lift the <code>wrap</code> function to be asynchronous, the problem practically solves itself!</p>
+
+<p>With a synchronously handled resource, we could define <code>wrap</code> in terms of <code>acquire</code> and <code>release</code>, but not the other way aroud. But, as it turns out, with an asynchronous <code>wrap</code>, we <em>can</em> do this! Check it out: we start with</p>
+
+<pre><code class="js">wrap: (callback: (resource: Resource) => Promise&lt;void&gt;) => Promise&lt;void&gt;</pre></code>
+
+<p>and now we can <note-ref to="impl">define</note-ref> <code>acquire</code> and <code>release</code>!</p>
+
+<note-def id="impl">
+  <p>Note that my implementation isn't perfect. It is, however, pretty good. Two drawbacks: it relies on <code>wrap</code> always returning a new resource, and it leaks memory if <code>release</code> isn't called.</p>
+</note-def>
+
+<pre><code class="ts">// vvv Some meta-info will need to get from `acquire` to `release`
+//    For API convenience, we'll use the following `Map` object
+//    to handle this information behind-the-scenes
+const doneMap = new Map();
+
+function acquire(): Promise&lt;Resource&gt; {
+  // vvv Return the promise that will resolve to our resource
+  return new Promise(resolveResult => {
+    // vvv Get the resource
+    wrap(resource => {
+      // vvv We'll resolve this promise to signify that we're done with the
+      //     resource and it can be cleaned up
+      return new Promise(done => {
+        // vvv Put it in the map to pull back out in `release`
+        doneMap.set(resource, done);
+        // vvv Return the resource
+        resolveResult(resource);
+      });
+    });
+  });
+}
+
+function release(resource: Resource): void {
+  // vvv Mark that we're done with the resource
+  const done = doneMap.get(resource);
+  done();
+  // vvv Delete the no-longer-needed meta info
+  doneMap.delete(resource);
+}
+</code></pre>
+
+<p>And now, amazingly, we are able to do the following:</p>
+
+<pre><code class="ts">const resource = await acquire();
+doWhateverWith(resource);
+release(resource);
+</code></pre>
+
+<p>I call this <q>splitting the callstack</q> because it looks as though we are taking something that had a coherent callstack&mdash;<code>wrap</code> calls <code>callback</code> which returns up to <code>wrap</code>&mdash;and we are ripping it in half lengthwise at <code>callback</code>, letting the first half run but waiting on the second half of the callstack, saying, <q>hey, wait here, I'll finish this later</q>.</p>
+
+<p>Essentially what's going on is that, since asynchronous code is <em>built on</em> the idea of saying, <q>hey, hold on for a bit</q>, we are able to do so <q>to the callstack</q> when in an asynchronous context. In particular, instead of running the <q>second half</q> of the callback&mdash;the cleanup bit&mdash;when we return from <code>acquire</code>, we are able to store it in a <code>Promise</code> to be invoked when we desire.</p>
+
+<p>In short: why was the callstack afraid of the <code>Promise</code>? Because promises can rip callstacks in half!</p>
+
+<p>Now go manage some resources!</p>
