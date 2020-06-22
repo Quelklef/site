@@ -127,7 +127,7 @@ withUtensils(freshUtensils => {
 
 <p>The next morning, all the silly forkers arrived to breakfast before the doors had even opened. They chattered excitedly, somewhat to the annoyance of the tired students around them. When the doors finally opened, they all rushed in before anyone else, and, one after another, they</p>
 
-<pre><code class="ts">let doneWithUtensils: () => Promise&lt;void&gt;;
+<pre><code class="ts">let doneWithUtensils: () => void;
 const utensils = await new Promise(resolveUtensils => {
   withUtensils(utensils => {
     resolveUtensils(utensils);
