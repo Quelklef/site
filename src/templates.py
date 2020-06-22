@@ -70,8 +70,8 @@ else:
     <<<
 
     >>> if 'syntax-highlighting' in requires:
-      <link rel="stylesheet" href="/assets/syntax-highlighting/styles/dracula.css">
-      <script src="/assets/syntax-highlighting/highlight.pack.js"></script>
+      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/dracula.min.css">
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
       <script>
       document.addEventListener("DOMContentLoaded", function() {
         hljs.initHighlightingOnLoad();
