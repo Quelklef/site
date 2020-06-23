@@ -1,9 +1,9 @@
 ---
-title: Stealing Utensils and Splitting Open the Callstack
+title: Stealing Utensils and Splitting the Callstack
 tags: [programming]
-target: 'splitting-open-the-callstack.html'
+target: 'splitting-the-callstack.html'
 build: template("post", requires=["notes", "syntax-highlighting"]) >> write
-description: "Using Promises to break out of callbacks, told through a story about utensils."
+description: "Using Promises to break out of the callstack, told through a story about utensils."
 indexed: no
 ---
 
@@ -158,7 +158,7 @@ doneWithUtensils();
 
 <hr />
 
-<p>I call this kind of code <i>splitting open the callstack</i>. It regards resource management.</p>
+<p>I call this kind of code <i>splitting the callstack</i>. It regards resource management.</p>
 
 <p>It's not uncommon to have a resource that needs some setup and some teardown around when it's used. For instance, a file needs to be opened before it's used, and closed when it's done being used. Same with a database connection. Or perhaps you want to track resource usage for debugging purposes.</p>
 
