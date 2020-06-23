@@ -4,7 +4,6 @@ tags: [programming]
 target: 'splitting-the-callstack.html'
 build: template("post", requires=["notes", "syntax-highlighting"]) >> write
 description: "Using Promises to break out of the callstack, told through a story about utensils."
-indexed: no
 ---
 
 <p>If you asked my university friends to tell you something strange about me, I think a good amount of them would talk about the cafeteria. See, <note-ref to="truth">I <em>love</em> our university's cafeteria. Back when the semester was in session, I could spend upwards of four hours a day (or more!) in the cafeteria</note-ref>. Besides the food, it was a place where I could be sure that I'd see all my friends.</p>
