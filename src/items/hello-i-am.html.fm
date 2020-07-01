@@ -1,0 +1,43 @@
+---
+title: Hello, I am
+tags: [language]
+target: 'hello-i-am.html'
+build: markdown >> template("post", requires=["notes"]) >> write
+description: "A close look at the phrase, 'Hello, I am [name]'"
+---
+
+> Hello, I am [name].
+
+A common statement, but, in my opinion, utterly fascinating. Let me show you why.
+
+Saying that <q>I am Maynard</q> communicates that my name is <q>Maynard</q>. Simple enough, and I could instead say:
+
+> My name is Maynard.
+
+However, the *way* these two phrases work is entirely different and worthy of study.
+
+The best way to start to understand what's going on here is to interrogate the main verb, <q>is</q>/<q>am</q>. For sentences of the form <q>*x* is/am *y*</q>, the semantics of the sentences are: *x* and *y* refer to the same thing. Think of, for instance, <q>my cat is my best friend</q>: this sentence tells us that the phrase <q>my cat</q> and the phrase <q>my best friend</q> both refer to the same fuzzy real-life being.
+
+## My name is
+
+The second sentence, <q>My name is Maynard</q>, is the simpler of the two. 
+
+From our understanding of what <q>is</q> means, we learn the semantics of the phrase <q>My name is Maynard</q>: that <q>My name</q> and <q>Maynard</q> refer to the same thing. Interestingly, by revealing the sentences' semantics, we haven't yet reached the intended meaning of the phrase: there's still more work to do. Namely, we must note that the phrase <q>Maynard</q> refers to the literal name <i>Maynard</i>. Then, since <q>My name</q> and <q>Maynard</q> refer to the same thing, then <q>My name</q> *also* refers to the name <i>Maynard</i>. Thus, we finally conclude that my name is Maynard.
+
+That's a surprising amount going on for such a simple sentence. The other sentence is even more interesting.
+
+## I am
+
+With <q>I am Maynard</q>, we can again start with <q>is</q>, which this time is an <q>am</q>. The <q>am</q> tells us that the semantics of this sentence are: <q>I</q> and <q>Maynard</q> refer to the same thing. Curiously, where in the previous sentence, <q>Maynard</q> referred to the name <i>Maynard</i>, the same isn't true in this sentence, since that would nonsensically mean that I *am equal to* the name *Maynard*.
+
+Instead, all this sentence gives us is that <q>I</q> and <q>Maynard</q> refer to the same thing. It's rather like the vacuous statement "x = y", from which it seems like we can't conclude anything meaningful. However, clearly we *do*: because from reading "I am Maynard", one understands that my name is *Maynard*. What gives?
+
+We're pulling a rather clever meta-level trick to glean extra information. Where the references <q>x</q> and <q>y</q> don't really tell us anything about the thing they reference, the reference <q>Maynard</q> *does*: since we recognize it as a human name, we conclude that the thing it references has the name *Maynard*.
+
+So we've learned that the thing that <q>Maynard</q> references has the name *Maynard*. We had already found out (from the use of <q>am</q>) that <q>I</q> and <q>Maynard</q> reference the same thing. Lastly, we can observe that <q>I</q> references, well, me. From these three realizations combined, we are finally able to discover what the sentence was about the whole time: that my name is Maynard.
+
+***
+
+Both of these sentences are immediately understood by just about any reader. And yet, there's a fascinating amount of machinery working behind-the-scenes in each: the reader must grok the meaning of <q>is</q> and <q>am</q> and be able to perform simple logic regarding equal references. Additionally, they need to understand that <q>I</q> refers to the speaker or author. And in the case of <q>I am Maynard</q>, the reader also needs the cultural context that some references, like <q>Maynard</q>, give us information about what they reference.
+
+And, shit, that's kinda cool. I hope you never look at a nametag the same way again.
