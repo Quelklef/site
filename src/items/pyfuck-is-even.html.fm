@@ -1,0 +1,199 @@
+---
+title: pyfuck is_even
+tags: [programming]
+target: 'pyfuck-is-even.html'
+build: template("post", requires=["notes", "syntax-highlighting"]) >> write
+description: "Implementing an is_even function in Python through only use of lambda, if/else, +, 0, 1, and =="
+indexed: no
+---
+
+<p>Behold! The most beautiful possible implementation of <code>is_even</code>:</p>
+
+<pre><code class="py">(lambda y: (lambda p: y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x)))))(y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))))(lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a)))</code></pre>
+
+<p>This implementation uses only 5 constructs&mdash;<code>lambda</code>, inline <code>if-else</code>, <code>+</code>, <code>0</code>, <code>1</code>, and <code>==</code>&mdash;and does not explicitly self-reference.</p>
+
+<p>And it works!</p>
+
+<pre><code class="py">is_even = (lambda y: ... )
+print(is_even(-2))  # 1
+print(is_even(-1))  # 0
+print(is_even(+0))  # 1
+print(is_even(+1))  # 0
+print(is_even(+2))  # 1
+# ...</code></pre>
+
+<p>But how?</p>
+
+<p>Let's rewrite it a bit:</p>
+
+<pre><code class="py">(lambda y:
+  (lambda p:
+    y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
+  )(y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1)))
+)(lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a)))</code></pre>
+
+<p>You may notice that the pattern <code>(lambda PARAMETER: BODY)(ARGUMENT)</code> is seen twice in the code. Such a pattern essentially emulates a variable binding, so we can turn them into explicit bindings:</p>
+
+<pre><code class="py">y = lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a))
+p = y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))
+is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
+</code></pre>
+
+<p>And what are <code>y</code> and <code>p</code>?</p>
+
+<h2>1: <code>y</code></h2>
+
+<pre><code class="py">y = lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a))</code></pre>
+
+<p>The <code>y</code> function allows us to write recursive functions without use of <code>def</code> or self-reference. Precisely, <code>y</code> is <note-ref to="variation">a variation of</note-ref> the Y combinator, if you know what that means.</p>
+
+<note-def id="variation">
+  <p>modified to use <code>*args</code> because Python functions aren't curried</p>
+</note-def>
+
+<p>An example. The typical implementtion of a <code>fibanocci</code> function is as follows:</p>
+
+<pre><code class="py">def fib(n):
+if n in [0, 1]:
+  return 1
+else:
+  return fib(n - 1) + fib(n - 2)</code></pre>
+
+<p>We can get rid of <code>def</code> pretty easily by using a <code>lambda</code> and a <a href="https://stackoverflow.com/a/2802748/4608364">ternary expression</a>:</p>
+
+<pre><code class="py">fib = lambda n: 1 if n in [0, 1] else fib(n - 1) + fib(n - 2)</code></pre>
+
+<p>However, if we don't want to allow <code>fib</code> to call itself, then things get tricky:</p>
+
+<pre><code class="py">fib = lambda n: 1 if n in [0, 1] else &lt;???&gt;(n - 1) + &lt;???&gt;(n - 2)</code></pre>
+
+<p>What do we put in the place of the <code>&lt;???&gt;</code>?</p>
+
+<p>This is where <code>y</code> comes in. The <code>y</code> function allows us to add an extra parameter to the lambda, called <code>r</code> for 'recur', and use that to fill in the holes:</p>
+
+<pre><code class="py">fib = y(lambda r, n: 1 if n in [0, 1] else r(n - 1) + r(n - 2))</code></pre>
+
+<p>And it works!</p>
+
+<pre><code class="py">fib(0)  # 1
+fib(1)  # 1
+fib(2)  # 2
+fib(3)  # 3
+fib(4)  # 5
+fib(5)  # 8
+# ...
+</code></pre>
+
+<p>You may be curious as to how exactly <code>y</code> works. I won't <note-ref to="time">waste your time</note-ref> trying to explain it myself; instead, you should read <a href="https://mvanier.livejournal.com/2897.html">this article</a>. (In doing so, keep in mind that Python needs the strict, not lazy, Y combinator.)</p>
+
+<note-def id="time">
+  <p>I have tried to write out explanations of the Y combinator, but had little success. It's, I think, a difficult topic both to understand and explain.</p></note-def>
+
+<h2>2: <code>p</code></h2>
+
+<pre><code class="py">p = y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))</code></pre>
+
+<p>The <code>p</code> function makes use of <code>y</code> in order to implement a kind of a predecessor operation. In particular, <code>p(x) = abs(x - 1)</code>.
+
+<p>We'll begin deconstructing <code>p</code> by replacing the use of <code>y</code> with a self-referential lambda:</p>
+
+<pre><code class="py">p = lambda g, c=0: c if (c + 1 == g) + (g + c == 1) else p(g, c + 1)</code></pre>
+
+<p>We can then rewrite that into a <code>def</code> statement:</p>
+
+<pre><code class="py">def p(g, c=0):
+  if (c + 1 == g) + (g + c == 1):
+    return c
+  else:
+    return p(g, c + 1)</code></pre>
+
+<p>Because of <note-ref to="bools">how booleans an integers intereact in Python</note-ref>, the condition <code>(c + 1 == g) + (g + c == 1)</code> is the same as <code>c + 1 == g or g + c == 1</code>. Then, a little bit of algebra turns this into <code>abs(c) == g - 1</code>. This gives:</p>
+
+<note-def id="bools">
+  <div>
+    <p>In Python, booleans and integers are undoubtedly different, but they are surprisingly related: <code>True</code> and <code>1</code> are often interchangable, as are <code>False</code> and <code>0</code>.</p>
+
+    <p>For starters, we can use booleans as if they were integers, in arithmetic:</p>
+
+    <pre><code class="py">    1 + True  == 1 + 1 == 2
+ True + False == 1 + 0 == 1
+False + 1     == 0 + 1 == 1
+False + False == 0 + 0 == 0
+</code></pre>
+
+    <p>Additionally, <code>0</code> is "falsy", meaning that it acts like <code>False</code> in a conditional, and <code>1</code> (as well as all other integers) are "truthy", meaning that they act like <code>True</code>:</p>
+
+    <pre><code class="py">if -2: print('truthy');  # prints 'truthy'
+if -1: print('truthy');  # prints 'truthy'
+if +0: print('truthy');  # doesn't print anything!
+if +1: print('truthy');  # prints 'truthy'
+if +2: print('truthy');  # prints 'truthy'</code></pre>
+
+    <p>Combining these ideas procudes <code>+</code> as an idiom for <code>or</code>, as well as <code>*</code> for <code>and</code> and <code>1 -</code> for <code>not</code>:</p>
+
+    <pre><code class="py"> True + True  == 1 + 1 == 2  # truthy
+ True + False == 1 + 0 == 1  # truthy
+False + True  == 0 + 1 == 1  # truthy
+False + False == 0 + 0 == 0  # falsy
+
+ True * True  == 1 * 1 == 1  # truthy
+ True * False == 1 * 0 == 0  # falsy
+False * True  == 0 * 1 == 0  # falsy
+False * False == 0 * 0 == 0  # falsy
+
+    1 - True  == 1 - 1 == 0  # falsy
+    1 - False == 1 - 0 == 1  # truthy
+</code></pre>
+
+  </div>
+</note-def>
+
+<pre><code class="py">def p(g, c=0):
+  if abs(c) == g - 1:
+    return c
+  else:
+    return p(g, c + 1)</code></pre>
+
+<p>So, <code>p</code> takes an argument <code>g</code> (for 'goal') then recursively iterates through integers <code>c</code> (for 'current') from <code>0</code> up until it finds one where <code>abs(c) == g - 1</code>. A little more algebra tells us that this condition is equivalent to <code>c = abs(g - 1)</code>. Thus, <code>p(x)</code> gives <code>abs(x - 1)</code>.
+
+<h2>Bringing it Together</h2>
+
+<p>Now that we know what <code>y</code> and <code>p</code> do, we can figure out how <code>is_even</code> works. Look again at its definition:</p>
+
+<pre><code class="py">y = # magic recursive function maker #
+p = # takes x and returns abs(x - 1) #
+is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
+</code></pre>
+
+<p>Since we've learned what <code>y</code> does, we can replace its usage with conventional recursion:</p>
+
+<pre><code class="py">is_even = lambda x: x == 0 if (x == 0) + (p(x) == 0) else is_even(p(p(x)))</code></pre>
+
+<p>We'll then rewrite the function as a statement:</p>
+
+<pre><code class="py">def is_even(x):
+  if (x == 0) + (p(x) == 0):
+    return x == 0
+  else:
+    return is_even(p(p(x)))</code></pre>
+
+<p><note-ref to="bools">Using on <code>+</code> booleans acts like <code>or</code></note-ref>, so we can replace it accordingly:</p>
+
+<pre><code class="py">def is_even(x):
+  if x == 0 or p(x) == 0:
+    return x == 0
+  else:
+    return is_even(p(p(x)))</code></pre>
+
+<p>Since <code>abs(x - 1) == 0</code> only when <code>x == 1</code>, then the <code>if</code> condition is equivalent to <code>if x in [0, 1]</code>:</p>
+
+<pre><code class="py">def is_even(x):
+  if x in [0, 1]:
+    return x == 0
+  else:
+    return is_even(p(p(x)))</code></pre>
+
+<p>Thus we have reached the most expanded form of <code>is_even</code>. Now, note that if <code>x &lt 0</code>, then <code>p(p(x)) = -x</code>. This means that all negative <code>x</code> values are reduced to a positive case. Of the positive integers, the base case handles <code>x in [0, 1]</code>; then, for the remaining case of <code>x &gt;= 2</code>, we have that <code>p(p(x)) = x - 2</code>, meaning that it eventually reduces to the base case. Therefore, all cases are covered and our <code>is_even</code> function works!</p>
+
+<p>And that's all! The absolute monster of a function that we began with turned out to be a pretty innocent algorithm hiding behind <code>lambda</code> after <code>lambda</code>.</p>
