@@ -94,7 +94,7 @@ fib(5)  # 8
 
 <pre><code class="py">p = y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))</code></pre>
 
-<p>The <code>p</code> function makes use of <code>y</code> in order to implement a kind of a predecessor operation. In particular, <code>p(x) = abs(x - 1)</code>.
+<p>The <code>p</code> function makes use of <code>y</code> in order to implement a kind of a predecessor operation. In particular, <code>p(x) = abs(x - 1)</code>. The key features of <code>p</code> are that it is exactly a normal decrement when applied to positive integers, and that it maps negative integers onto positive integers with opposite parity.</p>
 
 <p>We'll begin deconstructing <code>p</code> by replacing the use of <code>y</code> with a self-referential lambda:</p>
 
@@ -108,7 +108,7 @@ fib(5)  # 8
   else:
     return p(g, c + 1)</code></pre>
 
-<p>Because of <note-ref to="bools">how booleans an integers intereact in Python</note-ref>, the condition <code>(c + 1 == g) + (g + c == 1)</code> is the same as <code>c + 1 == g or g + c == 1</code>. Then, a little bit of algebra turns this into <code>abs(c) == g - 1</code>. This gives:</p>
+<p>Because of <note-ref to="bools">how Python's booleans an integers intereact</note-ref>, the condition <code>(c + 1 == g) + (g + c == 1)</code> is the same as <code>c + 1 == g or g + c == 1</code>, which, with a little algebra, turns into <code>c == abs(g - 1)</code>. This gives:</p>
 
 <note-def id="bools">
   <div>
@@ -150,12 +150,12 @@ False * False == 0 * 0 == 0  # falsy
 </note-def>
 
 <pre><code class="py">def p(g, c=0):
-  if abs(c) == g - 1:
+  if c == abs(g - 1):
     return c
   else:
     return p(g, c + 1)</code></pre>
 
-<p>So, <code>p</code> takes an argument <code>g</code> (for 'goal') then recursively iterates through integers <code>c</code> (for 'current') from <code>0</code> up until it finds one where <code>abs(c) == g - 1</code>. A little more algebra tells us that this condition is equivalent to <code>c = abs(g - 1)</code>. Thus, <code>p(x)</code> gives <code>abs(x - 1)</code>.
+<p>So, <code>p</code> takes an argument <code>g</code> (for 'goal') then recursively iterates through integers <code>c</code> (for 'current') from <code>0</code> up until it finds one where <code>c == abs(g - 1)</code>. Thus, <code>p(x)</code> gives <code>abs(x - 1)</code>.
 
 <h2>Bringing it Together</h2>
 
@@ -186,7 +186,7 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
   else:
     return is_even(p(p(x)))</code></pre>
 
-<p>Since <code>abs(x - 1) == 0</code> only when <code>x == 1</code>, then the <code>if</code> condition is equivalent to <code>if x in [0, 1]</code>:</p>
+<p>Note that <code>p(x) == 0</code> only when <code>abs(x - 1) == 0 </code> only when <code>x == 1</code>. Thus, the condition <code>x == 0 or p(x) == 0</code> can be rewritten as <code>x in [0, 1]</code>:</p>
 
 <pre><code class="py">def is_even(x):
   if x in [0, 1]:
@@ -194,6 +194,14 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
   else:
     return is_even(p(p(x)))</code></pre>
 
-<p>Thus we have reached the most expanded form of <code>is_even</code>. Now, note that if <code>x &lt 0</code>, then <code>p(p(x)) = -x</code>. This means that all negative <code>x</code> values are reduced to a positive case. Of the positive integers, the base case handles <code>x in [0, 1]</code>; then, for the remaining case of <code>x &gt;= 2</code>, we have that <code>p(p(x)) = x - 2</code>, meaning that it eventually reduces to the base case. Therefore, all cases are covered and our <code>is_even</code> function works!</p>
+<p>Now take a look at <code>p(p(x))</code>, which is <code>abs(abs(x - 1) - 1)</code>. When <code>x &lt; 0</code>, this is just <code>-x</code>; when <code>x &gt; 1</code>, it's just <code>x - 2</code>. This justifies the final rewrite:</p>
 
-<p>And that's all! The absolute monster of a function that we began with turned out to be a pretty innocent algorithm hiding behind <code>lambda</code> after <code>lambda</code>.</p>
+<pre><code class="py">def is_even(x):
+  if x in [0, 1]:
+    return x == 0
+  elif x &lt; 0:
+    return is_even(-x)
+  else:
+    return is_even(x - 2)</code></pre>
+
+<p>And I think it's pretty fair to call this "done" :)</p>
