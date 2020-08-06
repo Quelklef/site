@@ -7,6 +7,28 @@ description: "Implementing an is_even function in Python through only use of lam
 indexed: no
 ---
 
+<style>
+
+.add, .sub {
+  opacity: 1;
+}
+
+.add {
+  background-color: green;
+}
+
+.sub {
+  background-color: rgb(200, 0, 0);
+  opacity: 0.3;
+}
+
+.add, .add *,
+.sub, .sub * {
+  color: white !important;
+}
+
+</style>
+
 <p>Behold! The most beautiful possible implementation of <code>is_even</code>:</p>
 
 <pre><code class="py">(lambda y: (lambda p: y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x)))))(y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))))(lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a)))</code></pre>
@@ -35,9 +57,9 @@ print(is_even(+2))  # 1
 
 <p>You may notice that the pattern <code>(lambda PARAMETER: BODY)(ARGUMENT)</code> is seen twice in the code. Such a pattern essentially emulates a variable binding, so we can turn them into explicit bindings:</p>
 
-<pre><code class="py">y = lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a))
-p = y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))
-is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
+<pre><code class="py"><span class="add">y =</span> lambda f: (lambda g: g(g))(lambda r: lambda *a: f(r(r), *a))
+<span class="add">p =</span> y(lambda r, g, c=0: c if (c + 1 == g) + (g + c == 1) else r(g, c + 1))
+<span class="add">is_even =</span> y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 </code></pre>
 
 <p>And what are <code>y</code> and <code>p</code>?</p>
@@ -55,24 +77,24 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 <p>An example. The typical implementtion of a <code>fibanocci</code> function is as follows:</p>
 
 <pre><code class="py">def fib(n):
-if n in [0, 1]:
-  return 1
-else:
-  return fib(n - 1) + fib(n - 2)</code></pre>
+  if n in [0, 1]:
+    return 1
+  else:
+    return fib(n - 1) + fib(n - 2)</code></pre>
 
 <p>We can get rid of <code>def</code> pretty easily by using a <code>lambda</code> and a <a href="https://stackoverflow.com/a/2802748/4608364">ternary expression</a>:</p>
 
-<pre><code class="py">fib = lambda n: 1 if n in [0, 1] else fib(n - 1) + fib(n - 2)</code></pre>
+<pre><code class="py"><span class="add">fib = lambda n:</span> 1 <span class="add">if</span> n in [0, 1] <span class="add">else</span> fib(n - 1) + fib(n - 2)</code></pre>
 
 <p>However, if we don't want to allow <code>fib</code> to call itself, then things get tricky:</p>
 
-<pre><code class="py">fib = lambda n: 1 if n in [0, 1] else &lt;???&gt;(n - 1) + &lt;???&gt;(n - 2)</code></pre>
+<pre><code class="py">fib = lambda n: 1 if n in [0, 1] else <span class="add">&lt;???&gt;</span>(n - 1) + <span class="add">&lt;???&gt;</span>(n - 2)</code></pre>
 
 <p>What do we put in the place of the <code>&lt;???&gt;</code>?</p>
 
 <p>This is where <code>y</code> comes in. The <code>y</code> function allows us to add an extra parameter to the lambda, called <code>r</code> for 'recur', and use that to fill in the holes:</p>
 
-<pre><code class="py">fib = y(lambda r, n: 1 if n in [0, 1] else r(n - 1) + r(n - 2))</code></pre>
+<pre><code class="py">fib = <span class="add">y(</span>lambda <span class="add">r,</span> n: 1 if n in [0, 1] else <span class="add">r</span>(n - 1) + <span class="add">r</span>(n - 2)<span class="add">)</span></code></pre>
 
 <p>And it works!</p>
 
@@ -98,7 +120,7 @@ fib(5)  # 8
 
 <p>We'll begin deconstructing <code>p</code> by replacing the use of <code>y</code> with a self-referential lambda:</p>
 
-<pre><code class="py">p = lambda g, c=0: c if (c + 1 == g) + (g + c == 1) else p(g, c + 1)</code></pre>
+<pre><code class="py">p = <span class="sub">y(</span>lambda <span class="sub">r,</span> g, c=0: c if (c + 1 == g) + (g + c == 1) else <span class="add">p</span>(g, c + 1)<span class="sub">)</span></code></pre>
 
 <p>We can then rewrite that into a <code>def</code> statement:</p>
 
@@ -150,7 +172,7 @@ False * False == 0 * 0 == 0  # falsy
 </note-def>
 
 <pre><code class="py">def p(g, c=0):
-  if c == abs(g - 1):
+  if c == <span class="add">abs(g - 1)</span>:
     return c
   else:
     return p(g, c + 1)</code></pre>
@@ -168,7 +190,8 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 
 <p>Since we've learned what <code>y</code> does, we can replace its usage with conventional recursion:</p>
 
-<pre><code class="py">is_even = lambda x: x == 0 if (x == 0) + (p(x) == 0) else is_even(p(p(x)))</code></pre>
+<pre><code class="py">is_even = \
+  <span class="sub">y(</span>lambda <span class="sub">r,</span> x: x == 0 if (x == 0) + (p(x) == 0) else <span class="add">is_even</span>(p(p(x)))<span class="sub">)</span></code></pre>
 
 <p>We'll then rewrite the function as a statement:</p>
 
@@ -181,7 +204,7 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 <p><note-ref to="bools">Using on <code>+</code> booleans acts like <code>or</code></note-ref>, so we can replace it accordingly:</p>
 
 <pre><code class="py">def is_even(x):
-  if x == 0 or p(x) == 0:
+  if x == 0 <span class="add">or</span> p(x) == 0:
     return x == 0
   else:
     return is_even(p(p(x)))</code></pre>
@@ -189,7 +212,7 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 <p>Note that <code>p(x) == 0</code> only when <code>abs(x - 1) == 0 </code> only when <code>x == 1</code>. Thus, the condition <code>x == 0 or p(x) == 0</code> can be rewritten as <code>x in [0, 1]</code>:</p>
 
 <pre><code class="py">def is_even(x):
-  if x in [0, 1]:
+  if x <span class="add">in [0, 1]</span>:
     return x == 0
   else:
     return is_even(p(p(x)))</code></pre>
@@ -199,9 +222,9 @@ is_even = y(lambda r, x: x == 0 if (x == 0) + (p(x) == 0) else r(p(p(x))))
 <pre><code class="py">def is_even(x):
   if x in [0, 1]:
     return x == 0
-  elif x &lt; 0:
-    return is_even(-x)
+<span class="add">  elif x &lt; 0:
+    return is_even(-x)</span>
   else:
-    return is_even(x - 2)</code></pre>
+    return is_even(<span class="add">x - 2</span>)</code></pre>
 
 <p>And I think it's pretty fair to call this "done" :)</p>
