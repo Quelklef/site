@@ -109,11 +109,8 @@ else:
     [unplate.begin(body)] @ """
     <div class="--fullwidth">
       <div class="\proxy-window">
-        <div class="\proxy-window\controls">
-          <span class="\proxy-window\title">{{ item['title'] }}</span>
-          <span><a href="{{ target }}">View as full page</a></span>
-        </div>
-        <iframe class="\proxy-window\iframe" src="{{ target }}"></iframe>
+        <a target="_blank" href="{{ target }}" class="--plain-link \proxy-window\iframe-wrap"><iframe src="{{ target }}"></iframe></a>
+        <div class="\proxy-window\caption">The above is a preview. <a target="_blank" href="{{ target }}">See the app itself.</a></div>
       </div>
     </div>
 
