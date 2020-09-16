@@ -109,10 +109,30 @@ else:
     [unplate.begin(body)] @ """
     <div class="--fullwidth">
       <div class="\proxy-window">
-        <a target="_blank" href="{{ target }}" class="--plain-link \proxy-window\iframe-wrap"><iframe src="{{ target }}"></iframe></a>
+        <a
+          target="_blank"
+          href="{{ target }}"
+          class="--plain-link \proxy-window\iframe-wrap"
+        >
+          <iframe tabindex="-1" id="the-iframe" src="{{ target }}"></iframe>
+        </a>
         <div class="\proxy-window\caption">The above is a preview. <a target="_blank" href="{{ target }}">See the app itself.</a></div>
       </div>
     </div>
+
+    <script>
+      const iframe = document.getElementById('the-iframe');
+
+      function ensureIframeNotFocused() {
+        if (document.activeElement === iframe)
+          document.activeElement.blur();
+      }
+
+      // Ensure not focused at several points, just in case
+      document.addEventListener('load', ensureIframeNotFocused);
+      iframe.addEventListener('load', ensureIframeNotFocused);
+      iframe.addEventListener('focus', ensureIframeNotFocused);
+    </script>
 
     <h2>{{ item['title'] }}</h2>
     {{ item['payload'] }}
