@@ -36,5 +36,6 @@ tr td:nth-child(2) {
   <tr> <td>Unit</td> <td><code>()</code></td> <td>Haskell</td> </tr>
   <tr> <td>Enumeration</td> <td>Two things: 1) ...; and 2) ...</td> <td>Writing</td> </tr>
   <tr> <td>Emojis</td> <td>:) &nbsp;&nbsp; :( &nbsp;&nbsp; ;) &nbsp;&nbsp; :'(</td> <td>Texting</td> </tr>
+  <tr> <td>Permutation Cycles</td> <td>$(1 3)(2)(4 6 5)$</td> <td>Mathematics</td> </tr>
 </table>
 </div>
