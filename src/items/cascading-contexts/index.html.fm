@@ -1,3 +1,11 @@
+---
+title: Cascading Contexts
+tags: [interactive, programming, visualization]
+files: [.]
+build: write
+description: (proof-of-concept) keep track of deeply nested code
+indexed: no
+---
 <html>
   <head>
     <!-- <meta http-equiv="refresh" content="5" /> -->
