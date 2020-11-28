@@ -1,0 +1,57 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 8;
+
+  font-size: 14px;
+}
+
+/* <pre>-like styling */
+#contexts, #textarea {
+  white-space: pre;
+  font-family: monospace;
+}
+
+#editor {
+  border: 1px solid black;
+
+  /* v So that #contexts can be relatively positioned */
+  position: relative;
+
+  width: 100%;
+  max-width: 120ch;
+  height: 90%;
+}
+
+#textarea {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 0;
+  border: none;
+}
+
+#textarea:focus {
+  outline: none;
+}
+
+#contexts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 20px);
+  /* ^ give some space for the scrollbar */
+
+  background: white;
+  border-bottom: 1px dotted black;
+}
+
+#contexts:empty {
+  display: none;
+}
