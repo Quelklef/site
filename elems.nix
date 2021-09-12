@@ -2,21 +2,6 @@
 
 let
 
-# TODO: an actual HTTP redirect would be better
-redirect-to = target:
-  pkgs.writeTextDir "index.html" ''
-    <html>
-      <head>
-        <title>Redirect to ${target}</title>
-      </head>
-      </body>
-        <p>We are trying to redirect you to ${target}, but it doesn't seem to be working.</p>
-        <p>Please click on this link: <a href="${target}">${target}</a></p>
-        <script> window.location.href = "${target}"; </script>
-      </body>
-    </html>
-  '';
-
 # make a site element from a files-producing derivation
 mkAsset = host: path: deriv:
   { type = "asset";
@@ -28,6 +13,12 @@ mkAsset = host: path: deriv:
 mkModule = modl:
   { type = "module";
     module = modl;
+  };
+
+# make a site element from a redirect
+mkRedirect = { permanence, host, from, to }:
+  { type = "redirect";
+    inherit permanence host from to;
   };
 
 filterType = type: pkgs.lib.lists.filter (elem: elem.type == type);
@@ -47,8 +38,12 @@ elems = [
   (mkAsset "stop-using-language.com" ""
     (pkgs.writeTextDir "index.html" (builtins.readFile ./src/stop-using-language.html)))
 
-  (mkAsset "maynards.site" "" (
-    (redirect-to "/legacy-index" /* for now */)))
+  (mkRedirect
+    { permanence = "temporary";
+      host = "maynards.site";
+      from = "/";
+      to = "/legacy-index";
+    }) # for now
 
   (mkAsset "maynards.site" "fitch" (
     let src = builtins.fetchGit {

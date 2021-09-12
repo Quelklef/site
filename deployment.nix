@@ -2,7 +2,9 @@
 
 let
 
-inherit (pkgs.lib.lists) forEach unique;
+inherit (pkgs.lib.lists) forEach unique groupBy;
+inherit (builtins) hasAttr getAttr;
+getAttrOr = attr: default: val: if hasAttr attr val then getAttr attr val else default;
 
 default-nix = import ./default.nix { inherit pkgs; };
 elems-nix = import ./elems.nix { inherit pkgs; };
@@ -59,7 +61,17 @@ in
                   # #   shared between respective HTTP and HTTPS URLs.
                   # enableACME = host == "maynards.site";
                   # useACMEHost = if host == "maynards.site" then null else "maynards.site";
-                };
+                }
+
+                # set up redirects
+                // (
+                  let redirectsByHost = groupBy (redir: redir.host) (filterType "redirect" elems);
+                      getRedirects = host: getAttrOr host [] redirectsByHost;
+                  in builtins.foldl' (a: b: a // b) {}
+                       (forEach (getRedirects host) (redirect:
+                         let code = { permanent = 301; temporary = 302; }.${redirect.permanence};
+                         in { locations."= ${redirect.from}".extraConfig = "return ${toString code} ${redirect.to};"; }))
+                );
               }
             ));
     };
