@@ -2,6 +2,7 @@
 
 let
 
+# TODO: an actual HTTP redirect would be better
 redirect-to = target:
   pkgs.writeTextDir "index.html" ''
     <html>
