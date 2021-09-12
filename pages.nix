@@ -131,6 +131,17 @@ in
 
 {
   host = "nixed.maynards.site";
+  path = "items/fitch-new";
+  deriv =
+    let src = builtins.fetchGit {
+        url = "https://github.com/Quelklef/fitch";
+        rev = "3eb4f832a02a872710d769917e8f742ef8472ab6";
+      };
+    in import src { inherit pkgs; };
+}
+
+{
+  host = "nixed.maynards.site";
   path = "legacy-index";
   deriv = fixup-index-link (pkgs.runCommand "legacy-index" {} "mkdir $out && cp ${legacy}/index.html $out");
 }
