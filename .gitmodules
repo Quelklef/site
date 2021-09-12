@@ -1,9 +1,0 @@
-[submodule "src/assets/papers"]
-	path = src/assets/papers
-	url = https://github.com/quelklef/papers
-[submodule "src/items/fitch/full"]
-	path = src/items/fitch/full
-	url = https://github.com/quelklef/fitch
-[submodule "src/items/minesweeper/full"]
-	path = src/items/minesweeper/full
-	url = https://github.com/quelklef/minesweeper

@@ -1,0 +1,80 @@
+<div>
+  <h1>STOP Using Language</h1>
+  <table>
+    <tr>
+      <th>Instead of:</th>
+      <th>Say:</th>
+    </tr>
+    <tr>
+      <td>Hi, how are you?</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Beautiful weather we're having</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Did you see the game last night?</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>How is your family?</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Let's grab coffee sometime and catch up.</td>
+      <td></td>
+    </tr>
+  </table>
+</div>
+
+<style>
+
+body {
+  display: flex;
+  padding-top: 15vh;
+  justify-content: center;
+  font-family: sans-serif;
+}
+
+h1 {
+  text-align: center;
+}
+
+h1, th {
+  font-weight: bold;
+}
+
+table {
+  border-spacing: .2em;
+}
+
+th, td {
+  width: 200px;
+  padding: .5em 1em;
+}
+
+th:nth-child(1) { background-color: rgba(200, 10, 10, 0.5); }
+th:nth-child(2) { background-color: rgba(10, 200, 10, 0.5); }
+
+td:nth-child(1) { background-color: rgba(200, 10, 10, 0.8); }
+td:nth-child(2) { background-color: rgba(10, 200, 10, 0.8); }
+
+</style>
+
+<script>
+
+const custom = new URLSearchParams(window.location.search).get('stop');
+if (custom !== null) {
+  const $td1 = document.createElement('td');
+  $td1.innerText = custom;
+  const $td2 = document.createElement('td');
+
+  const $tr = document.createElement('tr');
+  $tr.append($td1, $td2);
+
+  const $table = document.getElementsByTagName('table')[0];
+  $table.append($tr);
+}
+
+</script>
