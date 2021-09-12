@@ -78,6 +78,16 @@ elems = [
         token = (import ./secrets.nix).g-word-bot-token;
     in import (src + "/module.nix") { inherit pkgs token; }))
 
+  (mkModule (
+    let useLocal = false;
+        src = if useLocal then ../mathsproofbot
+              else builtins.fetchGit
+                { url = "https://github.com/quelklef/mathsproofbot";
+                  rev = "5d9f0dfd1b046f6813ced5b240a7acb816fdf57a";
+                };
+        auth = (import ./secrets.nix).mathsproofbot-auth;
+    in import (src + "/nix/module.nix") { inherit pkgs auth; }))
+
 ] ++ (
 # -- legacy stuff -- #
 
