@@ -24,6 +24,12 @@ mkAsset = host: path: deriv:
     files = deriv;
   };
 
+# make a site element from a nixos module
+mkModule = modl:
+  { type = "module";
+    module = modl;
+  };
+
 filterType = type: pkgs.lib.lists.filter (elem: elem.type == type);
 
 export = { inherit filterType elems; };
@@ -63,6 +69,14 @@ elems = [
       src = ./src/files;
       installPhase = "mkdir $out && cp -r $src/. $out";
     }))
+
+  (mkModule (
+    let src = builtins.fetchGit
+          { url = "https://github.com/quelklef/g-word-bot";
+            rev = "b574c7e7a7ed0c67be6d96dc63608aa6109a5f7a";
+          };
+        token = (import ./secrets.nix).g-word-bot-token;
+    in import (src + "/module.nix") { inherit pkgs token; }))
 
 ] ++ (
 # -- legacy stuff -- #

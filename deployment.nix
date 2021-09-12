@@ -18,7 +18,10 @@ in
   {
     deployment.targetHost = "159.65.221.108";
 
-    imports = [ (modulesPath + "/virtualisation/digital-ocean-config.nix") ];
+    imports =
+      let modules = map (m: m.module) (elems-nix.filterType "module" elems-nix.elems);
+      in [ (modulesPath + "/virtualisation/digital-ocean-config.nix") ]
+         ++ modules;
 
     networking.firewall.allowedTCPPorts = [
       22  # ssh
