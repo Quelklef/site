@@ -21,6 +21,8 @@ mkRedirect = { permanence, host, from, to }:
     inherit permanence host from to;
   };
 
+secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
+
 filterType = type: pkgs.lib.lists.filter (elem: elem.type == type);
 
 export = { inherit filterType elems; };
@@ -70,7 +72,7 @@ elems = [
           { url = "https://github.com/quelklef/g-word-bot";
             rev = "b574c7e7a7ed0c67be6d96dc63608aa6109a5f7a";
           };
-        token = (import ./secrets.nix).g-word-bot-token;
+        token = secrets.g-word-bot-token;
     in import (src + "/module.nix") { inherit pkgs token; }))
 
   (mkModule (
@@ -80,7 +82,7 @@ elems = [
                 { url = "https://github.com/quelklef/mathsproofbot";
                   rev = "5d9f0dfd1b046f6813ced5b240a7acb816fdf57a";
                 };
-        auth = (import ./secrets.nix).mathsproofbot-auth;
+        auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
 
 ] ++ (
