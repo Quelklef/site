@@ -57,8 +57,12 @@ elems = [
   (mkAsset "maynards.site" "ellipses"
     (pkgs.writeTextDir "index.html" (builtins.readFile ./src/ellipses.html)))
 
-  (mkAsset "maynards.site" "prime-spirals"
-    (pkgs.writeTextDir "index.html" (builtins.readFile ./src/prime-spirals.html)))
+  (mkAsset "maynards.site" "prime-spirals" (
+    let src = builtins.fetchGit
+                { url = "https://github.com/quelklef/prime-spirals";
+                  rev = "a4126c1c9f73c38c69dd111a6f224446692c6b23";
+                };
+    in pkgs.runCommand "prime-spirals" {} "cp -r ${src}/. $out/"))
 
   (mkAsset "maynards.site" "files" (
     pkgs.stdenv.mkDerivation {
