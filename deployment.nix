@@ -2,9 +2,7 @@
 
 let
 
-inherit (builtins) attrNames readDir;
 inherit (pkgs.lib.lists) forEach unique;
-inherit (pkgs.lib.attrsets) mapAttrsToList;
 
 default-nix = import ./default.nix { inherit pkgs; };
 elems-nix = import ./elems.nix { inherit pkgs; };
@@ -46,18 +44,22 @@ in
         in
           builtins.foldl' (a: b: a // b) {}
             (forEach hosts (host:
-              { ${host} = {
-                  addSSL = true;
-                  # ^ Would prefer forceSSL, but can't. Have served some apps
-                  #   over HTTP that use localStorage; localStorage state is not
-                  #   shared between respective HTTP and HTTPS URLs.
-                  enableACME = true;
+              {
+                ${host} = {
                   root = "${default-nix}/${host}";
                   default = host == "maynards.site";
-              }; }
+
+                  # TODO: SSL (not working :C)
+                  # addSSL = true;
+                  # # ^ Would prefer forceSSL, but can't. Have served some apps
+                  # #   over HTTP that use localStorage; localStorage state is not
+                  # #   shared between respective HTTP and HTTPS URLs.
+                  # enableACME = host == "maynards.site";
+                  # useACMEHost = if host == "maynards.site" then null else "maynards.site";
+                };
+              }
             ));
     };
-
 
     # for letsencrypt
     security.acme = {
