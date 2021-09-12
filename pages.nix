@@ -37,13 +37,13 @@ pages = [
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "";
   deriv = redirect-to "/legacy-index";  # for now
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "fitch";
   deriv =
     let src = builtins.fetchGit {
@@ -54,19 +54,19 @@ pages = [
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "ellipses";
   deriv = pkgs.writeTextDir "index.html" (builtins.readFile ./src/ellipses.html);
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "prime-spirals";
   deriv = pkgs.writeTextDir "index.html" (builtins.readFile ./src/prime-spirals.html);
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "files";
   deriv =
     pkgs.stdenv.mkDerivation {
@@ -119,19 +119,19 @@ in
 [
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "assets";
   deriv = fixup-index-link (pkgs.runCommand "legacy-assets" {} "cp -r ${legacy}/assets/. $out");
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "items";
   deriv = fixup-index-link (pkgs.runCommand "legacy-items" {} "cp -r ${legacy}/items/. $out");
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "items/fitch-new";
   deriv =
     let src = builtins.fetchGit {
@@ -142,7 +142,7 @@ in
 }
 
 {
-  host = "nixed.maynards.site";
+  host = "maynards.site";
   path = "legacy-index";
   deriv = fixup-index-link (pkgs.runCommand "legacy-index" {} "mkdir $out && cp ${legacy}/index.html $out");
 }

@@ -45,10 +45,13 @@ in
           builtins.foldl' (a: b: a // b) {}
             (forEach hosts (host:
               { ${host} = {
-                  # forceSSL = true;
-                  # enableACME = true;
+                  addSSL = true;
+                  # ^ Would prefer forceSSL, but can't. Have served some apps
+                  #   over HTTP that use localStorage; localStorage state is not
+                  #   shared between respective HTTP and HTTPS URLs.
+                  enableACME = true;
                   root = "${import ./default.nix { inherit pkgs; }}/${host}";
-                  default = host == "nixed.maynards.site";
+                  default = host == "maynards.site";
               }; }
             ));
     };
