@@ -104,6 +104,7 @@ elems = [
       cp -r ${deriv}/. ./working
       chmod -R +w ./working
 
+      # replace links to '/' with links to '/legacy-index'
       cat <<EOF > fixup.py
       import sys, bs4, re
       parse = lambda text: bs4.BeautifulSoup(text, features='html.parser')
@@ -112,13 +113,11 @@ elems = [
         print("Fixing up", fname)
         with open(fname, 'r') as f: soup = parse(f.read())
         links = soup.findAll('a', { 'href': re.compile(r"^\.*/\.*$") })
-        for item in links: item.attrs['href'] = '/legacy-index/'
+        for item in links: item.attrs['href'] = '/legacy-index'
         soup.head.append(parse('<meta http-equiv="content-type" content="text/html; charset=UTF-8">'))
         with open(fname, 'w') as f: f.write(str(soup))
         # ^ don't use .prettify(); it causes a javascript bug (lol)
       EOF
-
-
       { find ./working | grep -E '\.html$' || true; } | python fixup.py
 
       mkdir $out
