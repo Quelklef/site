@@ -4,11 +4,13 @@ let
 
 inherit (pkgs.lib.strings) concatMapStringsSep;
 
-pages = import ./pages.nix { inherit pkgs; };
+elems-nix = import ./elems.nix { inherit pkgs; };
+inherit (elems-nix) elems filterType;
+assets = filterType "asset" elems;
 
-pageBuildCommand = page: ''
-  mkdir -p $out/${page.host}/${page.path}
-  cp -r ${page.deriv}/. $out/${page.host}/${page.path}
+assetBuildCommand = asset: ''
+  mkdir -p $out/${asset.host}/${asset.path}
+  cp -r ${asset.files}/. $out/${asset.host}/${asset.path}
 '';
 
 in
@@ -17,5 +19,5 @@ pkgs.runCommand
   "maynards-site" {}
   ''
     set -euo pipefail
-    ${concatMapStringsSep "\n\n" pageBuildCommand pages}
+    ${concatMapStringsSep "\n\n" assetBuildCommand assets}
   ''

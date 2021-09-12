@@ -6,7 +6,8 @@ inherit (builtins) attrNames readDir;
 inherit (pkgs.lib.lists) forEach unique;
 inherit (pkgs.lib.attrsets) mapAttrsToList;
 
-pages-nix = import ./pages.nix { inherit pkgs; };
+default-nix = import ./default.nix { inherit pkgs; };
+elems-nix = import ./elems.nix { inherit pkgs; };
 
 in
 
@@ -39,8 +40,9 @@ in
 
       virtualHosts =
         let
-          pages = import ./pages.nix { inherit pkgs; };
-          hosts = unique (forEach pages (page: page.host));
+          inherit (elems-nix) elems filterType;
+          assets = filterType "asset" elems;
+          hosts = unique (forEach assets (asset: asset.host));
         in
           builtins.foldl' (a: b: a // b) {}
             (forEach hosts (host:
@@ -50,7 +52,7 @@ in
                   #   over HTTP that use localStorage; localStorage state is not
                   #   shared between respective HTTP and HTTPS URLs.
                   enableACME = true;
-                  root = "${import ./default.nix { inherit pkgs; }}/${host}";
+                  root = "${default-nix}/${host}";
                   default = host == "maynards.site";
               }; }
             ));
