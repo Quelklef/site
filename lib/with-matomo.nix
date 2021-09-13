@@ -25,13 +25,13 @@ in deriv: pkgs.stdenv.mkDerivation {
           cmds.push(["setCookieDomain", "*.maynards.site"]);
           cmds.push(['trackPageView']);
           cmds.push(['enableLinkTracking']);
-          cmds.push(['setTrackerUrl', stub + 'zngbzb13.php']);
+          cmds.push(['setTrackerUrl', stub + 'zngbzb13.php.definitely-not']);
           cmds.push(['setSiteId', '1']);
 
           var script = document.createElement('script');
           script.type = 'text/javascript';
           script.async = true;
-          script.src = stub + 'zngbzb13.js';
+          script.src = stub + 'zngbzb13.js.definitely-not';
 
           var existing = document.getElementsByTagName('script')[0];
           existing.parentNode.insertBefore(script, existing);

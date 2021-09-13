@@ -12,9 +12,9 @@ in {
       enableACME = false;
 
       # matomo obfuscation
-      locations."~ /zngbzb13.(php|js)" = {
+      locations."~ /zngbzb13.(php|js).definitely-not" = {
         priority = 50;
-        extraConfig = "rewrite ^.*(php|js)$ /matomo.$1;";
+        extraConfig = "rewrite ^.*(php|js)\.definitely-not$ /matomo.$1;";
       };
     };
   };
