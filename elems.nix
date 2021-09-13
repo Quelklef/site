@@ -80,7 +80,7 @@ elems = [
         src = if useLocal then ../mathsproofbot
               else builtins.fetchGit
                 { url = "https://github.com/quelklef/mathsproofbot";
-                  rev = "5d9f0dfd1b046f6813ced5b240a7acb816fdf57a";
+                  rev = "6b12fbcebab152251c4a6955722ae765f2617fb4";
                 };
         auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
