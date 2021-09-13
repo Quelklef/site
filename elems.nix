@@ -23,10 +23,6 @@ mkRedirect = { permanence, host, from, to }:
 
 secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
 
-filterType = type: pkgs.lib.lists.filter (elem: elem.type == type);
-
-export = { inherit filterType elems; };
-
 
 elems = [
 
@@ -148,4 +144,4 @@ elems = [
 
 ]);
 
-in export
+in elems
