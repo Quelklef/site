@@ -85,6 +85,13 @@ elems = [
         auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
 
+  (mkAsset "i-need-the-nugs.com" "" (
+    pkgs.stdenv.mkDerivation {
+      name = "nugs";
+      src = ./src/nugs;
+      installPhase = "mkdir $out && cp -r $src/. $out";
+    }))
+
 ] ++ (
 # -- legacy stuff -- #
 
