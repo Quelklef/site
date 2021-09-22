@@ -21,6 +21,27 @@ mkRedirect = { permanence, host, from, to }:
     inherit permanence host from to;
   };
 
+
+# turn a local path into a derviation
+trivial = name: path:
+  pkgs.stdenv.mkDerivation {
+    inherit name;
+    dontUnpack = true;
+    installPhase = ''
+      if [ -d ${path} ]; then
+        mkdir $out
+        cp -r ${path}/. $out
+      elif [ -f ${path} ]; then
+        mkdir $out
+        cp ${path} $out/${name}
+      else
+        echo >2 "wtf"
+        exit 1
+      fi
+    '';
+  };
+
+
 secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
 
 
@@ -34,7 +55,7 @@ elems = [
     in import src { inherit pkgs; }))
 
   (mkAsset "stop-using-language.com" ""
-    (pkgs.writeTextDir "index.html" (builtins.readFile ./src/stop-using-language.html)))
+    (trivial "index.html" ./src/stop-using-language.html))
 
   (mkRedirect
     { permanence = "temporary";
@@ -51,28 +72,19 @@ elems = [
     in import src { inherit pkgs; }))
 
   (mkAsset "maynards.site" "ellipses"
-    (pkgs.writeTextDir "index.html" (builtins.readFile ./src/ellipses.html)))
+    (trivial "index.html" ./src/ellipses.html))
 
   (mkAsset "maynards.site" "prime-spirals" (
-    let src = builtins.fetchGit
-                { url = "https://github.com/quelklef/prime-spirals";
-                  rev = "a4126c1c9f73c38c69dd111a6f224446692c6b23";
-                };
-    in pkgs.runCommand "prime-spirals" {} "cp -r ${src}/. $out/"))
+    builtins.fetchGit
+      { url = "https://github.com/quelklef/prime-spirals";
+        rev = "a4126c1c9f73c38c69dd111a6f224446692c6b23";
+      }))
 
-  (mkAsset "maynards.site" "cascading-contexts" (
-    pkgs.stdenv.mkDerivation {
-      name = "cascading-contexts";
-      src = ./src/cascading-contexts;
-      installPhase = "mkdir $out && cp -r $src/. $out";
-    }))
+  (mkAsset "maynards.site" "cascading-contexts"
+    (trivial "cascading-contexts" ./src/cascading-contexts))
 
-  (mkAsset "maynards.site" "files" (
-    pkgs.stdenv.mkDerivation {
-      name = "files";
-      src = ./src/files;
-      installPhase = "mkdir $out && cp -r $src/. $out";
-    }))
+  (mkAsset "maynards.site" "files"
+    (trivial "files" ./src/files))
 
   (mkModule (
     let src = builtins.fetchGit
@@ -92,12 +104,8 @@ elems = [
         auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
 
-  (mkAsset "i-need-the-nugs.com" "" (
-    pkgs.stdenv.mkDerivation {
-      name = "nugs";
-      src = ./src/nugs;
-      installPhase = "mkdir $out && cp -r $src/. $out";
-    }))
+  (mkAsset "i-need-the-nugs.com" ""
+    (trivial "nugs" ./src/nugs))
 
 ] ++ (
 # -- legacy stuff -- #
@@ -141,10 +149,10 @@ elems = [
   [
 
   (mkAsset "maynards.site" "assets"
-    (fixup-index-link (pkgs.runCommand "legacy-assets" {} "cp -r ${legacy}/assets/. $out")))
+    (fixup-index-link (trivial "legacy-assets" "${legacy}/assets")))
 
   (mkAsset "maynards.site" "items"
-    (fixup-index-link (pkgs.runCommand "legacy-items" {} "cp -r ${legacy}/items/. $out")))
+    (fixup-index-link (trivial "legacy-items" "${legacy}/items")))
 
   (mkAsset "maynards.site" "items/fitch-new" (
     let src = builtins.fetchGit {
@@ -154,7 +162,7 @@ elems = [
     in import src { inherit pkgs; }))
 
   (mkAsset "maynards.site" "legacy-index"
-    (fixup-index-link (pkgs.runCommand "legacy-index" {} "mkdir $out && cp ${legacy}/index.html $out")))
+    (fixup-index-link (trivial "index.html" "${legacy}/index.html")))
 
 ]);
 
