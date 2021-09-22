@@ -60,6 +60,13 @@ elems = [
                 };
     in pkgs.runCommand "prime-spirals" {} "cp -r ${src}/. $out/"))
 
+  (mkAsset "maynards.site" "cascading-contexts" (
+    pkgs.stdenv.mkDerivation {
+      name = "cascading-contexts";
+      src = ./src/cascading-contexts;
+      installPhase = "mkdir $out && cp -r $src/. $out";
+    }))
+
   (mkAsset "maynards.site" "files" (
     pkgs.stdenv.mkDerivation {
       name = "files";
