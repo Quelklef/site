@@ -12,7 +12,7 @@ elems = let
   result =
     forEach elems-orig (elem:
       if elem.type == "asset"
-      then elem // { files = with-matomo elem.files; }
+      then elem // { files = with-matomo elem.host elem.files; }
       else elem);
   in result;
 

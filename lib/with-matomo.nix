@@ -2,7 +2,20 @@
 
 python = pkgs.python38.withPackages (ppkgs: [ ppkgs.beautifulsoup4 ]);
 
-in deriv: pkgs.stdenv.mkDerivation {
+# Maps hostnames to Matomo website IDs
+siteIdMap = {
+  "maynards.site" = 3;
+  "daygen.maynards.site" = 4;
+  "stop-using-language.com" = 5;
+  "i-need-the-nugs.com" = 6;
+};
+
+getSiteId = host:
+  if builtins.hasAttr host siteIdMap
+  then builtins.toString (siteIdMap.${host})
+  else throw "No registered site id for host ${host}. Create a site in Matomo and add its id to the map.";
+
+in host: deriv: pkgs.stdenv.mkDerivation {
   name = "matomoized";
   dontUnpack =  true;
   buildInputs = [ python ];
@@ -26,7 +39,7 @@ in deriv: pkgs.stdenv.mkDerivation {
           cmds.push(['trackPageView']);
           cmds.push(['enableLinkTracking']);
           cmds.push(['setTrackerUrl', stub + 'zngbzb13.php.definitely-not']);
-          cmds.push(['setSiteId', '1']);
+          cmds.push(['setSiteId', '${getSiteId host}']);
 
           var script = document.createElement('script');
           script.type = 'text/javascript';
