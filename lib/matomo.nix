@@ -1,5 +1,7 @@
 { pkgs }: let
 
+inherit (pkgs.lib.lists) forEach;
+
 python = pkgs.python38.withPackages (ppkgs: [ ppkgs.beautifulsoup4 ]);
 
 # Maps hostnames to Matomo website IDs
@@ -15,7 +17,7 @@ getSiteId = host:
   then builtins.toString (siteIdMap.${host})
   else throw "No registered site id for host ${host}. Create a site in Matomo and add its id to the map.";
 
-in host: deriv: pkgs.stdenv.mkDerivation {
+with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
   name = "matomoized";
   dontUnpack =  true;
   buildInputs = [ python ];
@@ -64,4 +66,12 @@ in host: deriv: pkgs.stdenv.mkDerivation {
     mkdir $out
     cp -r ./working/. $out
   '';
-}
+};
+
+matomoize = elems:
+  forEach elems (elem:
+    if elem.type == "asset"
+    then elem // { files = with-matomo elem.host elem.files; }
+    else elem);
+
+in { inherit matomoize; }

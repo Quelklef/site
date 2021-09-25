@@ -2,19 +2,14 @@
 
 let
 
-inherit (pkgs.lib.lists) forEach filter;
+inherit (pkgs.lib.lists) filter;
 
 inherit (import ./lib/const.nix) secrets primary-host;
 
 elems = let
   elems-orig = import ./elems.nix { inherit pkgs; };
-  with-matomo = import ./lib/with-matomo.nix { inherit pkgs; };
-  result =
-    forEach elems-orig (elem:
-      if elem.type == "asset"
-      then elem // { files = with-matomo elem.host elem.files; }
-      else elem);
-  in result;
+  lib-matomo = import ./lib/matomo.nix { inherit pkgs; };
+  in lib-matomo.matomoize elems-orig;
 
 elem-modules = map (m: m.module) (filter (elem: elem.type == "module") elems);
 
