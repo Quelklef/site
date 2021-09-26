@@ -8,12 +8,16 @@ fold = foldl' (a: b: a // b) {};
 inherit (import ../const.nix) primary-host;
 
 hosts =
-  let assets = filter (elem: elem.type == "asset") elems;
-  in unique (forEach assets (asset: asset.host));
+  let has-host = filter (elem: builtins.elem elem.type ["asset" "redirect" "proxy"]) elems;
+  in unique (forEach has-host (elem: elem.host));
 
 getRedirects =
   let redirectsByHost = groupBy (redir: redir.host) (filter (elem: elem.type == "redirect") elems);
   in host: getAttrOr host [] redirectsByHost;
+
+getProxies =
+  let proxiesByHost = groupBy (proxy: proxy.host) (filter (elem: elem.type == "proxy") elems);
+  in host: getAttrOr host [] proxiesByHost;
 
 mk-vhost = host:
   let
@@ -40,8 +44,17 @@ mk-vhost = host:
          let code = { permanent = 301; temporary = 302; }.${redirect.permanence};
          in { locations."= ${redirect.from}".extraConfig = "return ${toString code} ${redirect.to};"; }));
 
+    proxies = fold
+      (forEach (getProxies host) (proxy-elem:
+        { locations."~ ${proxy-elem.path}".extraConfig = ''
+            rewrite ${proxy-elem.path}/(.*) /$1 break;
+              # ^ so HOST/STUB/path sends /path to the server, not /STUB/path
+            proxy_pass ${proxy-elem.target};
+          '';
+        }));
+
    in
-    { ${host} = init // ssl // redirects; };
+    { ${host} = init // ssl // redirects // proxies; };
 
 in {
   services.nginx = {

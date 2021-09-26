@@ -21,6 +21,12 @@ mkRedirect = { permanence, host, from, to }:
     inherit permanence host from to;
   };
 
+# make a site element from a proxy_pass
+mkProxy = { host, path, target }:
+  { type = "proxy";
+    inherit host path target;
+  };
+
 
 # turn a local path into a derviation
 trivial = name: path:
@@ -47,6 +53,8 @@ secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
 
 elems = [
 
+  # -- Daygen -- #
+
   (mkAsset "daygen.maynards.site" "" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/daygen";
@@ -54,8 +62,12 @@ elems = [
       };
     in import src { inherit pkgs; }))
 
+  # -- Stop using language -- #
+
   (mkAsset "stop-using-language.com" ""
     (trivial "index.html" ./src/stop-using-language.html))
+
+  # -- maynards.site -- #
 
   (mkRedirect
     { permanence = "temporary";
@@ -104,11 +116,32 @@ elems = [
         auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
 
+  # -- Nugs -- #
+
   (mkAsset "i-need-the-nugs.com" ""
     (trivial "nugs" ./src/nugs))
 
+  # -- UMN Ducks -- #
+
+  (mkProxy
+    { host = "maynards.site";
+      path = "/umn-ducks";
+      target = "http://127.0.0.1:8475";
+    })
+
+  (mkProxy
+    { host = "ducks.maynards.site";
+      path = "/";
+      target = "http://127.0.0.1:8475";
+    })
+
+  (mkModule (
+    let useLocal = false;
+    in import ./src/umn-ducks.nix { inherit pkgs useLocal; port = 8475; }))
+
 ] ++ (
-# -- legacy stuff -- #
+
+  # -- maynards.site (legacy) -- #
 
   let
 
