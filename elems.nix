@@ -135,8 +135,14 @@ elems = [
       target = "http://127.0.0.1:8475";
     })
 
+  (mkProxy
+    { host = "umn-ducks.com";
+      path = "/";
+      target = "http://127.0.0.1:8475";
+    })
+
   (mkModule (
-    let useLocal = false;
+    let useLocal = true;
     in import ./src/umn-ducks.nix { inherit pkgs useLocal; port = 8475; }))
 
 ] ++ (
