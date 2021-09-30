@@ -124,18 +124,6 @@ elems = [
   # -- UMN Ducks -- #
 
   (mkProxy
-    { host = "maynards.site";
-      path = "/umn-ducks";
-      target = "http://127.0.0.1:8475";
-    })
-
-  (mkProxy
-    { host = "ducks.maynards.site";
-      path = "/";
-      target = "http://127.0.0.1:8475";
-    })
-
-  (mkProxy
     { host = "umn-ducks.com";
       path = "/";
       target = "http://127.0.0.1:8475";

@@ -1,5 +1,6 @@
 { pkgs, elems }: let
 
+inherit (pkgs.lib.attrsets) recursiveUpdate;
 inherit (pkgs.lib.lists) forEach unique groupBy filter foldl';
 inherit (builtins) hasAttr getAttr;
 getAttrOr = attr: default: val: if hasAttr attr val then getAttr attr val else default;
@@ -30,13 +31,13 @@ mk-vhost = host:
     };
 
     ssl =
-      { addSSL = true; } //
+      { addSSL = true;
+        locations."^~ /.well-known/acme-challenge/".extraConfig =
+          "root /var/lib/acme/acme-challenge;";
+      } //
       # ^ would prefer forceSSL, but some localStorage-using apps were used over http
       (if host == primary-host
-      then { enableACME = true;
-             locations."^~ /.well-known/acme-challenge/".extraConfig =
-               "root /var/lib/acme/acme-challenge/.well-known/acme-challenge;";
-           }
+      then { enableACME = true; }
       else { useACMEHost = primary-host; });
 
     redirects = fold
@@ -54,7 +55,12 @@ mk-vhost = host:
         }));
 
    in
-    { ${host} = init // ssl // redirects // proxies; };
+    { ${host} =
+            recursiveUpdate init
+          ( recursiveUpdate ssl
+          ( recursiveUpdate redirects
+          ( recursiveUpdate proxies
+          ( {} )))); };
 
 in {
   services.nginx = {
@@ -67,4 +73,6 @@ in {
 
     virtualHosts = fold (map mk-vhost hosts);
   };
+
+  security.acme.certs.${primary-host}.extraDomainNames = hosts;
 }
