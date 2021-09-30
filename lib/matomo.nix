@@ -1,4 +1,4 @@
-{ pkgs }: let
+{ pkgs, do-analytics }: let
 
 inherit (pkgs.lib.lists) forEach;
 
@@ -10,6 +10,7 @@ siteIdMap = {
   "daygen.maynards.site" = 4;
   "stop-using-language.com" = 5;
   "i-need-the-nugs.com" = 6;
+  "umn-ducks.com" = 7;
 };
 
 getSiteId = host:
@@ -17,7 +18,7 @@ getSiteId = host:
   then builtins.toString (siteIdMap.${host})
   else throw "No registered site id for host ${host}. Create a site in Matomo and add its id to the map.";
 
-mk-matomo-js = host: let
+mk-matomo-inject = { host }: let
   pretty = pkgs.writeText "matomo-js-${host}-pretty" ''
     (function() {
       var key = atob('X3BhcQ==');
@@ -48,11 +49,17 @@ mk-matomo-js = host: let
       sha256 = "09gnmmzwzn06lshnv5vp6hai2v8ngsjn3c76rf1d7c4nzlrn2w3p";
     };
 
-  ugly = pkgs.runCommand
-    "matomo-js-${host}-ugly" {}
-    ''${pkgs.nodejs}/bin/node ${ujs}/bin/uglifyjs ${pretty} -c toplevel -m -o $out'';
+  inject = pkgs.runCommand
+    "matomo-js-${host}-inject" {} ''
+      ${pkgs.nodejs}/bin/node ${ujs}/bin/uglifyjs ${pretty} -c toplevel -m -o ./ugly
+      if [ ${builtins.toString do-analytics} ]; then
+        printf '%s' '<script type="text/javascript">' "$(cat ./ugly)" '</script>'
+      else
+        echo -n '<!-- this is where the analytics code would go -->'
+      fi > $out
+    '';
 
-  in ugly;
+  in inject;
 
 with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
   name = "matomoized";
@@ -66,8 +73,7 @@ with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
     cat <<EOF > fixup.py
     import sys, bs4, re
     parse = lambda text: bs4.BeautifulSoup(text, features='html.parser')
-    with open('${mk-matomo-js host}') as f: script_js = f.read()
-    script_html = "\n<script type='text/javascript'>" + script_js + "</script>\n"
+    with open('${mk-matomo-inject { inherit host; }}') as f: script_html = "\n" + f.read() + "\n"
     for fname in sys.stdin.read().split('\n'):
       if not fname: continue
       with open(fname, 'r') as f: soup = parse(f.read())
@@ -83,10 +89,10 @@ with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
   '';
 };
 
-matomoize = elems:
+matomoize-assets = elems:
   forEach elems (elem:
     if elem.type == "asset"
     then elem // { files = with-matomo elem.host elem.files; }
     else elem);
 
-in { inherit matomoize; }
+in { inherit matomoize-assets mk-matomo-inject; }

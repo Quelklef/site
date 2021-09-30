@@ -1,15 +1,14 @@
 { pkgs ? import <nixpkgs> {}
-, do-matomo ? false
+, do-analytics ? false
 }:
 
 let
 
 build = import ./lib/build.nix { inherit pkgs; };
 elems = let
-  elems-orig = import ./elems.nix { inherit pkgs; };
-  inherit (import ./lib/matomo.nix { inherit pkgs; }) matomoize;
-  in
-    if do-matomo then matomoize elems-orig else elems-orig;
+  elems-orig = import ./elems.nix { inherit pkgs do-analytics; };
+  inherit (import ./lib/matomo.nix { inherit pkgs do-analytics; }) matomoize-assets;
+  in matomoize-assets elems-orig;
 
 in
   build elems

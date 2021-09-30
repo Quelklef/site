@@ -1,4 +1,6 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {}
+, do-analytics ? true
+}:
 
 let
 
@@ -7,9 +9,9 @@ inherit (pkgs.lib.lists) filter;
 inherit (import ./lib/const.nix) secrets primary-host;
 
 elems = let
-  elems-orig = import ./elems.nix { inherit pkgs; };
-  lib-matomo = import ./lib/matomo.nix { inherit pkgs; };
-  in lib-matomo.matomoize elems-orig;
+  elems-orig = import ./elems.nix { inherit pkgs do-analytics; };
+  lib-matomo = import ./lib/matomo.nix { inherit pkgs do-analytics; };
+  in lib-matomo.matomoize-assets elems-orig;
 
 elem-modules = map (m: m.module) (filter (elem: elem.type == "module") elems);
 

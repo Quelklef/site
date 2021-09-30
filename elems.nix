@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, do-analytics }:
 
 let
 
@@ -131,7 +131,16 @@ elems = [
 
   (mkModule (
     let useLocal = true;
-    in import ./src/umn-ducks.nix { inherit pkgs useLocal; port = 8475; }))
+    in import ./src/umn-ducks.nix
+      { inherit pkgs useLocal;
+        port = 8475;
+        # v TODO: the whole matomo situation needs to be sorted out
+        #         currently we are handling static assets automagically via nginx,
+        #         but then since umn-ducks.com is served dynamically via reverse
+        #         proxy, we need to do it this way instead
+        html-inject = let inherit (import ./lib/matomo.nix { inherit pkgs do-analytics; }) mk-matomo-inject;
+                      in mk-matomo-inject { host = "umn-ducks.com"; };
+      }))
 
 ] ++ (
 

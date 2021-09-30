@@ -1,4 +1,4 @@
-{ port, useLocal, pkgs }: let
+{ port, useLocal, html-inject, pkgs }: let
 
 ducks =
   let src =
@@ -18,6 +18,7 @@ in
     after = [ "network.target" ];
     script = ''
       export UMN_DUCKS_PORT=${builtins.toString port}
+      export UMN_DUCKS_HTML_INJECT=$(cat ${html-inject})
       export NODE_ENV=production
       cd ${ducks}
       ./run.sh
