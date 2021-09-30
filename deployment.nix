@@ -19,7 +19,7 @@ in
   network.description = "Maynard's site";
   network.enableRollback = true;
 
-  site =
+  frigate =
   { modulesPath, config, pkgs, ... }:
   {
     deployment.targetHost = "159.65.221.108";
