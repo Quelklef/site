@@ -101,7 +101,7 @@ elems = [
   (mkModule (
     let src = builtins.fetchGit
           { url = "https://github.com/quelklef/g-word-bot";
-            rev = "b574c7e7a7ed0c67be6d96dc63608aa6109a5f7a";
+            rev = "702035d815d6bf331363b7a85c050888733b4aba";
           };
         token = secrets.g-word-bot-token;
     in import (src + "/module.nix") { inherit pkgs token; }))
