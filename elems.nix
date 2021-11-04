@@ -98,6 +98,14 @@ elems = [
   (mkAsset "maynards.site" "files"
     (trivial "files" ./src/files))
 
+  # t4 goes under /items/ so that Dad's existing localStorage is retained
+  (mkAsset "maynards.site" "items/t4" (
+    let src = builtins.fetchGit {
+        url = "https://github.com/quelklef/t4";
+        rev = "5edc29596cafc2b62317e655c311bafb1d56660c";
+      };
+    in import src { inherit pkgs; }))
+
   (mkModule (
     let src = builtins.fetchGit
           { url = "https://github.com/quelklef/g-word-bot";
