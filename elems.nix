@@ -150,6 +150,17 @@ elems = [
                       in mk-matomo-inject { host = "umn-ducks.com"; };
       }))
 
+  # -- ζ -- #
+
+  (mkProxy
+    { host = "z.maynards.site";
+      path = "/";
+      target = "http://127.0.0.1:8123";
+    })
+
+  (mkModule
+    (import /home/lark/me/dev/z/module.nix { inherit pkgs; port = 8123; }))
+
 ] ++ (
 
   # -- maynards.site (legacy) -- #
