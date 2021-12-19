@@ -95,6 +95,14 @@ elems = [
   (mkAsset "maynards.site" "cascading-contexts"
     (trivial "cascading-contexts" ./src/cascading-contexts))
 
+  (mkAsset "maynards.site" "pokepref"
+    (trivial "cascading-contexts" (
+      let src = builtins.fetchGit {
+          url = "https://github.com/Quelklef/pokepref";
+          rev = "6b38db4e1cbcbccec184b1d6460817b1d67a8f16";
+        };
+      in src)))
+
   (mkAsset "maynards.site" "files"
     (trivial "files" ./src/files))
 
