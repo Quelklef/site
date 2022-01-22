@@ -153,7 +153,7 @@ elems = [
   (mkAsset "maynards.site" "fitch" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/fitch";
-        rev = "b8616e0da38b9da5056dd68dd23dedd3ae4253bf";
+        rev = "985236de9e034a223c103c74324331138798fdd4";
       };
     in import src))
 
