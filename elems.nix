@@ -76,13 +76,6 @@ elems = [
       to = "/legacy-index";
     }) # for now
 
-  (mkAsset "maynards.site" "fitch" (
-    let src = builtins.fetchGit {
-        url = "https://github.com/Quelklef/fitch";
-        rev = "3eb4f832a02a872710d769917e8f742ef8472ab6";
-      };
-    in import src { inherit pkgs; }))
-
   (mkAsset "maynards.site" "ellipses"
     (trivial "index.html" ./src/ellipses.html))
 
@@ -132,6 +125,38 @@ elems = [
         auth = secrets.mathsproofbot-auth;
     in import (src + "/nix/module.nix") { inherit pkgs auth; }))
 
+  # fitch-v-js: Javascript fitch (legacy)
+  (mkRedirect
+    { permanence = "temporary";
+      host = "maynards.site";
+      from = "/fitch-v-js";
+      to = "/items/fitch/full";
+    })
+
+  # fitch-v-elm: Elm Fitch (legacy)
+  (mkAsset "maynards.site" "fitch-v-elm" (
+    let src = builtins.fetchGit {
+        url = "https://github.com/Quelklef/fitch";
+        rev = "3eb4f832a02a872710d769917e8f742ef8472ab6";
+      };
+    in import src { inherit pkgs; }))
+
+  # fitch-v-ps: Purescript fitch
+  (mkRedirect
+    { permanence = "temporary";
+      host = "maynards.site";
+      from = "/fitch-v-ps";
+      to = "/fitch";
+    })
+
+  # Latest Fitch
+  (mkAsset "maynards.site" "fitch" (
+    let src = builtins.fetchGit {
+        url = "https://github.com/Quelklef/fitch";
+        rev = "b8616e0da38b9da5056dd68dd23dedd3ae4253bf";
+      };
+    in import src))
+
   # -- Nugs -- #
 
   (mkAsset "i-need-the-nugs.com" ""
@@ -146,7 +171,7 @@ elems = [
     })
 
   (mkModule (
-    let useLocal = true;
+    let useLocal = false;
     in import ./src/umn-ducks.nix
       { inherit pkgs useLocal;
         port = 8475;
@@ -158,16 +183,16 @@ elems = [
                       in mk-matomo-inject { host = "umn-ducks.com"; };
       }))
 
-  # -- ζ -- #
-
-  (mkProxy
-    { host = "z.maynards.site";
-      path = "/";
-      target = "http://127.0.0.1:8123";
-    })
-
-  (mkModule
-    (import /home/lark/me/dev/z/module.nix { inherit pkgs; port = 8123; }))
+#  # -- ζ -- #
+#
+#  (mkProxy
+#    { host = "z.maynards.site";
+#      path = "/";
+#      target = "http://127.0.0.1:8123";
+#    })
+#
+#  (mkModule
+#    (import /home/lark/me/dev/z/module.nix { inherit pkgs; port = 8123; }))
 
 ] ++ (
 
@@ -217,12 +242,12 @@ elems = [
   (mkAsset "maynards.site" "items"
     (fixup-index-link (trivial "legacy-items" "${legacy}/items")))
 
-  (mkAsset "maynards.site" "items/fitch-new" (
-    let src = builtins.fetchGit {
-        url = "https://github.com/Quelklef/fitch";
-        rev = "3eb4f832a02a872710d769917e8f742ef8472ab6";
-      };
-    in import src { inherit pkgs; }))
+  (mkRedirect
+    { permanence = "temporary";
+      host = "maynards.site";
+      from = "/items/fitch-new";
+      to = "/fitch";
+    })
 
   (mkAsset "maynards.site" "legacy-index"
     (fixup-index-link (trivial "index.html" "${legacy}/index.html")))

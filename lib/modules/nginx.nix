@@ -5,6 +5,7 @@ inherit (pkgs.lib.lists) forEach unique groupBy filter foldl';
 inherit (builtins) hasAttr getAttr;
 getAttrOr = attr: default: val: if hasAttr attr val then getAttr attr val else default;
 fold = foldl' (a: b: a // b) {};
+foldDeep = foldl' recursiveUpdate {};
 
 inherit (import ../const.nix) primary-host;
 
@@ -40,12 +41,12 @@ mk-vhost = host:
       then { enableACME = true; }
       else { useACMEHost = primary-host; });
 
-    redirects = fold
+    redirects = foldDeep
        (forEach (getRedirects host) (redirect:
          let code = { permanent = 301; temporary = 302; }.${redirect.permanence};
          in { locations."= ${redirect.from}".extraConfig = "return ${toString code} ${redirect.to};"; }));
 
-    proxies = fold
+    proxies = foldDeep
       (forEach (getProxies host) (proxy-elem:
         { locations."~ ${proxy-elem.path}".extraConfig = ''
             rewrite ${proxy-elem.path}/(.*) /$1 break;

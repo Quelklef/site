@@ -5,7 +5,7 @@ ducks =
     if useLocal then ../../umn-ducks
     else builtins.fetchGit
         { url = "https://github.com/Quelklef/umn-ducks";
-          rev = "1c8a1def163028b49211a65db229bdfa7dce865e";
+          rev = "ffbe3be979ed7bf733371db614a8a080b45d2b9f";
         };
   in
     import (src + "/default.nix") { inherit pkgs; };
