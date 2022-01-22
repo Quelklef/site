@@ -99,7 +99,7 @@ elems = [
     (trivial "cascading-contexts" (
       let src = builtins.fetchGit {
           url = "https://github.com/Quelklef/pokepref";
-          rev = "6b38db4e1cbcbccec184b1d6460817b1d67a8f16";
+          rev = "c81c30db398eedfacceb70981d615b2df537fb8a";
         };
       in src)))
 
