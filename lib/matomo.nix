@@ -11,6 +11,9 @@ siteIdMap = {
   "stop-using-language.com" = 5;
   "i-need-the-nugs.com" = 6;
   "umn-ducks.com" = 7;
+
+  # Don't care about (for now)
+  "z.maynards.site" = -1;
 };
 
 getSiteId = host:

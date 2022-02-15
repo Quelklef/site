@@ -149,11 +149,19 @@ elems = [
       to = "/fitch";
     })
 
-  # Latest Fitch
+  # Stable Fitch
   (mkAsset "maynards.site" "fitch" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/fitch";
-        rev = "985236de9e034a223c103c74324331138798fdd4";
+        rev = "b7e8ca0edfe7027e4afcb4b8d09139524a560264";
+      };
+    in import src))
+
+  # Latest Fitch
+  (mkAsset "maynards.site" "fitch-v-latest" (
+    let src = builtins.fetchGit {
+        url = "https://github.com/Quelklef/fitch";
+        rev = "0706942a2e27e8712f9281c53c153fd9f354171b";
       };
     in import src))
 
@@ -183,16 +191,10 @@ elems = [
                       in mk-matomo-inject { host = "umn-ducks.com"; };
       }))
 
-#  # -- ζ -- #
-#
-#  (mkProxy
-#    { host = "z.maynards.site";
-#      path = "/";
-#      target = "http://127.0.0.1:8123";
-#    })
-#
-#  (mkModule
-#    (import /home/lark/me/dev/z/module.nix { inherit pkgs; port = 8123; }))
+  # -- ζ -- #
+
+  (mkAsset "z.maynards.site" ""
+    (trivial "z" (import /home/lark/me/dev/z { inherit pkgs; })))
 
 ] ++ (
 
