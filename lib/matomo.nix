@@ -11,9 +11,6 @@ siteIdMap = {
   "stop-using-language.com" = 5;
   "i-need-the-nugs.com" = 6;
   "umn-ducks.com" = 7;
-
-  # Don't care about (for now)
-  "z.maynards.site" = -1;
 };
 
 getSiteId = host:
@@ -84,7 +81,6 @@ with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
       else: (soup.html or soup).insert(0, parse(script_html))
       with open(fname, 'w') as f: f.write(str(soup))
     EOF
-    find ./working | grep -E '\.html$' || true
     { find ./working | grep -E '\.html$' || true; } | python fixup.py
 
     mkdir $out
@@ -94,7 +90,7 @@ with-matomo = host: deriv: pkgs.stdenv.mkDerivation {
 
 matomoize-assets = elems:
   forEach elems (elem:
-    if elem.type == "asset"
+    if elem.type == "asset" && !elem.dontMatomo
     then elem // { files = with-matomo elem.host elem.files; }
     else elem);
 

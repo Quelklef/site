@@ -7,6 +7,7 @@ mkAsset = host: path: deriv:
   { type = "asset";
     inherit host path;
     files = deriv;
+    dontMatomo = false;
   };
 
 # make a site element from a nixos module
@@ -193,8 +194,11 @@ elems = [
 
   # -- ζ -- #
 
-  (mkAsset "z.maynards.site" ""
-    (trivial "z" (import /home/lark/me/dev/z { inherit pkgs; })))
+  (
+    (mkAsset "z.maynards.site" ""
+      (trivial "z" (import /home/lark/me/dev/z { inherit pkgs; })))
+    // { dontMatomo = true; }
+  )
 
 ] ++ (
 
