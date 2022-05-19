@@ -1,4 +1,4 @@
 {
-  secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
+  secrets = import <secrets>;
   primary-host = "maynards.site";
 }

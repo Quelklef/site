@@ -49,12 +49,12 @@ trivial = name: path:
   };
 
 
-secrets = import /home/lark/me/keep/secrets/website-secrets.nix;
+secrets = import <secrets>;
 
 
 elems = [
 
-  # -- Daygen -- #
+  # -- maynards.site -- #
 
   (mkAsset "daygen.maynards.site" "" (
     let src = builtins.fetchGit {
@@ -62,13 +62,6 @@ elems = [
         rev = "ab67ce2643d2f442cf97e0a6759cf17ff47aeed8";
       };
     in import src { inherit pkgs; }))
-
-  # -- Stop using language -- #
-
-  (mkAsset "stop-using-language.com" ""
-    (trivial "index.html" ./src/stop-using-language.html))
-
-  # -- maynards.site -- #
 
   (mkRedirect
     { permanence = "temporary";
@@ -90,7 +83,7 @@ elems = [
     (trivial "cascading-contexts" ./src/cascading-contexts))
 
   (mkAsset "maynards.site" "pokepref"
-    (trivial "cascading-contexts" (
+    (trivial "pokepref" (
       let src = builtins.fetchGit {
           url = "https://github.com/Quelklef/pokepref";
           rev = "c81c30db398eedfacceb70981d615b2df537fb8a";
@@ -109,12 +102,21 @@ elems = [
     in import src { inherit pkgs; }))
 
   (mkModule (
-    let src = builtins.fetchGit
+    let src_ = builtins.fetchGit
           { url = "https://github.com/quelklef/g-word-bot";
             rev = "702035d815d6bf331363b7a85c050888733b4aba";
           };
-        token = secrets.g-word-bot-token;
-    in import (src + "/module.nix") { inherit pkgs token; }))
+        src = /home/lark/me/dev/g-word-bot;
+        token = secrets.g-word-bot-telegram-token-prod;
+    in import (src + "/module.nix") { inherit token; }))
+
+  (mkModule (
+    let src = /home/lark/me/dev/qbpl_bot;
+        token = secrets.qbpl-bot-telegram-token-prod;
+    in import (src + "/module.nix") { inherit token; }))
+
+  (mkAsset "maynards.site" "qbpl"
+    (trivial "index.html" /home/lark/me/dev/qbpl_bot/analyze.html))
 
   (mkModule (
     let useLocal = false;
@@ -171,32 +173,11 @@ elems = [
   (mkAsset "i-need-the-nugs.com" ""
     (trivial "nugs" ./src/nugs))
 
-  # -- UMN Ducks -- #
-
-  (mkProxy
-    { host = "umn-ducks.com";
-      path = "/";
-      target = "http://127.0.0.1:8475";
-    })
-
-  (mkModule (
-    let useLocal = false;
-    in import ./src/umn-ducks.nix
-      { inherit pkgs useLocal;
-        port = 8475;
-        # v TODO: the whole matomo situation needs to be sorted out
-        #         currently we are handling static assets automagically via nginx,
-        #         but then since umn-ducks.com is served dynamically via reverse
-        #         proxy, we need to do it this way instead
-        html-inject = let inherit (import ./lib/matomo.nix { inherit pkgs do-analytics; }) mk-matomo-inject;
-                      in mk-matomo-inject { host = "umn-ducks.com"; };
-      }))
-
   # -- ζ -- #
 
   (
     (mkAsset "z.maynards.site" ""
-      (trivial "z" (import /home/lark/me/dev/z { inherit pkgs; })))
+      (trivial "z" (import /home/lark/me/dev/z { })))
     // { dontMatomo = true; }
   )
 
