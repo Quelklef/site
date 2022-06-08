@@ -1,0 +1,353 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Resume</title>
+  </head>
+  <body>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: 0;
+  padding-top: 4em;
+  padding-bottom: 8em;
+
+  background: #ffeef6;
+}
+
+#resume {
+  width: 800px;
+
+  border-radius: 3px;
+  border: 1px solid rgb(200, 200, 200);
+  box-shadow: 0 0 16px -8px rgba(0, 0, 0, .75);
+  background: white;
+  padding: 2em;
+
+  font-size: 14px;
+  font-family: sans-serif;
+  line-height: 1.1;
+}
+
+@media print {
+  html {
+    padding: 0;
+  }
+
+  #resume {
+    width: 100%;
+    margin: 0;
+
+    border: none;
+    padding: 2em 10%;
+    font-size: 15px;
+  }
+
+  body > :not(#resume) {
+    display: none;
+  }
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.5em;
+}
+
+h1 .sub {
+  font-size: 0.65em;
+  margin-left: .5em;
+}
+
+h2 {
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  font-size: 1.15em;
+}
+
+h1, h2 {
+  color: #c06;
+}
+
+p, ul, li {
+  margin: .35em 0;
+}
+
+table {
+  margin: 1em 0;
+}
+
+ul {
+  padding-left: 1.5em;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table, th, td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: .5em 1em;
+}
+
+table tr td:first-of-type {
+  width: 30%;
+}
+
+td {
+  vertical-align: unset;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:not(:visited) {
+  color: rgb(33, 33, 191);
+}
+
+#options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#unhide {
+  display: none;
+}
+#unhide:not(:checked) ~ * .hide { display: none; }
+#unhide:checked ~ * .hide-negate  { display: none; }
+
+button, .button {
+  padding: .2em .5em;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  display: inline-block;
+}
+
+button:hover, .button:hover {
+  background: rgb(245, 245, 245);
+}
+
+</style>
+
+<input type="checkbox" id="unhide" />
+<div id="options">
+  <p><a href="/resume.pdf">View as PDF</a></p>
+  <p>
+    <span class="hide-negate">Hiding some content. <label class="button" for="unhide">Show all content</label></span>
+    <span class="hide">Showing all content. <label class="button" for="unhide">Show prioritized content only</label></span>
+  </p>
+</div>
+
+<main id="resume">
+
+<h1>Maynard <span class="sub">(legally, Eli Maynard)</span></h1>
+<p class="subtitle"><a href="mailto:eli.t.maynard@gmail.com">eli.t.maynard@gmail.com</a> │ <a href="tel:+1 (240) 278-3355">+1 (240) 278-3355</a> │ <a href="https://github.com/quelklef">github.com/quelklef</a> │ <a href="https://maynards.site">maynards.site</a></p>
+
+<h2>Education</h2>
+
+<table>
+
+  <tr>
+    <td>
+      <p><b>University of Minnesota</b></p>
+      <p>Minneapolis, Minnesota</p>
+      <p>2021&ndash;2022</p>
+    </td>
+    <td>
+      <ul>
+        <li>Audited classes as a non-degree student</li>
+        <li><i>Relevant coursework:</i> Intro to Topology, Coding Theory, Intro to Modern Algebra</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p><b>Lewis and Clark College</b></p>
+      <p>Portland, Oregon</p>
+      <p>2019&ndash;2020</p>
+    </td>
+    <td>
+      <ul>
+        <li>Intended double-major Math and Computer Science</li>
+        <li><i>Relevant coursework:</i> Computer Graphics, Linear Algebra</li>
+        <li>3.89 GPA</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p><b>Montgomery Blair</b></p>
+      <p>Silver Spring, Maryland</p>
+      <p>2016&ndash;2019</p>
+    </td>
+    <td>
+      <ul>
+        <li>Math, Science, Computer Science magnet program</li>
+        <li><i>Relevant coursework:</i> Statistics, Lisp/AI, Algorithms and Data Structures, Analysis of Algorithms, Graphics, Calculus I&ndash;III, Complex Analysis, Logic, Discrete Math, DiffEq
+        <li>4.29 weighted / 3.59 unweighted GPA</li>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<h2>Technical Skills</h2>
+
+<ul>
+  <li><b>Languages:</b> Haskell, (Java|Pure|Type)script, (Postgre)SQL, Elm, HTML + (S)CSS, Nim, C, Java</li>
+  <li><b>Libraries:</b> Shpadoinkle, purescript-elmish, VueJS, Python Flask + Jinja</li>
+  <li><b>Tools:</b> Git(Hub), Nix, purs-nix, Bash, Kakoune, (La)Tex, Excel</li>
+</ul>
+
+<h2>Positions</h2>
+
+<table>
+
+  <tr>
+    <td>
+      <p><b>Platonic.Systems</b></p>
+      <p>Nov 2020&ndash;now</p>
+      <p>Haskell contractor</p>
+    </td>
+    <td>
+      <ul>
+        <li>Full-stack Haskell development</li>
+        <li>Haskell, Nix, PostgreSQL, Javascript, HTML, CSS</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p><b>University of Maryland</b></p>
+      <p>Jun 2018&ndash;Nov 2019</p>
+      <p>Intern</p>
+    </td>
+    <td>
+      <ul>
+        <li>Working under Prof. Gasarch in the Dept of Math to research approximations of the Van der Warden function from Ramsey Theory</li>
+        <li>Utilized programming (Nim, Python) and pencil-and-paper math!</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr class="hide">
+    <td>
+      <p><b>Nora School</b></p>
+      <p>2016&ndash;2017</p>
+      <p>Comissioned</p>
+    </td>
+    <td>
+      <ul>
+        <li>Wrote a conference scheduling app in Python Flask/Jinja, HTML, CSS, and JS</li>
+        <li>Used by 50+ parents and 15+ teachers</li>
+        <li>Deployed on AWS; included database management and UI/UX design</li>
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<h2>Personal Projects</h2>
+
+<table>
+
+  <tr>
+    <td>
+      <p><b>ζ</b></p>
+      <p>2021&ndash;now</p>
+      <p><a href="https://z.maynards.site">z.maynards.site</a></p>
+    </td>
+    <td>
+      <ul>
+        <li>Personal Zettelkasten &mdash; ie, math notes and journaling</li>
+        <li>Boasts features like: extensible formats, embedded TeX, link inference, inline footnotes, and a very tight feedback loop</li>
+        <li>Javascript, HTML, Bash, Nix.</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p><b>@mathsproofbot</b></p>
+      <p>2020</p>
+      <p><a href="https://twitter.com/mathsproofbot">twitter.com/mathsproofbot</a></p>
+    </td>
+    <td>
+      <ul>
+        <li>Automatically generates and Tweets proofs of first-order statements</li>
+        <li>Python, Nix.</li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p><b>Fitch</b></p>
+      <p>2018</p>
+      <p><a href="https://maynards.site/fitch">maynards.site/fitch</a></p>
+    </td>
+    <td>
+      <ul>
+        <li>Interactive theorem assistant for Fitch-style natural deduction</li>
+        <li>Originally Javascript, HTML, CSS; since rewritten in Purescript</li>
+        <li>Used by a former teacher in his current logic classes!</li>
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<ul>
+  <li><b>QBPL (2022):</b> Mood-tracking Telegram bot and visualizer. Javascript, HTML, Nix.</li>
+  <li class="hide"><b>G-word bot (2022):</b> Miscellanous-function Telegram bot. Javascript, Nix.</li>
+  <li><b>Hours (2021&ndash;2022):</b> Lightweight time-tracking CLI. Still used by a coworker. Purescript, Nix.</li>
+  <li class="hide"><b>Y (2021):</b> Branching chat app. Purescript, HTML, Nix.</li>
+  <li><b>local-postgres (2021):</b> Minimal-but-complete management of local PostgreSQL clusters. libpq, Bash, Nix.</li>
+  <li><b>Daygen (2021):</b> Daily "life randomizer". <a href="https://daygen.maynards.site">daygen.maynards.site</a>. Purescript, HTML, Nix.</li>
+  <li class="hide"><b>Ebbs (2020):</b> Personal budgeting by-the-second instead of per-week or per-month. Python.</li>
+  <li class="hide"><b>JINEdb (2020):</b> A JS database living in the client’s browser. Typescript, IndexedDB.</li>
+  <li class="hide"><b>Triad (2020):</b> A simple turing-complete programming language. Haskell.</li>
+  <li class="hide"><b>Unplate (2020):</b> Minimal templating engine via (ab)use of Python’s reflection to emulate reader macros.</li>
+  <li class="hide"><b>LaTeX & Macros (2018):</b> Chrome extension for conveniently inputting math symbols as UTF-8 and more.</li>
+  <li class="hide"><b>Lilt (2018):</b> Context-free parser generator from a Backus-Naur-like specification. Nim.</li>
+  <li class="hide"><b>Twit (2017):</b> Scrapes Twitter for positive and negative word associations. Python.</li>
+</ul>
+
+<h2>Honors & Awards</h2>
+
+<ul>
+  <li>Achieved Dean's Honor List both semesters at Lewis & Clark</li>
+  <li class="hide">Montgomery Blair High School Honor Roll straight from 9th through 12th grade</li>
+  <li>Exploravision Honorable Mention (top 10% of submissions) 2018</li>
+  <li>Won the "Jankiest Quick Fix" award at Montgomery Blair High School's local hack day 2017</li>
+</li>
+
+
+</main>
+
+  </body>
+</html>

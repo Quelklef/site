@@ -93,6 +93,14 @@ elems = [
   (mkAsset "maynards.site" "files"
     (trivial "files" ./src/files))
 
+] ++ (
+  let resume = import ./src/resume { inherit pkgs; };
+  in [
+    (mkAsset "maynards.site" "" (trivial "resume.html" "${resume}/resume.html"))
+    (mkAsset "maynards.site" "" (trivial "resume.pdf" "${resume}/resume.pdf"))
+  ]
+) ++ [
+
   # t4 goes under /items/ so that Dad's existing localStorage is retained
   (mkAsset "maynards.site" "items/t4" (
     let src = builtins.fetchGit {
