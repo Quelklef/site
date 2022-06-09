@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}   # TODO: pin
+{ pkgs ? import ./pkgs.nix
 , do-analytics ? true
 }:
 

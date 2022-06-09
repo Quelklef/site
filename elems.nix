@@ -59,7 +59,7 @@ elems = [
   (mkAsset "daygen.maynards.site" "" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/daygen";
-        rev = "ab67ce2643d2f442cf97e0a6759cf17ff47aeed8";
+        rev = "bb2c4490ac53fb0b611143845904276f72b47bd2";
       };
     in import src { inherit pkgs; }))
 
@@ -131,10 +131,9 @@ elems = [
         src = if useLocal then ../mathsproofbot
               else builtins.fetchGit
                 { url = "https://github.com/quelklef/mathsproofbot";
-                  rev = "6b12fbcebab152251c4a6955722ae765f2617fb4";
+                  rev = "6a6c9202a538bf758bac21f42b5b52021fd988a0";
                 };
-        auth = secrets.mathsproofbot-auth;
-    in import (src + "/nix/module.nix") { inherit pkgs auth; }))
+    in import (src + "/nix/module.nix") { inherit pkgs; }))
 
   # fitch-v-js: Javascript fitch (legacy)
   (mkRedirect
