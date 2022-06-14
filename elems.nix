@@ -56,19 +56,16 @@ elems = [
 
   # -- maynards.site -- #
 
+  (mkAsset "maynards.site" ""
+    (trivial "index.html" (
+      import ./src/index/default.nix { inherit pkgs; })))
+
   (mkAsset "daygen.maynards.site" "" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/daygen";
         rev = "bb2c4490ac53fb0b611143845904276f72b47bd2";
       };
     in import src { inherit pkgs; }))
-
-  (mkRedirect
-    { permanence = "temporary";
-      host = "maynards.site";
-      from = "/";
-      to = "/legacy-index";
-    }) # for now
 
   (mkAsset "maynards.site" "ellipses"
     (trivial "index.html" ./src/ellipses.html))
@@ -96,7 +93,7 @@ elems = [
 ] ++ (
   let resume = import ./src/resume { inherit pkgs; };
   in [
-    (mkAsset "maynards.site" "" (trivial "resume.html" "${resume}/resume.html"))
+    (mkAsset "maynards.site" "resume" (trivial "index.html" "${resume}/resume.html"))
     (mkAsset "maynards.site" "" (trivial "resume.pdf" "${resume}/resume.pdf"))
   ]
 ) ++ [
