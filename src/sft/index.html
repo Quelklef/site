@@ -1,0 +1,104 @@
+
+<!DOCTYPE HTML>
+
+<!-- synchronized fireplace time -->
+
+<html>
+<head>
+  <title>Synchronized Fireplace Time</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-size: 0.1vmin;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+body, main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #c061;
+}
+
+main {
+  display: inline-flex;
+  border: 4px solid #c06;
+  margin-bottom: 30vh;
+  margin-left: 50rem;
+  margin-right: 50rem;
+  background: white;
+}
+
+.time {
+  display: inline-block;
+  text-align: center;
+  font-size: 50rem;
+  line-height: 2;
+  font-family: monospace;
+  padding: 0 40rem;
+  white-space: pre;
+}
+
+</style>
+
+<main>
+  <span class="time std"></span>
+  <span class="time sft"></span>
+</main>
+
+<script>
+
+function toBase(n, base) {
+  const digs = [];
+  while (n > 0) {
+    const dig = n % base;
+    n = (n - dig) / base;
+    digs.splice(0, 0, dig);
+  }
+
+  const len = ('' + base).length;
+  return digs.map(d => ('' + d).padStart(len, '0')).join(':');
+}
+
+function to_sft(time) {
+  const secs = Math.floor((+time - +new Date('1950-01-01T00:00:00Z')) / 1000);
+  const s = secs % (60 * 60);
+  const h = (secs - s) / (60 * 60);
+  return 'H-' + toBase(h, 720) + '/' + toBase(s, 60);
+}
+
+function run() {
+  const now = new Date();
+  document.getElementsByClassName('std')[0].innerText = new Intl.DateTimeFormat('default', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  }).format(now);
+  document.getElementsByClassName('sft')[0].innerText = to_sft(now);
+}
+
+run();
+setInterval(run, 1000);
+
+</script>
+
+</body>
+</html>

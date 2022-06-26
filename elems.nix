@@ -84,6 +84,7 @@ elems = [
       let src = builtins.fetchGit {
           url = "https://github.com/Quelklef/pokepref";
           rev = "c81c30db398eedfacceb70981d615b2df537fb8a";
+          ref = "main";
         };
       in src)))
 
@@ -107,21 +108,20 @@ elems = [
     in import src { inherit pkgs; }))
 
   (mkModule (
-    let src_ = builtins.fetchGit
+    let src = builtins.fetchGit
           { url = "https://github.com/quelklef/g-word-bot";
-            rev = "702035d815d6bf331363b7a85c050888733b4aba";
+            rev = "d4e525e3461ac7c5924c7e6d4a4e8d792b6f78f1";
           };
-        src = /home/lark/me/dev/g-word-bot;
         token = secrets.g-word-bot-telegram-token-prod;
     in import (src + "/module.nix") { inherit token; }))
 
   (mkModule (
-    let src = /home/lark/me/dev/qbpl_bot;
+    let src = /per/dev/qbpl_bot;
         token = secrets.qbpl-bot-telegram-token-prod;
     in import (src + "/module.nix") { inherit token; }))
 
   (mkAsset "maynards.site" "qbpl"
-    (trivial "index.html" /home/lark/me/dev/qbpl_bot/analyze.html))
+    (trivial "index.html" /per/dev/qbpl_bot/analyze.html))
 
   (mkModule (
     let useLocal = false;
@@ -155,20 +155,12 @@ elems = [
       from = "/fitch-v-ps";
       to = "/fitch";
     })
-
-  # Stable Fitch
+ 
+  # Latest Fitch
   (mkAsset "maynards.site" "fitch" (
     let src = builtins.fetchGit {
         url = "https://github.com/Quelklef/fitch";
-        rev = "b7e8ca0edfe7027e4afcb4b8d09139524a560264";
-      };
-    in import src))
-
-  # Latest Fitch
-  (mkAsset "maynards.site" "fitch-v-latest" (
-    let src = builtins.fetchGit {
-        url = "https://github.com/Quelklef/fitch";
-        rev = "0706942a2e27e8712f9281c53c153fd9f354171b";
+        rev = "0de39303760f7eeb5646b933b9d99d241bc309ea";
       };
     in import src))
 
@@ -177,11 +169,19 @@ elems = [
   (mkAsset "i-need-the-nugs.com" ""
     (trivial "nugs" ./src/nugs))
 
+  # -- sfti.me -- #
+
+  (
+    (mkAsset "sfti.me" ""
+      (trivial "sft" ./src/sft))
+      // { dontMatomo = true; }
+  )
+
   # -- ζ -- #
 
   (
     (mkAsset "z.maynards.site" ""
-      (trivial "z" (import /home/lark/me/dev/z { })))
+      (trivial "z" (import /per/dev/z { })))
     // { dontMatomo = true; }
   )
 

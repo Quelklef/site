@@ -22,7 +22,7 @@ in {
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
-    bind = "localhost";  # only available locally
+    settings.mysqld.bind-address = "localhost";  # only available locally
     ensureDatabases = [ "analytics" ];
     ensureUsers = [
       {

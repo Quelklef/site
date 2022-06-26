@@ -1,8 +1,9 @@
-{ pkgs ? import ./pkgs.nix
-, do-analytics ? true
+{ do-analytics ? true
 }:
 
 let
+
+pkgs = import ./pkgs.nix;
 
 inherit (pkgs.lib.lists) filter;
 
