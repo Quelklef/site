@@ -31,16 +31,17 @@ mkProxy = { host, path, target }:
 
 # turn a local path into a derviation
 trivial = name: path:
+  let spath = "${path}"; in
   pkgs.stdenv.mkDerivation {
     inherit name;
     dontUnpack = true;
     installPhase = ''
-      if [ -d ${path} ]; then
+      if [ -d ${spath} ]; then
         mkdir $out
-        cp -r ${path}/. $out
-      elif [ -f ${path} ]; then
+        cp -r ${spath}/. $out
+      elif [ -f ${spath} ]; then
         mkdir $out
-        cp ${path} $out/${name}
+        cp ${spath} $out/${name}
       else
         echo >2 "wtf"
         exit 1
