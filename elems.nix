@@ -193,25 +193,13 @@ elems = [
 
   (
     let
-      flake-compat =
-        import (pkgs.fetchFromGitHub
-          { owner = "edolstra";
-            repo = "flake-compat";
-            rev = "b4a34015c698c7793d592d66adbab377907a2be8";
-            sha256 = "1qc703yg0babixi6wshn5wm2kgl5y1drcswgszh4xxzbrwkk9sv7";
-          });
-
-      zeta =
-        (flake-compat { src = /per/dev/z/repo; })
-        .defaultNix.packages.x86_64-linux.default;
-
       deriv =
         pkgs.stdenv.mkDerivation {
           name = "z";
           dontUnpack = true;
           installPhase = ''
             cp -r ${/per/dev/z/notes} ./notes
-            ${zeta} c
+            ${import /per/dev/z/repo {}} compile --src=notes --dest=out
             mkdir -p $out
             cp -r ./out/. $out
           '';
