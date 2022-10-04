@@ -61,6 +61,10 @@ html {
   body > :not(#resume) {
     display: none;
   }
+
+  .hide-when-printing {
+    display: none;
+  }
 }
 
 h1 {
@@ -164,7 +168,7 @@ button:hover, .button:hover {
 
 <h1>Maynard <span class="sub">(legally, Eli Maynard)</span></h1>
 <p class="subtitle">
-  <a href="mailto:eli.t.maynard@gmail.com">eli.t.maynard@gmail.com</a>
+  <a href="mailto:me@maynards.site">me@maynards.site</a>
   │ <a href="tel:+1 (240) 278-3355">+1 (240) 278-3355</a>
   │ <a href="https://github.com/quelklef">github.com/quelklef</a>
   │ <a href="https://maynards.site">maynards.site</a>
@@ -184,7 +188,7 @@ button:hover, .button:hover {
       <ul>
         <li>Personal Zettelkasten &mdash; ie, math notes and journaling</li>
         <li>Boasts features like: extensible formats, embedded TeX, link inference, inline footnotes, and a very tight feedback loop</li>
-        <li>Javascript, HTML, Bash, Nix.</li>
+        <li>Javascript, HTML, Bash, LaTeX, Nix.</li>
       </ul>
     </td>
   </tr>
@@ -225,7 +229,7 @@ button:hover, .button:hover {
   <li class="hide"><b>G-word bot (2022):</b> Miscellanous-function Telegram bot. Javascript, Nix.</li>
   <li><b>Hours (2021&ndash;2022):</b> Lightweight time-tracking CLI. Still used by a coworker. Purescript, Nix.</li>
   <li class="hide"><b>Y (2021):</b> Branching chat app. Purescript, HTML, Nix.</li>
-  <li><b>local-postgres (2021):</b> Minimally complete management of local PostgreSQL clusters. libpq, Bash, Nix.</li>
+  <li><b>local-postgres (2021):</b> Management of local PostgreSQL clusters. libpq, Bash, Nix.</li>
   <li class="hide"><b>Daygen (2021):</b> Daily "life randomizer". <a href="https://daygen.maynards.site">daygen.maynards.site</a>. Purescript, HTML, Nix.</li>
   <li class="hide"><b>Ebbs (2020):</b> Personal budgeting by-the-second instead of per-week or per-month. Python.</li>
   <li class="hide"><b>JINEdb (2020):</b> A JS database living in the client’s browser. Typescript, IndexedDB.</li>
@@ -236,12 +240,19 @@ button:hover, .button:hover {
   <li class="hide"><b>Twit (2017):</b> Scrapes Twitter for positive and negative word associations. Python.</li>
 </ul>
 
+<h2>Open-Source Contributions</h2>
+
+<ul>
+  <li><b>XMonad (2022):</b> two-dimensional workspaces in the XMonad window manager (WIP<span class="hide-when-printing">; <a href="https://github.com/xmonad/xmonad-contrib/pull/755">link</a></span>)</li>
+  <li><b>purescript-strings (2021):</b> small improvement to Purescript stdlib<span class="hide-when-printing"> (<a href="https://github.com/purescript/purescript-strings/pull/145">link</a>)</span></li>
+</ul>
+
 <h2>Technical Skills</h2>
 
 <ul>
-  <li><b>Langs:</b> Haskell, (Java|Pure|Type)script, Nix, HTML + (S)CSS, (Postgre)SQL, Elm, Python, Nim, C, Java</li>
+  <li><b>Langs:</b> Haskell, (Java|Pure|Type)script, Nix, HTML/CSS, (Postgre)SQL, Elm, Python, Nim, C, Java</li>
   <li><b>APIs:</b> Shpadoinkle, purescript-elmish, nodejs, VueJS, Flask + Jinja</li>
-  <li><b>Tools:</b> Git(Hub), purs-nix, Bash, Kakoune, (La)Tex, Excel</li>
+  <li><b>Tools:</b> Git(Hub), purs-nix, NixOps, Bash, Kakoune, (La)Tex</li>
 </ul>
 
 <h2>Positions</h2>
@@ -295,54 +306,12 @@ button:hover, .button:hover {
 
 <h2>Education</h2>
 
-<table>
-
-  <tr>
-    <td>
-      <p><b>University of Minnesota</b></p>
-      <p>Minneapolis, Minnesota</p>
-      <p>2021&ndash;2022</p>
-    </td>
-    <td>
-      <ul>
-        <li>Attended as a non-degree-seeking student</li>
-        <li>Intro to Topology, Coding Theory, Intro to Modern Algebra</li>
-      </ul>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-      <p><b>Lewis and Clark College</b></p>
-      <p>Portland, Oregon</p>
-      <p>2019&ndash;2020</p>
-    </td>
-    <td>
-      <ul>
-        <li>Math + Computer Science track</li>
-        <li>Computer Graphics, Linear Algebra</li>
-        <li>3.89 GPA</li>
-      </ul>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-      <p><b>Montgomery Blair</b></p>
-      <p>Silver Spring, Maryland</p>
-      <p>2016&ndash;2019</p>
-    </td>
-    <td>
-      <ul>
-        <li>Math, Science, Computer Science magnet program</li>
-        <li>Statistics, Lisp/AI, Algorithms and Data Structures, Analysis of Algorithms, Graphics, Calculus I&ndash;III, Complex Analysis, Logic, Discrete Math, DiffEq
-        <li>4.29 weighted / 3.59 unweighted GPA</li>
-        </li>
-      </ul>
-    </td>
-  </tr>
-
-</table>
+<ul>
+  <li><b>University of California, Berkeley (2022&ndash;current):</b> Attended as auditor. Model Theory, Set Theory.</li>
+  <li><b>University of Minnesota (2021&ndash;2022):</b> Attended as auditor. Intro to Topology, Coding Theory, Intro to Modern Algebra.</li>
+  <li><b>Lewis & Clark College (2019&ndash;2020):</b> Math+CS track. Computer Graphics, Linear Algebra. 3.89 GPA.</li>
+  <li><b>Montgomery Blair HS (2016&ndash;2019):</b> Math+CS magnet. Statistics, Lisp/AI, Algorithms and Data Structures, Analysis of Algorithms, Graphics, Calculus I, II, III, Complex Analysis, Logic, Discrete Math, DiffEq. 4.29 weighted / 3.59 unweighted GPA</li>
+</ul>
 
 <h2>Distinctions</h2>
 
