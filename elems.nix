@@ -74,7 +74,7 @@ elems = [
   (mkAsset "maynards.site" "prime-spirals" (
     builtins.fetchGit
       { url = "https://github.com/quelklef/prime-spirals";
-        rev = "a4126c1c9f73c38c69dd111a6f224446692c6b23";
+        rev = "d75b28387c199c6fa7e7b73f730b239a9b6c2be1";
       }))
 
   (mkAsset "maynards.site" "cascading-contexts"
