@@ -176,11 +176,6 @@ elems = [
       to = "https://www.youtube.com/watch?v=fC7oUOUEEi4";
     })
 
-  # -- Nugs -- #
-
-  (mkAsset "i-need-the-nugs.com" ""
-    (trivial "nugs" ./src/nugs))
-
   # -- sfti.me -- #
 
   (
