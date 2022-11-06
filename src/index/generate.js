@@ -1,8 +1,19 @@
+const fs = require('fs');
+const plib = require('path');
 
 let out = '';
 
 out += String.raw`
 <!DOCTYPE HTML>
+
+<!--
+
+  This code is auto-generated.
+
+  If you're trying to make changes, you probably want to
+  modify ${plib.basename(__filename)} instead.
+
+-->
 
 <html>
   <head>
@@ -87,7 +98,7 @@ main {
 
 <div class="title">
   <h1>maynard's website</h1>
-  <p>eli.t.maynard@gmail.com</p>
+  <p>me@maynards.site</p>
 </div>
 
 <div class="items">
@@ -162,4 +173,4 @@ out += String.raw`
 
 
 
-require('fs').writeFileSync('./index.html', out);
+fs.writeFileSync('./index.html', out);
