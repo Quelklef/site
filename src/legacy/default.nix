@@ -31,7 +31,7 @@ submod-papers =
 submod-fitch =
   builtins.fetchGit { url = "ssh://git@github.com/quelklef/fitch"; rev = "b2c1dfb28e467cfc9421b61a9525cd1b92bc3feb"; };
 submod-minesweeper =
-  builtins.fetchGit { url = "ssh://git@github.com/quelklef/minesweeper"; rev = "fb71de4c06225a35cd5d05e1a9d75b8e5a1d59af"; };
+  builtins.fetchGit { url = "ssh://git@github.com/quelklef/minesweeper"; rev = "3123f66ed763bb77f4954b68956c097c48f86385"; };
 
 in
 
