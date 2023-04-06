@@ -33,8 +33,14 @@ mk-vhost = host:
 
     ssl =
       { addSSL = true;
-        locations."^~ /.well-known/acme-challenge/".extraConfig =
-          "root /var/lib/acme/acme-challenge;";
+
+        # locations."^~ /.well-known/acme-challenge/".extraConfig =
+        #   "root /var/lib/acme/acme-challenge;";
+        #
+        # At some point these two lines went from being necessary to being
+        # breaking. I guess an upgrade to nixpkgs made nixops hadnle this
+        # automatically?
+
       } //
       # ^ would prefer forceSSL, but some localStorage-using apps were used over http
       (if host == primary-host
